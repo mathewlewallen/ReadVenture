@@ -55,6 +55,8 @@ def preprocess_text(text):
     tokens = [token.text.lower() for token in doc if not token.is_punct]
     return " ".join(tokens)
 
+data['text'] = data['text'].apply(preprocess_text)
+
 def extract_features(text):
     """Extracts features from the preprocessed text."""
     features = {}

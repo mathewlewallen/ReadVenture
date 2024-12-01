@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
 import axios from 'axios'; 1  // Using axios for API requests
+import { useNavigation } from '@react-navigation/native';
 
 const StoryLibraryScreen = () => {
   const [stories, setStories] = useState([]);
@@ -18,12 +19,15 @@ const StoryLibraryScreen = () => {
     fetchStories();
   }, []);
 
-  const renderItem = ({ item }) => (
-    <View style={styles.storyItem}>
-      <Text style={styles.storyTitle}>{item.title}</Text>
-      {/* ... other story details (author, reading level, etc.) */}
-    </View>
-  );
+    const navigation = useNavigation(); // Get the navigation object
+
+    const renderItem = ({ item }) => (
+      <TouchableOpacity style={styles.storyItem} 
+        onPress={() => navigation.navigate('Reading', { storyId: item._id })} 
+      >
+        {/* ... display story details ... */}
+      </TouchableOpacity>
+    );
 
   return (
     <View style={styles.container}>
