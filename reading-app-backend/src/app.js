@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const analyzeRoutes = require('./routes/analyze');
 
 dotenv.config(); // Load environment variables from .env
 
@@ -11,7 +12,8 @@ const port = process.env.PORT || 3000;
 
 // Middleware
 app.use(bodyParser.json());
-app.use(cors()); 
+app.use(cors());
+app.use('/analyze', analyzeRoutes); // Mount the analyze routes
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI, {

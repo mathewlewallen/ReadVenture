@@ -25,15 +25,15 @@ const ReadingScreen = ({ route }) => {
         console.error('Error fetching story:', error);
       }
     };
-
+    
     fetchStory();
   }, [storyId]);
 
-  // Function to handle the child's reading input (we'll implement this later)
-  const handleReadingInput = async (spokenText) => {
+   // Function to handle the child's reading input (we'll implement this later)
+   const handleReadingInput = async (spokenText) => {
     try {
       const response = await axios.post(
-        'http://localhost:3000/analyze', // Replace with your API endpoint
+        'http://localhost:3000/analyze', // Replace with your API URL if different
         { text: spokenText, storyId: story._id }, 
       );
       setCurrentText(response.data.adjustedText); 
@@ -41,7 +41,6 @@ const ReadingScreen = ({ route }) => {
       console.error('Error analyzing text:', error);
     }
   };
-  
 
   if (!story) {
     return <Text>Loading story...</Text>;
