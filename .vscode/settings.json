@@ -1,5 +1,6 @@
 {
     "json.schemas": [
-      "python.pythonPath": "/Users/mathewlewallen/ReadVenture/.venv/bin/python"  
+      "python.pythonPath": "/Users/mathewlewallen/ReadVenture/.venv/bin/python",
+      "python.defaultInterpreterPath": "/Users/mathewlewallen/ReadVenture/.venv/bin/python"  
     ]
 }
