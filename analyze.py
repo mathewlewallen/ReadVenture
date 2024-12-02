@@ -23,39 +23,11 @@ classifier = pipeline("sentiment-analysis")
 vectorizer = TfidfVectorizer()
 rf_classifier = RandomForestClassifier()
 
-# --- Training the rf_classifier ---
-
-# 1. Load the dataset
-data = pd.read_csv("stories_dataset.csv")  
-
-# 2. Preprocess the text data
-data['text'] = data['text'].apply(preprocess_text)
-
-# 3. Extract features
-features = data['text'].apply(extract_features)
-labels = data['reading_level'] 
-
-# 4. Split into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=42)  # Add random_state for reproducibility
-
-# 5. Train the classifier
-X_train_vec = vectorizer.fit_transform(X_train)
-rf_classifier.fit(X_train_vec, y_train)
-
-# 6. Evaluate performance
-X_test_vec = vectorizer.transform(X_test)
-accuracy = rf_classifier.score(X_test_vec, y_test)
-print(f"Accuracy: {accuracy}")
-
-# --- End of training ---
-
 def preprocess_text(text):
     """Performs NLP preprocessing on the input text."""
     doc = nlp(text)
     tokens = [token.text.lower() for token in doc if not token.is_punct]
     return " ".join(tokens)
-
-data['text'] = data['text'].apply(preprocess_text)
 
 def extract_features(text):
     """Extracts features from the preprocessed text."""
@@ -82,6 +54,32 @@ def extract_features(text):
     features['sentiment'] = result['label']
 
     return features
+
+# --- Training the rf_classifier ---
+
+# 1. Load the dataset
+data = pd.read_csv("stories_dataset.csv")  
+
+# 2. Preprocess the text data
+data['text'] = data['text'].apply(preprocess_text)
+
+# 3. Extract features
+features = data['text'].apply(extract_features)
+labels = data['reading_level'] 
+
+# 4. Split into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=42)  # Add random_state for reproducibility
+
+# 5. Train the classifier
+X_train_vec = vectorizer.fit_transform(X_train)
+rf_classifier.fit(X_train_vec, y_train)
+
+# 6. Evaluate performance
+X_test_vec = vectorizer.transform(X_test)
+accuracy = rf_classifier.score(X_test_vec, y_test)
+print(f"Accuracy: {accuracy}")
+
+# --- End of training ---
 
 def predict_reading_level(features):
     """Predicts the reading level using the trained Random Forest classifier."""
