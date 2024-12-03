@@ -1,21 +1,34 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
-import axios from 'axios';
+import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebaseConfig';
+import { useDispatch } from 'react-redux';
+import { loginStart, loginSuccess, loginFailure } from '../store/authSlice';
 
 const RegistrationScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [parentEmail, setParentEmail] = useState('');
+  const dispatch = useDispatch();
 
   const handleRegister = async () => {
     try {
-      const response = await axios.post('http://localhost:3000/auth/register', { username, password, parentEmail });
-      // Store the token securely (e.g., in AsyncStorage)
-      console.log('Registration successful:', response.data);
-      navigation.navigate('StoryLibrary');
+      dispatch(loginStart());
+      const userCredential = await createUserWithEmailAndPassword(auth, username, password);
+      const user = userCredential.user;
+
+      // Optionally update user profile (e.g., with parentEmail)
+      // await user.updateProfile({ displayName: username, /* ... other details */ }); 
+
+      const token = await user.getIdToken();
+      await AsyncStorage.setItem('token', token);
+      dispatch(loginSuccess({ user: user, token: token }));
+      navigation.navigate('Home');
     } catch (error) {
       console.error('Registration error:', error);
-      // Display error message to the user
+      dispatch(loginFailure({ error: error.message }));
+      Alert.alert('Registration Error', "An error occurred during registration.");
     }
   };
 
@@ -47,7 +60,25 @@ const RegistrationScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  // ... styles for RegistrationScreen
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  input: {
+    width: '80%',
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+  },
 });
 
 export default RegistrationScreen;

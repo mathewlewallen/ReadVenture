@@ -1,20 +1,29 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { loginStart, loginSuccess, loginFailure } from '../store/authSlice';
 
 const LoginScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const dispatch = useDispatch();
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post('http://localhost:3000/auth/login', { username, password });
-      // Store the token securely (e.g., in AsyncStorage)
-      console.log('Login successful:', response.data);
-      navigation.navigate('StoryLibrary');
+      dispatch(loginStart()); // Dispatch login start action
+      const userCredential = await signInWithEmailAndPassword(auth, username, password);
+      const user = userCredential.user;
+      const token = await user.getIdToken();   
+
+      await AsyncStorage.setItem('token', token); // Store the token in AsyncStorage
+      dispatch(loginSuccess({ user: user, token: token })); // Dispatch login success
+      navigation.navigate('Home');
     } catch (error) {
       console.error('Login error:', error);
-      // Display error message to the user
+      dispatch(loginFailure({ error: error.message })); // Dispatch login failure
+      Alert.alert('Login Error', 'Invalid username or password.');
     }
   };
 
@@ -44,7 +53,25 @@ const LoginScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  // ... styles for LoginScreen
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  input: {
+    width: '80%',
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+  },
 });
 
 export default LoginScreen;

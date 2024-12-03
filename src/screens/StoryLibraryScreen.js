@@ -1,33 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
-import axios from 'axios'; 1  // Using axios for API requests
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 
 const StoryLibraryScreen = () => {
   const [stories, setStories] = useState([]);
+  const navigation = useNavigation();
 
   useEffect(() => {
     const fetchStories = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/stories'); // Replace with your API URL
+        const response = await axios.get('http://localhost:3000/stories');
         setStories(response.data);
       } catch (error) {
         console.error('Error fetching stories:', error);
+        Alert.alert('Error', 'Failed to load stories.'); // Display error message
       }
     };
 
     fetchStories();
   }, []);
 
-    const navigation = useNavigation(); // Get the navigation object
-
-    const renderItem = ({ item }) => (
-      <TouchableOpacity style={styles.storyItem} 
-        onPress={() => navigation.navigate('Reading', { storyId: item._id })} 
-      >
-        {/* ... display story details ... */}
-      </TouchableOpacity>
-    );
+  const renderItem = ({ item }) => (
+    <TouchableOpacity
+      style={styles.storyItem}
+      onPress={() => navigation.navigate('Reading', { storyId: item._id })}
+    >
+      <Text style={styles.storyTitle}>{item.title}</Text>
+      {/* ... display other story details (e.g., author, difficulty) ... */}
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>
@@ -55,7 +57,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-  // ... other styles
+  // ... other styles you might need for story details
 });
 
 export default StoryLibraryScreen;
