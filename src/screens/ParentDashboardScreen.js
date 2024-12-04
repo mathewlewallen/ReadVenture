@@ -1,58 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Switch, Button, Alert } from 'react-native';
+import { View, Text, StyleSheet, Switch, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
+import { auth, db } from '../firebaseConfig';
+import { onAuthStateChanged } from 'firebase/auth';
+import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { Appbar, List, ActivityIndicator } from 'react-native-paper';
 
 const ParentDashboardScreen = ({ navigation }) => {
-  const [userData, setUserData] = useState(null);
+  const [user, setUser] = useState(null);
   const [childrenData, setChildrenData] = useState([]);
-  const [soundEffectsEnabled, setSoundEffectsEnabled] = useState(true); // Example setting
+  const [isLoading, setIsLoading] = useState(true);
+  const [soundEffectsEnabled, setSoundEffectsEnabled] = useState(true);
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const token = await AsyncStorage.getItem('token');
-        const response = await axios.get('http://localhost:3000/users/me', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setUserData(response.data);
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-        // Handle error, e.g., navigate to login screen
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        try {
+          const childrenRef = collection(db, 'users');
+          const q = query(childrenRef, where('parentEmail', '==', currentUser.email));
+          const querySnapshot = await getDocs(q);
+          const children = [];
+          querySnapshot.forEach((doc) => {
+            children.push({ id: doc.id, ...doc.data() });
+          });
+          setChildrenData(children);
+        } catch (error) {
+          console.error('Error fetching children data:', error);
+          Alert.alert('Error', 'Failed to load children data.');
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        navigation.navigate('Login');
       }
-    };
+    });
 
-    fetchUserData();
+    return () => unsubscribe();
   }, []);
-
-  useEffect(() => {
-    const fetchChildrenData = async () => {
-      try {
-        const token = await AsyncStorage.getItem('token');
-        const response = await axios.get('http://localhost:3000/parents/children', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setChildrenData(response.data);
-      } catch (error) {
-        console.error('Error fetching children data:', error);
-        Alert.alert('Error', 'Failed to load children data.');
-      }
-    };
-
-    if (userData) { // Only fetch children data after user data is loaded
-      fetchChildrenData();
-    }
-  }, [userData]); // Run this effect whenever userData changes
 
   const handleSettingChange = async (settingName, settingValue) => {
     try {
-      const token = await AsyncStorage.getItem('token');
-      await axios.post('http://localhost:3000/parents/settings', {
-        [settingName]: settingValue
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
+      const userDoc = doc(db, 'users', user.uid);
+      await updateDoc(userDoc, {
+        settings: {
+          [settingName]: settingValue,
+        }
       });
-      // You might want to update the local state here or refetch data
       console.log('Setting updated successfully!');
     } catch (error) {
       console.error('Error updating settings:', error);
@@ -60,48 +54,51 @@ const ParentDashboardScreen = ({ navigation }) => {
     }
   };
 
-  if (!userData) {
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" testID="loading-indicator" /> 
+      </View>
+    );
+  }
+
+  if (!user) {
     return <Text>Loading user data...</Text>;
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Parent Dashboard</Text>
-      <Text>Username: {userData.username}</Text>
-      <Text>Email: {userData.parentEmail}</Text>
+      <Appbar.Header>
+        <Appbar.Content title="Parent Dashboard" />
+      </Appbar.Header>
+      <View style={styles.content}>
+        <Text>Username: {user.displayName}</Text>
+        <Text>Email: {user.email}</Text>
 
-      {/* Display children's progress */}
-      {childrenData.map(child => (
-        <View key={child._id} style={styles.childContainer}>
-          <Text style={styles.childName}>{child.username}</Text>
-          {/* Display child's progress details */}
-          <Text>Words read: {child.progress.wordsRead}</Text>
-          <Text>Stories completed: {child.progress.storiesCompleted}</Text>
-          {/* ... other progress details ... */}
-        </View>
-      ))}
-
-      {/* Settings controls */}
-      <View style={styles.settingsContainer}>
-        <Text style={styles.settingsTitle}>Settings</Text>
-        <View style={styles.settingRow}>
-          <Text>Sound Effects</Text>
-          <Switch
-            value={soundEffectsEnabled}
-            onValueChange={(value) => {
-              setSoundEffectsEnabled(value);
-              handleSettingChange('soundEffectsEnabled', value);
-            }}
+        <List.Section>
+          <List.Item
+            title="Sound Effects"
+            left={() => <List.Icon icon="volume-high" />}
+            right={() => (
+              <Switch
+                value={soundEffectsEnabled}
+                onValueChange={(value) => {
+                  setSoundEffectsEnabled(value);
+                  handleSettingChange('soundEffectsEnabled', value);
+                }}
+              />
+            )}
           />
-        </View>
-        {/* ... add more settings controls ... */}
-      </View>
+        </List.Section>
 
-      {/* Account management */}
-      <Button
-        title="Add Child"
-        onPress={() => navigation.navigate('AddChildScreen')}
-      />
+        {childrenData.map((child) => (
+          <View key={child.id} style={styles.childContainer}>
+            <Text style={styles.childName}>{child.username}</Text>
+            <Text>Words read: {child.progress ? child.progress.wordsRead : 0}</Text>
+            <Text>Stories completed: {child.progress ? child.progress.storiesCompleted : 0}</Text>
+          </View>
+        ))}
+      </View>
     </View>
   );
 };
@@ -109,12 +106,15 @@ const ParentDashboardScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  content: {
+    flex: 1,
+    padding: 20,
   },
   childContainer: {
     borderWidth: 1,
@@ -126,23 +126,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 18,
   },
-  settingsContainer: {
-    marginTop: 20,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-  },
-  settingsTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  settingRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  }
 });
 
 export default ParentDashboardScreen;

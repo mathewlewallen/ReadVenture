@@ -3,7 +3,7 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getAnalytics } from "firebase/analytics";
 
-// Your web app's Firebase configuration
+// Configure Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyCF--8pYtlU1wbn_nM8ZG16VelZbWYSTu8",
   authDomain: "readventure11.firebaseapp.com",

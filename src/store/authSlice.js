@@ -24,7 +24,12 @@ const authSlice = createSlice({
       state.isLoading = false;
       state.error = action.payload.error;
     },
-    // ... other reducers for logout, registration, etc.
+    logout(state) {
+      state.user = null;
+      state.token = null;
+      state.isLoading = false;
+      state.error = null;
+},
   },
 });
 
