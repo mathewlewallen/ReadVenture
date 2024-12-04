@@ -1,0 +1,54 @@
+// firestore.rules
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isParentOf(childId) {
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid)/parentOf/$(childId));
+    }
+    
+    function isOwnDocument() {
+      return request.auth.uid == resource.data.userId;
+    }
+
+    // User profiles
+    match /users/{userId} {
+      allow read: if isAuthenticated() && 
+        (request.auth.uid == userId || isParentOf(userId));
+      allow create: if isAuthenticated() &&
+        request.resource.data.keys().hasAll(['email', 'role']) &&
+        (request.resource.data.role in ['child', 'parent']);
+      allow update: if isAuthenticated() && 
+        (request.auth.uid == userId || isParentOf(userId)) &&
+        (!request.resource.data.diff(resource.data).affectedKeys()
+          .hasAny(['role'])); // Prevent role changes
+      allow delete: if false; // Disallow deletions
+    }
+    
+    // Stories
+    match /stories/{storyId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Only admins can modify stories through Admin SDK
+    }
+    
+    // Reading progress
+    match /progress/{progressId} {
+      allow read: if isAuthenticated() && 
+        (isOwnDocument() || isParentOf(resource.data.userId));
+      allow create, update: if isAuthenticated() && 
+        request.resource.data.userId == request.auth.uid;
+      allow delete: if false;
+    }
+    
+    // Parent-child relationships
+    match /users/{parentId}/parentOf/{childId} {
+      allow read: if isAuthenticated() && 
+        (request.auth.uid == parentId || request.auth.uid == childId);
+      allow write: if false; // Managed through Admin SDK
+    }
+  }
+}
