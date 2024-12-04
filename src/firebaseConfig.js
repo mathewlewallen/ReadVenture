@@ -2,19 +2,18 @@ import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getAnalytics } from "firebase/analytics";
+import Config from 'react-native-config';
 
-// Configure Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyCF--8pYtlU1wbn_nM8ZG16VelZbWYSTu8",
-  authDomain: "readventure11.firebaseapp.com",
-  projectId: "readventure11",
-  storageBucket: "readventure11.firebasestorage.app",
-  messagingSenderId: "798869244380",
-  appId: "1:798869244380:web:8b9619d18f96332574a719",
-  measurementId: "G-Q9PQS6QB36"
+  apiKey: Config.FIREBASE_API_KEY,
+  authDomain: Config.FIREBASE_AUTH_DOMAIN,
+  projectId: Config.FIREBASE_PROJECT_ID,
+  storageBucket: Config.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: Config.FIREBASE_MESSAGING_SENDER_ID,
+  appId: Config.FIREBASE_APP_ID,
+  measurementId: Config.FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 export const auth = getAuth(app);
