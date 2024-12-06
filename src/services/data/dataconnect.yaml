@@ -1,0 +1,70 @@
+# Data Connect Configuration v1.0
+# Defines GraphQL API integration for ReadVenture
+
+specVersion: 'v1beta'
+serviceId: 'readventure'
+location: 'us-east1'
+
+# Database Configuration
+schema:
+  source: './schema'
+  datasource:
+    postgresql:
+      database: 'fdcdb'
+      cloudSql:
+        instanceId: 'readventure'
+        # Required configs for Cloud SQL
+        region: 'us-east1'
+        connectionTimeout: 30
+        maxConnections: 100
+        sslMode: 'require'
+      schemaValidation: 'COMPATIBLE' # Uncommented for safety
+
+# Connector Configuration
+connectorDirs:
+  - './connector'
+  - './custom-connectors' # Additional connector support
+
+# Service Configuration
+name: 'readventure-data-service'
+version: '1.0.0'
+type: 'GraphQL'
+
+# Schema Configuration
+schema:
+  file: 'schema.gql'
+  validateOnStartup: true
+  maxDepth: 10 # Prevent deep query attacks
+
+# Query Definitions
+queries:
+  - name: 'getUserQuery'
+    queryFile: 'queries/user.gql'
+    rateLimit:
+      maxRequests: 1000
+      perTimeUnit: 'MINUTE'
+
+# Mutation Definitions
+mutations:
+  - name: 'createUserMutation'
+    mutationFile: 'mutations/user.gql'
+    validation:
+      requireAuth: true
+    errorHandling:
+      retries: 3
+      backoff: 'exponential'
+
+# Error Handling
+errorHandling:
+  defaultPolicy: 'retry'
+  maxRetries: 3
+  logLevel: 'warn'
+
+# Performance Settings
+performance:
+  caching:
+    enabled: true
+    ttl: 300 # 5 minutes
+  pooling:
+    minConnections: 5
+    maxConnections: 20

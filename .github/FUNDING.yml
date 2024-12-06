@@ -1,12 +1,19 @@
-# These are supported funding model platforms
+# ReadVenture Project Funding Configuration
+# See: https://docs.github.com/en/repositories/managing-your-repository-settings/displaying-a-sponsor-button-in-your-repository
 
-github: mathewlewallen # Replace with up to 4 GitHub Sponsors-enabled usernames e.g., [user1, user2]
-patreon: MathewLewallen # Replace with a single Patreon username
-open_collective: mathewlewallen # Replace with a single Open Collective username
-ko_fi: mathewlewallen # Replace with a single Ko-fi username
-community_bridge: mathewlewallen # Replace with a single Community Bridge project-name e.g., cloud-foundry
-liberapay: mathewlewallen # Replace with a single Liberapay username
-issuehunt: MathewLewallen # Replace with a single IssueHunt username
-polar: readventure # Replace with a single Polar username
-buy_me_a_coffee: Mathew Lewallen # Replace with a single Buy Me a Coffee username
-thanks_dev: mathewlewallen # Replace with a single thanks.dev username
+# Primary funding platforms
+github: [mathewlewallen]  # Up to 4 GitHub Sponsors usernames allowed
+patreon: MathewLewallen
+open_collective: mathewlewallen
+ko_fi: mathewlewallen
+
+# Additional funding platforms
+community_bridge: readventure  # Must match exact project name
+liberapay: mathewlewallen
+issuehunt: MathewLewallen
+polar: readventure
+buy_me_a_coffee: mathewlewallen  # Spaces not recommended in usernames
+thanks_dev: mathewlewallen
+
+# Removed outdated and unsupported platforms
+# Custom funding links can be added via the repository settings

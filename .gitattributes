@@ -1,0 +1,36 @@
+# Git attribute settings for ReadVenture project
+
+# Set default behavior for all files
+* text=auto eol=lf
+
+# Source code
+*.ts    text diff=typescript
+*.tsx   text diff=typescript
+*.js    text diff=javascript
+*.jsx   text diff=javascript
+*.json  text diff=json
+
+# Documentation
+*.md    text diff=markdown
+*.txt   text
+
+# Configuration files
+*.yml   text
+*.yaml  text
+*.config text
+.env*   text
+.prettier* text
+.eslint* text
+
+# Binary files (no line-ending conversion)
+*.png   binary
+*.jpg   binary
+*.gif   binary
+*.ico   binary
+*.ttf   binary
+*.woff  binary
+*.woff2 binary
+
+# React Native specific
+*.pbxproj binary merge=union
+*.gradle text diff=java

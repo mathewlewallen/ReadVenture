@@ -1,0 +1,80 @@
+"""
+Root query type providing read access to data
+"""
+type Query {
+  """
+  Retrieve a user by their unique ID
+  Returns null if user not found
+  """
+  getUser(id: ID!): User @auth
+}
+
+"""
+Root mutation type for data modifications
+"""
+type Mutation {
+  """
+  Create a new user account
+  Throws if email already exists
+  """
+  createUser(input: CreateUserInput!): UserResponse! @rateLimit
+}
+
+"""
+Core user type representing an application user
+"""
+type User {
+  id: ID!
+  name: String! @length(min: 2, max: 50)
+  email: String! @email
+  createdAt: DateTime!
+  updatedAt: DateTime
+  status: UserStatus!
+}
+
+"""
+Input type for user creation
+"""
+input CreateUserInput {
+  name: String! @length(min: 2, max: 50)
+  email: String! @email
+  password: String! @password
+}
+
+"""
+Response wrapper for user operations
+"""
+type UserResponse {
+  success: Boolean!
+  user: User
+  error: Error
+}
+
+"""
+User account status
+"""
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+"""
+Standard error type
+"""
+type Error {
+  code: String!
+  message: String!
+}
+
+"""
+Custom scalar for DateTime values
+"""
+scalar DateTime
+
+# Custom directives
+directive @auth on FIELD_DEFINITION
+directive @rateLimit on FIELD_DEFINITION
+directive @length(min: Int, max: Int) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+directive @email on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+directive @password on INPUT_FIELD_DEFINITION

@@ -1,0 +1,77 @@
+# Connector configuration for Firebase service integration
+connectorId: 'firebase-api'
+name: ReadVentureAPI
+version: '1.0.0'
+description: 'API connector for ReadVenture application'
+
+# SDK Generation configuration
+generate:
+  javascriptSdk:
+    outputDir: '../generated/js'
+    package: '@readventure/api-client'
+    packageJsonDir: '../../package.json'
+  swiftSdk:
+    outputDir: '../generated/ios'
+    package: 'ReadVentureAPI'
+  kotlinSdk:
+    outputDir: '../generated/android'
+    package: 'com.readventure.api'
+
+# API Configuration
+type: REST
+baseUrl: ${API_BASE_URL}
+security:
+  type: 'bearer'
+
+# Error handling
+errorResponses:
+  400: 'Invalid request parameters'
+  401: 'Unauthorized access'
+  404: 'Resource not found'
+  500: 'Internal server error'
+
+# Endpoints
+endpoints:
+  - name: getUser
+    description: 'Retrieve user profile data'
+    url: '/users/{userId}'
+    method: GET
+    parameters:
+      - name: userId
+        type: string
+        required: true
+        in: path
+    responses:
+      200:
+        type: object
+        properties:
+          id: string
+          name: string
+          readingLevel: number
+
+  - name: updateProgress
+    description: 'Update user reading progress'
+    url: '/users/{userId}/progress'
+    method: POST
+    parameters:
+      - name: userId
+        type: string
+        required: true
+        in: path
+      - name: progress
+        type: object
+        required: true
+        in: body
+        properties:
+          wordsRead: number
+          storiesCompleted: number
+
+# Rate limiting
+rateLimit:
+  requests: 100
+  period: 60
+
+# Caching
+cache:
+  enabled: true
+  duration: 300 # 5 minutes

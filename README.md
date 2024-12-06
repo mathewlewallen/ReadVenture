@@ -1,79 +1,90 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# ReadVenture
 
-# Getting Started
+A modern React Native application for interactive reading and learning, using TypeScript and Firebase.
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+## Quick Start
 
-## Step 1: Start the Metro Server
+> **Note**: Requires Node.js 18+, Xcode 14+ (iOS), and Android Studio (Android)
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+1. **Environment Setup**
+   ```bash
+   npm install # Install dependencies with package-lock.json
+   cp .env.example .env # Configure environment
+   ```
 
-To start Metro, run the following command from the _root_ of your React Native project:
+2. **Development Server**
+   ```bash
+   npm start # Start Metro bundler with type checking
+   ```
 
-```bash
-# using npm
-npm start
+3. **Run Application**
+   ```bash
+   npm run ios # iOS simulator
+   npm run android # Android emulator
+   ```
 
-# OR using Yarn
-yarn start
+## Development Guide
+
+### Prerequisites
+
+- Node.js 18+
+- Xcode 14+ (iOS)
+- Android Studio (Android)
+- [React Native Environment](https://reactnative.dev/docs/environment-setup)
+
+### Environment Configuration
+
+1. Copy `.env.example` to `.env`
+2. Required variables:
+   ```properties
+   FIREBASE_API_KEY=your_api_key
+   FIREBASE_PROJECT_ID=your_project_id
+   API_URL=https://api.readventure.app
+   ```
+
+### Essential Commands
+
+| Command | Purpose |
+|---------|----------|
+| `npm start` | Metro bundler with type checking |
+| `npm test` | Jest tests with coverage |
+| `npm run lint:fix` | ESLint + Prettier fixes |
+| `npm run build:ios` | iOS release build |
+| `npm run build:android` | Android release APK |
+
+### Development Tools
+
+- Hot Reload: <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> (iOS), Double <kbd>R</kbd> (Android)
+- Dev Menu: <kbd>Cmd ⌘</kbd> + <kbd>D</kbd> (iOS), <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (Android)
+
+## Project Architecture
+
+```
+src/
+├── components/    # Atomic design components
+├── screens/      # Route-based screens
+├── services/     # Business logic + API
+├── utils/        # Pure functions
+├── store/        # Redux state
+└── types/        # TypeScript definitions
 ```
 
-## Step 2: Start your Application
+## Contributing
 
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
+1. Fork and clone
+2. Create feature branch
+3. Follow style guide
+4. Add tests (80% coverage required)
+5. Submit PR against `main`
 
-### For Android
+## Documentation
 
-```bash
-# using npm
-npm run android
+- [Setup Guide](docs/setup.md)
+- [Testing Guide](docs/testing.md)
+- [API Reference](docs/api.md)
+- [Component Library](docs/components.md)
 
-# OR using Yarn
-yarn android
-```
+## Support
 
-### For iOS
-
-```bash
-# using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
-```
-
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
-
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
-
-## Step 3: Modifying your App
-
-Now that you have successfully run the app, let's modify it.
-
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
-
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+- Issues: [GitHub Issues](https://github.com/org/readventure/issues)
+- Chat: [Discord Community](https://discord.gg/readventure)

@@ -1,3 +1,57 @@
+/**
+ * Root TypeScript configuration for ReadVenture
+ * Extends React Native base config with project-specific settings
+ */
 {
-  "extends": "@react-native/typescript-config/tsconfig.json"
+  "extends": "@react-native/typescript-config/tsconfig.json",
+  "compilerOptions": {
+    // Build settings
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "lib": ["esnext", "dom"], // Added dom for browser APIs
+    "jsx": "react-native",
+
+    // Type checking
+    "strict": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+
+    // Module resolution
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@backend/*": ["backend/src/*"],
+      "@config/*": ["config/*"],
+      "@tests/*": ["tests/*"]
+    },
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+
+    // Development
+    "skipLibCheck": true,
+    "allowJs": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": [
+    "src/**/*",
+    "backend/**/*",
+    "config/**/*",
+    "tests/**/*",
+    "*.{js,ts,tsx}"
+  ],
+  "exclude": [
+    "node_modules",
+    "babel.config.js",
+    "metro.config.js",
+    "jest.config.ts",
+    "**/dist",
+    "**/build",
+    "**/coverage"
+  ]
 }

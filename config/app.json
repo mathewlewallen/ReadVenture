@@ -1,0 +1,30 @@
+{
+  // Application metadata
+  "name": "ReadVenture",
+  "displayName": "ReadVenture",
+
+  // Build configuration
+  "version": "1.0.0",
+  "private": true,
+
+  // React Native specific settings
+  "platforms": [
+    "ios",
+    "android"
+  ],
+
+  // Project structure
+  "rootFiles": [".git", ".env", "jest.config.ts"],
+
+  // Development settings
+  "environment": {
+    "development": true,
+    "production": false
+  },
+
+  // Build settings
+  "build": {
+    "outputDir": "dist",
+    "sourceMaps": true
+  }
+}

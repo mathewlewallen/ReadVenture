@@ -1,0 +1,19 @@
+{
+  "projects": {
+    "default": "readventure11",
+    "staging": "readventure11-staging",
+    "production": "readventure11"
+  },
+  "targets": {
+    "readventure11": {
+      "hosting": {
+        "app": [
+          "readventure11"
+        ],
+        "admin": [
+          "readventure11-admin"
+        ]
+      }
+    }
+  }
+}

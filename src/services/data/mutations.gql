@@ -1,0 +1,60 @@
+"""
+GraphQL mutations for user management operations
+"""
+
+"""
+Create a new user account
+@throws {Error} If user already exists or validation fails
+"""
+mutation CreateUser($input: CreateUserInput!) {
+  createUser(input: $input) {
+    id
+    name
+    email
+    createdAt
+    status
+  }
+}
+
+"""
+Input type for user creation
+"""
+input CreateUserInput {
+  name: String!
+  email: String!
+  password: String!
+  role: UserRole! = USER
+}
+
+"""
+Update an existing user's details
+@throws {Error} If user not found or validation fails
+"""
+mutation UpdateUser($id: ID!, $input: UpdateUserInput!) {
+  updateUser(id: $id, input: $input) {
+    id
+    name
+    email
+    updatedAt
+  }
+}
+
+"""
+Delete a user account
+@throws {Error} If user not found or unauthorized
+"""
+mutation DeleteUser($id: ID!) {
+  deleteUser(id: $id) {
+    success
+    message
+  }
+}
+
+"""
+Available user roles
+"""
+enum UserRole {
+  ADMIN
+  USER
+  PARENT
+}

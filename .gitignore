@@ -1,99 +1,57 @@
-# OSX
-.DS_Store
-
-# Xcode
-build/
-*.pbxuser
-!default.pbxuser
-*.mode1v3
-!default.mode1v3
-*.mode2v3
-!default.mode2v3
-*.perspectivev3
-!default.perspectivev3
-xcuserdata
-*.xccheckout
-*.moved-aside
-DerivedData
-*.hmap
-*.ipa
-*.xcuserstate
-**/.xcode.env.local
-
-# Android/IntelliJ
-build/
-.idea
-.gradle
-local.properties
-*.iml
-*.hprof
-.cxx/
-*.keystore
-!debug.keystore
-
-# node.js
+# Dependencies
 node_modules/
-npm-debug.log
-yarn-error.log
+ios/Pods/
 
-# fastlane
-**/fastlane/report.xml
-**/fastlane/Preview.html
-**/fastlane/screenshots
-**/fastlane/test_output
-
-# Bundle artifact
-*.jsbundle
-
-# Ruby / CocoaPods
-**/Pods/
-/vendor/bundle/
-
-# Temporary files created by Metro
-.metro-health-check*
-
-# testing
-/coverage
-
-# Yarn
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
+# Build outputs
+/build/
+/dist/
+*.tsbuildinfo
+.gradle/
 
 # Environment files
-.env
-.env.local
-.env.*
+.env*
 !.env.example
+/config/env/.env.*
+!/config/env/.env.example
 
-# IDE specific
-.vscode/
-*.swp
-*.swo
-.project
-.classpath
-.settings/
-
-# React Native specific
-.watchmanconfig
-__tests__/coverage/
-*.log
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# IDE
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
 
 # iOS specific
-ios/.xcode.env.local
-ios/Pods/
 ios/build/
+ios/DerivedData/
+ios/Pods/
+*.xcworkspace
+*.xcuserstate
 
 # Android specific
-android/app/debug
-android/app/release
-android/app/src/main/assets/index.android.bundle
-android/app/src/main/res/raw/
-android/captures/
+android/app/build/
+android/build/
+android/.gradle/
+android/build.gradle
+android/local.properties
+*.apk
+*.aab
+
+# Testing and coverage
+/coverage/
+.nyc_output/
+
+# Logs and debugging
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Cache and temp
+*.sw?
+.cache/
+.temp/
+backend/adaptive/data/cleaned_stories_dataset.csv

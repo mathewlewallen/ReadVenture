@@ -1,0 +1,80 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Common validation functions
+    function isAuthenticated() {
+      return request.auth != null && request.auth.uid != null;
+    }
+
+    function isValidEmail(email) {
+      return email.matches('^[^@]+@[^@]+\\.[^@]+$');
+    }
+
+    function isParentOf(childId) {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)/parentOf/$(childId));
+    }
+
+    function isOwnDocument() {
+      return isAuthenticated() &&
+        request.auth.uid == resource.data.userId;
+    }
+
+    function hasRequiredFields(data, fields) {
+      return data.keys().hasAll(fields);
+    }
+
+    // User profiles with improved validation
+    match /users/{userId} {
+      allow read: if isAuthenticated() &&
+        (request.auth.uid == userId || isParentOf(userId));
+
+      allow create: if isAuthenticated() &&
+        hasRequiredFields(request.resource.data, ['email', 'role', 'createdAt']) &&
+        isValidEmail(request.resource.data.email) &&
+        (request.resource.data.role in ['child', 'parent']) &&
+        request.resource.data.createdAt is timestamp;
+
+      allow update: if isAuthenticated() &&
+        (request.auth.uid == userId || isParentOf(userId)) &&
+        (!request.resource.data.diff(resource.data).affectedKeys()
+          .hasAny(['role', 'createdAt'])) &&
+        (request.resource.data.updatedAt is timestamp);
+
+      allow delete: if false;
+    }
+
+    // Stories - read-only for authenticated users
+    match /stories/{storyId} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+
+    // Reading progress with data validation
+    match /progress/{progressId} {
+      allow read: if isAuthenticated() &&
+        (isOwnDocument() || isParentOf(resource.data.userId));
+
+      allow create: if isAuthenticated() &&
+        hasRequiredFields(request.resource.data, ['userId', 'timestamp', 'wordCount']) &&
+        request.resource.data.userId == request.auth.uid &&
+        request.resource.data.timestamp is timestamp &&
+        request.resource.data.wordCount is number &&
+        request.resource.data.wordCount > 0;
+
+      allow update: if isAuthenticated() &&
+        isOwnDocument() &&
+        request.resource.data.userId == resource.data.userId &&
+        request.resource.data.timestamp is timestamp;
+
+      allow delete: if false;
+    }
+
+    // Parent-child relationships - read-only
+    match /users/{parentId}/parentOf/{childId} {
+      allow read: if isAuthenticated() &&
+        (request.auth.uid == parentId || request.auth.uid == childId);
+      allow write: if false;
+    }
+  }
+}

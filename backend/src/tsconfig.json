@@ -1,0 +1,45 @@
+/**
+ * TypeScript configuration for backend API service
+ * Extends root configuration while adding backend-specific settings
+ */
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    // Build output configuration
+    "outDir": "./dist",
+    "rootDir": "./src",
+
+    // Backend-specific compiler options
+    "module": "commonjs",
+    "target": "es2020",
+    "sourceMap": true,
+    "declaration": true,
+
+    // Type checking
+    "strict": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+
+    // Module resolution
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+
+    // Path aliases for cleaner imports
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@tests/*": ["tests/*"]
+    }
+  },
+  "include": [
+    "src/**/*",
+    "tests/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "coverage"
+  ]
+}

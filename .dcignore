@@ -1,0 +1,87 @@
+# DeepCode ignore patterns for static analysis
+# See: https://deepcode.freshdesk.com/support/solutions/articles/60000531055
+
+# Common development directories
+node_modules/
+dist/
+build/
+coverage/
+.git/
+.github/
+.idea/
+.vscode/
+
+# Generated & cache directories
+**/*.log
+**/__pycache__/
+**/tmp/
+**/temp/
+**/cache/
+**/.cache/
+
+# Build outputs
+**/out/
+**/target/
+**/bin/
+**/obj/
+**/lib/
+**/libs/
+
+# Test & coverage
+**/tests/
+**/coverage/
+**/__tests__/
+**/__mocks__/
+**/test-results/
+**/jest-coverage/
+
+# Package management
+**/package-lock.json
+**/yarn.lock
+**/pnpm-lock.yaml
+**/composer.lock
+**/Gemfile.lock
+
+# Environment & secrets
+**/.env*
+**/*.pem
+**/*.key
+**/credentials.*
+
+# Framework-specific (consolidated)
+# React/Vue/Angular
+**/build/
+**/dist/
+**/.next/
+**/.nuxt/
+**/.output/
+
+# Mobile
+**/ios/Pods/
+**/android/build/
+**/android/app/build/
+
+# Database
+**/*.sqlite
+**/*.db
+
+# Large media & binary files
+**/*.mp4
+**/*.mp3
+**/*.pdf
+**/*.zip
+**/*.tar
+**/*.gz
+**/*.rar
+
+# Documentation
+**/docs/
+**/doc/
+**/documentation/
+**/wiki/
+
+# IDE specific
+**/*.iml
+**/*.suo
+**/*.user
+**/.settings/

@@ -1,6 +1,111 @@
 {
-    "json.schemas": [
-      "python.pythonPath": "/Users/mathewlewallen/ReadVenture/.venv/bin/python",
-      "python.defaultInterpreterPath": "/Users/mathewlewallen/ReadVenture/.venv/bin/python"  
-    ]
+  // Core Editor Configuration
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit",
+    "source.fixAll.stylelint": "explicit"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.inlineSuggest.enabled": true,
+  "editor.suggestSelection": "first",
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.parameterHints.enabled": true,
+  "editor.wordWrap": "on",
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": true,
+
+  // TypeScript/JavaScript Configuration
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "javascript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.preferences.preferTypeOnlyAutoImports": true,
+  "typescript.preferences.importModuleSpecifierEnding": "minimal",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+  "typescript.tsserver.log": "off",
+  "typescript.tsserver.maxTsServerMemory": 4096,
+  "javascript.suggestionActions.enabled": true,
+
+  // Language-specific Formatters
+  "[javascript][typescript][javascriptreact][typescriptreact][json][jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[scss][css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.suggest.insertMode": "replace",
+    "editor.formatOnSave": true
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.wordWrap": "on"
+  },
+
+  // Linting Configuration
+  "eslint.validate": [
+    "javascript",
+    "typescript",
+    "javascriptreact",
+    "typescriptreact",
+    "json",
+    "jsonc",
+    "markdown"
+  ],
+  "stylelint.validate": ["css", "scss", "postcss"],
+  "eslint.workingDirectories": [
+    "./src",
+    "./tests",
+    "./backend-firebase/functions"
+  ],
+
+  // File Management
+  "npm.packageManager": "npm",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "files.autoSave": "onFocusChange",
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/coverage": true,
+    "**/*.log": true,
+    "**/ios/Pods": true,
+    "**/android/.gradle": true,
+    "**/build": true,
+    "**/.env*": true,
+    "**/.cache": true
+  },
+  "files.associations": {
+    "*.{ts,tsx}": "typescriptreact",
+    "*.{js,jsx}": "javascriptreact",
+    "*.scss": "scss",
+    "*.module.css": "css"
+  },
+
+  // GitHub Copilot Configuration
+  "github.copilot.enable": {
+    "*": true,
+    "yaml": false,
+    "plaintext": false,
+    "markdown": true
+  },
+
+  // Performance Optimizations
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/coverage": true
+  },
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/dist/**": true,
+    "**/build/**": true,
+    "**/coverage/**": true
+  },
+  "git.ignoreLimitWarning": true
 }

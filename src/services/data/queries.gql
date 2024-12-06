@@ -1,0 +1,42 @@
+"""
+User query operations for the ReadVenture API
+"""
+
+# Get detailed user information by ID
+query GetUser($id: ID!) @cacheControl(maxAge: 300) {
+  getUser(id: $id) {
+    id
+    name
+    email
+    # Core profile fields
+    profile {
+      readingLevel
+      lastActive
+    }
+    # Reading progress statistics
+    stats {
+      wordsRead
+      storiesCompleted
+      averageComprehension
+    }
+    # Error handling
+    error {
+      code
+      message
+    }
+  }
+}
+
+# Input validation fragment
+fragment UserFields on User {
+  id
+  name
+  email
+}
+
+# Error handling fragment
+fragment ErrorFields on Error {
+  code
+  message
+  path
+}
