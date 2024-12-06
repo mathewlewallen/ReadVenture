@@ -1,8 +1,8 @@
 // src/store/index.ts
-import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
+import { Action, configureStore, ThunkAction } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
-import readingReducer from './slices/readingSlice';
 import progressReducer from './slices/progressSlice';
+import readingReducer from './slices/readingSlice';
 
 export const store = configureStore({
   reducer: {
@@ -10,7 +10,7 @@ export const store = configureStore({
     reading: readingReducer,
     progress: progressReducer,
   },
-  middleware: (getDefaultMiddleware) =>
+  middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
       serializableCheck: false,
     }),
@@ -24,3 +24,12 @@ export type AppThunk<ReturnType = void> = ThunkAction<
   unknown,
   Action<string>
 >;
+
+const store = configureStore({
+  reducer: {
+    auth: authReducer,
+    // ... other reducers if needed
+  },
+});
+
+export default store;

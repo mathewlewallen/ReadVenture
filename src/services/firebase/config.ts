@@ -12,7 +12,9 @@ interface FirebaseServices {
   analytics: Analytics;
 }
 
-const validateFirebaseConfig = (config: Partial<FirebaseOptions>): config is FirebaseOptions => {
+const validateFirebaseConfig = (
+  config: Partial<FirebaseOptions>,
+): config is FirebaseOptions => {
   const required: (keyof FirebaseOptions)[] = [
     'apiKey',
     'authDomain',
@@ -23,7 +25,7 @@ const validateFirebaseConfig = (config: Partial<FirebaseOptions>): config is Fir
     'measurementId',
   ];
 
-  const missing = required.filter((key) => !config[key]);
+  const missing = required.filter(key => !config[key]);
   if (missing.length > 0) {
     throw new Error(`Missing Firebase configuration: ${missing.join(', ')}`);
   }
@@ -63,3 +65,80 @@ const firebase = initializeFirebase();
 
 export const { auth, db, analytics } = firebase;
 export default firebase;
+// src/services/firebase/analytics.service.ts
+import { analytics } from './config';
+import { logEvent } from 'firebase/analytics';
+
+class AnalyticsService {
+  private static instance: AnalyticsService;
+
+  static getInstance(): AnalyticsService {
+    if (!AnalyticsService.instance) {
+      AnalyticsService.instance = new AnalyticsService();
+    }
+    return AnalyticsService.instance;
+  }
+
+  logStoryRead(storyId: string, userId: string): void {
+    logEvent(analytics, 'story_read', {
+      story_id: storyId,
+      user_id: userId,
+    });
+  }
+
+  logProgressUpdate(userId: string, progress: number): void {
+    logEvent(analytics, 'progress_update', {
+      user_id: userId,
+      progress,
+    });
+  }
+}
+
+export const analyticsService = AnalyticsService.getInstance();
+
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: 'http://localhost:3000', // Replace with your API URL
+});
+
+// Function to set the authorization token in the request headers
+api.setToken = token => {
+  api.defaults.headers.common.Authorization = `Bearer ${token}`;
+};
+
+export default api;
+
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: 'https://your-project-id.cloudfunctions.net', // Replace with your Firebase Cloud Functions URL
+});
+
+api.setToken = token => {
+  api.defaults.headers.common.Authorization = `Bearer ${token}`;
+};
+
+api.handleError = error => {
+  if (error.response) {
+    // The request was made and the server responded with a status code
+    // that falls out of the range of 2xx
+    console.error('Response error:', error.response.data);
+    console.error('Status:', error.response.status);
+    console.error('Headers:', error.response.headers);
+  } else if (error.request) {
+    // The request was made but no response was received
+    // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+    // http.ClientRequest in node.js
+    console.error('Request error:', error.request);
+  } else {
+    // Something happened in setting up the request that triggered an Error
+    console.error('Error:', error.message);
+  }
+  console.error('Error config:', error.config);
+
+  // You can add more specific error handling logic here, such as
+  // displaying error messages to the user or retrying the request.
+};
+
+export default api;

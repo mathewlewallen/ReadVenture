@@ -33,7 +33,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       setIsLoading(true);
       dispatch(loginStart());
 
-      const userCredential = await signInWithEmailAndPassword(auth, username, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        username,
+        password,
+      );
       const user = userCredential.user;
       const token = await user.getIdToken();
 
@@ -125,6 +129,113 @@ const styles = StyleSheet.create({
   },
   linkButton: {
     marginTop: 16,
+  },
+});
+
+export default LoginScreen;
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import React, { useState } from 'react';
+import { Alert, Button, StyleSheet, TextInput, View } from 'react-native';
+import { Appbar } from 'react-native-paper';
+import { FontAwesome } from 'react-native-vector-icons/FontAwesome';
+import { useDispatch } from 'react-redux';
+import { auth } from '../firebaseConfig';
+import {
+  loginFailure,
+  loginStart,
+  loginSuccess,
+} from '../store/slices/authSlice';
+
+const LoginScreen = ({ navigation }) => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const dispatch = useDispatch();
+
+  const handleLogin = async () => {
+    try {
+      dispatch(loginStart());
+
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        username,
+        password,
+      );
+      const user = userCredential.user;
+      const token = await user.getIdToken();
+
+      await AsyncStorage.setItem('token', token);
+      dispatch(loginSuccess({ user, token }));
+      navigation.navigate('Home');
+    } catch (error) {
+      console.error('Login error:', error);
+      dispatch(loginFailure({ error: error.message }));
+      Alert.alert('Login Error', 'Invalid username or password.');
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <Appbar.Header>
+        <Appbar.Content title="Login" />
+      </Appbar.Header>
+      <View style={styles.content}>
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          value={username}
+          onChangeText={setUsername}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+        />
+        <Button
+          mode="contained"
+          style={styles.button}
+          onPress={handleLogin}
+          icon={() => <FontAwesome name="sign-in" size={24} color="white" />}
+        >
+          Login
+        </Button>
+        <Button
+          mode="contained"
+          style={styles.button}
+          onPress={() => navigation.navigate('Registration')}
+          icon={() => <FontAwesome name="user-plus" size={24} color="white" />}
+        >
+          Register
+        </Button>
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  input: {
+    width: '80%',
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+  },
+  button: {
+    margin: 10,
   },
 });
 

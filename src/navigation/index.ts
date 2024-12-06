@@ -29,13 +29,13 @@ export type NavigationProps<T extends keyof RootStackParamList> = {
 
 // Type guards
 export const isReadingScreen = (
-  route: RouteProp<ParamListBase, string>
+  route: RouteProp<ParamListBase, string>,
 ): route is RouteProp<RootStackParamList, 'Reading'> => {
   return route.name === 'Reading';
 };
 
 export const isParentDashboard = (
-  route: RouteProp<ParamListBase, string>
+  route: RouteProp<ParamListBase, string>,
 ): route is RouteProp<RootStackParamList, 'ParentDashboard'> => {
   return route.name === 'ParentDashboard';
 };
@@ -46,7 +46,7 @@ export const Stack = createNativeStackNavigator<RootStackParamList>();
 // Navigation utilities
 export const getRouteParam = <T extends keyof RootStackParamList>(
   route: RouteProp<RootStackParamList, T>,
-  param: keyof RootStackParamList[T]
+  param: keyof RootStackParamList[T],
 ): RootStackParamList[T][keyof RootStackParamList[T]] | undefined => {
   return route.params?.[param];
 };

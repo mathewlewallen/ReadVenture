@@ -1,9 +1,14 @@
 // src/services/api/endpoints/auth.ts
-import { api } from '../client';
-import { LoginCredentials, RegisterCredentials, AuthResponse } from '../../../types';
+import {
+  AuthResponse,
+  LoginCredentials,
+  RegisterCredentials,
+} from '../../../types';
+import { api } from './client';
 
 export const authEndpoints = {
-  login: (credentials: LoginCredentials) => api.post<AuthResponse>('/auth/login', credentials),
+  login: (credentials: LoginCredentials) =>
+    api.post<AuthResponse>('/auth/login', credentials),
 
   register: (credentials: RegisterCredentials) =>
     api.post<AuthResponse>('/auth/register', credentials),

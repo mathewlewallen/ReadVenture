@@ -9,15 +9,16 @@ const config: Config.InitialOptions = {
   // Test environment
   testEnvironment: 'jsdom',
 
-  // File patterns
-  testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.[jt]sx?$',
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+  // Simplify test patterns
+  testMatch: ['<rootDir>/tests/**/*.test.{ts,tsx}'],
 
   // Module mappings
   moduleNameMapper: {
     '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
       '<rootDir>/__mocks__/fileMock.js',
     '\\.(css|less)$': '<rootDir>/__mocks__/styleMock.js',
+    '^@/(.*)$': '<rootDir>/src/$1', // Added from second config
+    '^@tests/(.*)$': '<rootDir>/tests/$1', // Added from second config
   },
 
   // Transform configuration
@@ -25,8 +26,11 @@ const config: Config.InitialOptions = {
     'node_modules/(?!(react-native|@react-native|@react-navigation|@react-native-firebase|@react-native-community)/)',
   ],
 
-  // Setup files
-  setupFiles: ['<rootDir>/tests/setup/jest.setup.ts'],
+  // Update setup files
+  setupFiles: [
+    '<rootDir>/tests/setup/jest.setup.ts',
+    '<rootDir>/node_modules/react-native-gesture-handler/jestSetup.js',
+  ],
 
   setupFilesAfterEnv: ['@testing-library/jest-native/extend-expect'],
 

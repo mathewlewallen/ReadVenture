@@ -2,16 +2,14 @@
   // Application metadata
   "name": "ReadVenture",
   "displayName": "ReadVenture",
+  "permissions": ["INTERNET", "RECORD_AUDIO", "MODIFY_AUDIO_SETTINGS"],
 
   // Build configuration
   "version": "1.0.0",
   "private": true,
 
   // React Native specific settings
-  "platforms": [
-    "ios",
-    "android"
-  ],
+  "platforms": ["ios", "android"],
 
   // Project structure
   "rootFiles": [".git", ".env", "jest.config.ts"],

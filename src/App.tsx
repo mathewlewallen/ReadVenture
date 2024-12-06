@@ -1,8 +1,8 @@
 // App.tsx
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { Provider } from 'react-redux';
 
 // Store
@@ -12,15 +12,15 @@ import store from './store';
 import { validateEnv } from './config/env/envValidation';
 
 // Screens
-import StoryLibraryScreen from './screens/StoryLibraryScreen';
-import ReadingScreen from './screens/ReadingScreen';
-import LoginScreen from './screens/auth/LoginScreen';
+import LoginScreen from './scree./screens/main/StoryLibraryScreen
 import RegistrationScreen from './screens/auth/RegistrationScreen';
-import ParentDashboardScreen from './screens/ParentDashboardScreen';
-import WelcomeScreen from './screens/WelcomeScreen';
-import HomeScreen from './screens/HomeScreen';
+import HomeScreen from './screens/main/HomeScreen';
+import ParentDashboardScreen from './screens/main/ParentDashboardScreen';
 import ProgressScreen from './screens/ProgressScreen';
+import ReadingScreen from './screens/ReadingScreen';
 import SettingsScreen from './screens/SettingsScreen';
+import StoryLibraryScreen from './screens/StoryLibraryScreen';
+import WelcomeScreen from './screens/main/WelcomeScreen';
 
 // Types
 type RootStackParamList = {
@@ -87,7 +87,10 @@ const App: React.FC = () => {
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="StoryLibrary" component={StoryLibraryScreen} />
           <Stack.Screen name="Reading" component={ReadingScreen} />
-          <Stack.Screen name="ParentDashboard" component={ParentDashboardScreen} />
+          <Stack.Screen
+            name="ParentDashboard"
+            component={ParentDashboardScreen}
+          />
           <Stack.Screen name="Progress" component={ProgressScreen} />
           <Stack.Screen name="Settings" component={SettingsScreen} />
         </Stack.Navigator>

@@ -44,9 +44,7 @@ jest.mock('@react-native-firebase/auth', () => ({
 }));
 
 // Mock react-native-gesture-handler
-jest.mock('react-native-gesture-handler', () => ({
-  // Add any specific gesture handler mocks if needed
-}));
+jest.mock('react-native-gesture-handler', () => {});
 
 // Set up global jest configuration
 global.jest = jest;
