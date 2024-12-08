@@ -1,23 +1,25 @@
-/**
- * Root service exports for the application
- * @module services
- */
+// // Generated barrel file - do not modify manually
 
-// Core services
-export * from './api';
-export * from './firebase';
-export * from './ml';
-
-// Type exports
-export type { ApiConfig } from './api/types';
-export type { FirebaseConfig } from './firebase/types';
-export type { MLConfig } from './ml/types';
-
-// Constants
-export { API_VERSION } from './api/constants';
-export { ML_MODELS } from './ml/constants';
-
-// Error types
-export { ApiError } from './api/errors';
-export { FirebaseError } from './firebase/errors';
-export { MLError } from './ml/errors';
+export { api } from './api';
+export {
+  GET_READING_LIST,
+  GET_STORY_DETAILS,
+  GET_USER_PROGRESS,
+  SAVE_READING_STATE,
+  UPDATE_PROGRESS,
+  UPDATE_USER_SETTINGS,
+  mutations,
+  queries,
+} from './data';
+export type { MutationTypes, QueryTypes } from './data';
+export { auth, database, service, storageService } from './firebase';
+export { TextAnalyzer, api } from './ml';
+export type {
+  AnalysisOptions,
+  AnalysisResult,
+  ComprehensionAreas,
+  ComprehensionResult,
+  TextComplexity,
+  TextMetrics,
+  ValidationResult,
+} from './ml';

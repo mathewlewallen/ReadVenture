@@ -1,15 +1,13 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-# NOTE: All checks are temporarily disabled to allow commits
-# TODO: Re-enable these checks when ready for enforcement
+# Generate barrel files
+npm run generate-barrels
 
-echo "⚠️ Pre-commit checks are currently disabled"
-echo "✅ Proceeding with commit"
-exit 0
+# Add any modified barrel files
+git add "**/index.ts"
 
-# Original checks (commented out):
-# error=0
-# npm test
-# npm run lint
-# npm run typecheck
+# Run checks
+npm run lint || exit 1
+npm run typecheck || exit 1
+npm test || exit 1

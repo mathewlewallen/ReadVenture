@@ -1,18 +1,33 @@
-// src/navigation/Navigation.tsx
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import React from 'react';
+/**
+ * Main Navigation Configuration
+ *
+ * Handles app-wide navigation setup, screen registration, and navigation options.
+ * Integrates with Redux for auth state and deep linking for external navigation.
+ *
+ * @packageDocumentation
+ */
 
-// Screens
-import ParentDashboardScreen from '../screens/main/ParentDashboardScreen';
-import ProgressScreen from '../screens/ProgressScreen';
-import SplashScreen from '../screens/SplashScreen';
-import StoryLibraryScreen from '../screens/StoryLibraryScreen';
-import LoginScreen from '../scre../screens/main/StoryLibraryScreen
-import RegistrationScreen from '../screens/auth/RegistrationScreen';
-import HomeScreen from '../screens/main/HomeScreen';
-import ReadingScreen from '../screens/reading/ReadingScreen';
-import SettingsScreen from '../screens/settings/SettingsScreen';
+import React, { useEffect } from 'react';
+import { Platform } from 'react-native';
+import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useSelector } from 'react-redux';
+import { linking } from './linking';
+import { theme } from '../theme';
+import { ErrorBoundary } from '../components/common/ErrorBoundary';
+
+// Screen Imports
+import {
+  HomeScreen,
+  LoginScreen,
+  ParentDashboardScreen,
+  ProgressScreen,
+  ReadingScreen,
+  RegistrationScreen,
+  SettingsScreen,
+  SplashScreen,
+  StoryLibraryScreen,
+} from '../screens';
 
 // Types
 export type RootStackParamList = {
@@ -29,72 +44,129 @@ export type RootStackParamList = {
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+/**
+ * Default screen configuration
+ */
 const defaultScreenOptions = {
   headerStyle: {
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.background,
   },
-  headerTintColor: '#000000',
+  headerTintColor: theme.colors.text,
   headerTitleStyle: {
-    fontWeight: 'bold',
+    fontFamily: theme.fonts.medium,
+    fontWeight: Platform.select({ ios: '600', android: 'bold' }),
+  },
+  animation: Platform.select({
+    ios: 'default',
+    android: 'slide_from_right',
+  }),
+  headerBackTitleVisible: false,
+};
+
+/**
+ * Navigation theme configuration
+ */
+const navigationTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: theme.colors.background,
+    primary: theme.colors.primary,
   },
 };
 
+/**
+ * Main navigation component
+ * Handles screen routing and navigation state
+ */
 const Navigation: React.FC = () => {
+  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+
+  useEffect(() => {
+    // Handle any navigation side effects (analytics, deep links)
+    const unsubscribe = () => {
+      // Cleanup navigation listeners
+    };
+    return unsubscribe;
+  }, []);
+
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName="Splash"
-        screenOptions={defaultScreenOptions}
+    <ErrorBoundary>
+      <NavigationContainer
+        theme={navigationTheme}
+        linking={linking}
+        fallback={<SplashScreen />}
+        documentTitle={{
+          formatter: (options, route) =>
+            `ReadVenture - ${options?.title ?? route?.name}`,
+        }}
       >
-        <Stack.Screen
-          name="Splash"
-          component={SplashScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Login"
-          component={LoginScreen}
-          options={{ title: 'Login' }}
-        />
-        <Stack.Screen
-          name="Registration"
-          component={RegistrationScreen}
-          options={{ title: 'Register' }}
-        />
-        <Stack.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{ title: 'Home' }}
-        />
-        <Stack.Screen
-          name="StoryLibrary"
-          component={StoryLibraryScreen}
-          options={{ title: 'Library' }}
-        />
-        <Stack.Screen
-          name="Reading"
-          component={ReadingScreen}
-          options={{ title: 'Reading' }}
-        />
-        <Stack.Screen
-          name="Progress"
-          component={ProgressScreen}
-          options={{ title: 'Progress' }}
-        />
-        <Stack.Screen
-          name="ParentDashboard"
-          component={ParentDashboardScreen}
-          options={{ title: 'Parent Dashboard' }}
-        />
-        <Stack.Screen
-          name="Settings"
-          component={SettingsScreen}
-          options={{ title: 'Settings' }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+        <Stack.Navigator
+          initialRouteName="Splash"
+          screenOptions={defaultScreenOptions}
+        >
+          {!isAuthenticated ? (
+            // Auth Stack
+            <>
+              <Stack.Screen
+                name="Login"
+                component={LoginScreen}
+                options={{
+                  title: 'Login',
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="Registration"
+                component={RegistrationScreen}
+                options={{
+                  title: 'Register',
+                  headerShown: false,
+                }}
+              />
+            </>
+          ) : (
+            // Main App Stack
+            <>
+              <Stack.Screen
+                name="Home"
+                component={HomeScreen}
+                options={{ title: 'Home' }}
+              />
+              <Stack.Screen
+                name="StoryLibrary"
+                component={StoryLibraryScreen}
+                options={{ title: 'Library' }}
+              />
+              <Stack.Screen
+                name="Reading"
+                component={ReadingScreen}
+                options={{
+                  title: 'Reading',
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="Progress"
+                component={ProgressScreen}
+                options={{ title: 'Progress' }}
+              />
+              <Stack.Screen
+                name="ParentDashboard"
+                component={ParentDashboardScreen}
+                options={{ title: 'Parent Dashboard' }}
+              />
+              <Stack.Screen
+                name="Settings"
+                component={SettingsScreen}
+                options={{ title: 'Settings' }}
+              />
+            </>
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </ErrorBoundary>
   );
 };
 
 export default Navigation;
-src / components / Navigation.js;

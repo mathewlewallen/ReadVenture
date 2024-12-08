@@ -1,29 +1,45 @@
-// App.tsx
+/**
+ * Main Application Component
+ *
+ * Root component that handles:
+ * - Navigation setup
+ * - State management initialization
+ * - Environment validation
+ * - Error boundaries
+ * - Authentication flow
+ *
+ * @packageDocumentation
+ */
+
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { Provider } from 'react-redux';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
-import { Provider } from 'react-redux';
 
-// Store
-import store from './store';
+// Store & Services
+import { store } from './store';
+import { validateEnv } from './utils/validation/envValidation';
+import { initializeAnalytics } from './utils/analytics';
 
-// Config
-import { validateEnv } from './config/env/envValidation';
+// Components
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 
 // Screens
-import LoginScreen from './scree./screens/main/StoryLibraryScreen
-import RegistrationScreen from './screens/auth/RegistrationScreen';
-import HomeScreen from './screens/main/HomeScreen';
-import ParentDashboardScreen from './screens/main/ParentDashboardScreen';
-import ProgressScreen from './screens/ProgressScreen';
-import ReadingScreen from './screens/ReadingScreen';
-import SettingsScreen from './screens/SettingsScreen';
-import StoryLibraryScreen from './screens/StoryLibraryScreen';
-import WelcomeScreen from './screens/main/WelcomeScreen';
+import {
+  HomeScreen,
+  LoginScreen,
+  ParentDashboardScreen,
+  ProgressScreen,
+  ReadingScreen,
+  RegistrationScreen,
+  SettingsScreen,
+  StoryLibraryScreen,
+  WelcomeScreen,
+} from './screens';
 
 // Types
-type RootStackParamList = {
+export type RootStackParamList = {
   Welcome: undefined;
   Login: undefined;
   Registration: undefined;
@@ -37,73 +53,144 @@ type RootStackParamList = {
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+/**
+ * Root application component
+ * @returns React component
+ */
 const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isValidEnv, setIsValidEnv] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const validateEnvironment = async () => {
+    const initialize = async () => {
       try {
+        // Validate environment configuration
         await validateEnv();
         setIsValidEnv(true);
-      } catch (error) {
-        console.error('Environment validation failed:', error);
+
+        // Initialize analytics
+        await initializeAnalytics();
+      } catch (err) {
+        console.error('Initialization failed:', err);
+        setError(err instanceof Error ? err.message : 'Unknown error occurred');
       } finally {
         setIsLoading(false);
       }
     };
 
-    validateEnvironment();
+    initialize();
+
+    // Cleanup function
+    return () => {
+      // Cleanup analytics or other services
+    };
   }, []);
 
+  // Handle loading state
   if (isLoading) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator
+          size="large"
+          accessibilityLabel="Loading application"
+          testID="loading-indicator"
+        />
       </View>
     );
   }
 
-  if (!isValidEnv) {
+  // Handle environment validation errors
+  if (!isValidEnv || error) {
     return (
       <View style={styles.container}>
-        <Text>Environment configuration error</Text>
+        <Text
+          style={styles.errorText}
+          accessibilityRole="alert"
+          testID="error-message"
+        >
+          {error || 'Environment configuration error'}
+        </Text>
       </View>
     );
   }
 
   return (
-    <Provider store={store}>
-      <NavigationContainer>
-        <Stack.Navigator
-          initialRouteName="Welcome"
-          screenOptions={{
-            headerShown: false,
-          }}
-        >
-          <Stack.Screen name="Welcome" component={WelcomeScreen} />
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="Registration" component={RegistrationScreen} />
-          <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen name="StoryLibrary" component={StoryLibraryScreen} />
-          <Stack.Screen name="Reading" component={ReadingScreen} />
-          <Stack.Screen
-            name="ParentDashboard"
-            component={ParentDashboardScreen}
-          />
-          <Stack.Screen name="Progress" component={ProgressScreen} />
-          <Stack.Screen name="Settings" component={SettingsScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </Provider>
+    <ErrorBoundary>
+      <Provider store={store}>
+        <NavigationContainer>
+          <Stack.Navigator
+            initialRouteName="Welcome"
+            screenOptions={{
+              headerShown: false,
+              animation: 'slide_from_right',
+              gestureEnabled: true,
+              animationTypeForReplace: 'push',
+            }}
+          >
+            <Stack.Screen
+              name="Welcome"
+              component={WelcomeScreen}
+              options={{ title: 'Welcome' }}
+            />
+            <Stack.Screen
+              name="Login"
+              component={LoginScreen}
+              options={{ title: 'Login' }}
+            />
+            <Stack.Screen
+              name="Registration"
+              component={RegistrationScreen}
+              options={{ title: 'Register' }}
+            />
+            <Stack.Screen
+              name="Home"
+              component={HomeScreen}
+              options={{ title: 'Home' }}
+            />
+            <Stack.Screen
+              name="StoryLibrary"
+              component={StoryLibraryScreen}
+              options={{ title: 'Library' }}
+            />
+            <Stack.Screen
+              name="Reading"
+              component={ReadingScreen}
+              options={{ title: 'Reading' }}
+            />
+            <Stack.Screen
+              name="Progress"
+              component={ProgressScreen}
+              options={{ title: 'Progress' }}
+            />
+            <Stack.Screen
+              name="ParentDashboard"
+              component={ParentDashboardScreen}
+              options={{ title: 'Parent Dashboard' }}
+            />
+            <Stack.Screen
+              name="Settings"
+              component={SettingsScreen}
+              options={{ title: 'Settings' }}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </Provider>
+    </ErrorBoundary>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
     flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    color: '#FF0000',
+    fontSize: 16,
+    textAlign: 'center',
+    padding: 20,
   },
 });
 

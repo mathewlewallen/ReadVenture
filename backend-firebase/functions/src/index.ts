@@ -1,114 +1,203 @@
+/**
+ * ReadVenture Firebase Cloud Functions
+ * Main entry point for backend serverless functions
+ */
+
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
-import { spawn } from 'child_process';
+import { AnalysisResult, ProgressData, StoryData } from './types';
 
-// Initialize Firebase Admin once
-if (!admin.apps.length) {
-  admin.initializeApp();
-}
+// Initialize Firebase Admin
+admin.initializeApp();
 
-const db = admin.firestore();
-
-interface Story {
-  id: string;
-  [key: string]: any;
-}
-
-interface UserProgress {
-  totalWordsRead: number;
-  storiesCompleted: number;
-  badgesEarned: string[];
-}
-
-interface UserData {
-  username: string;
-  email: string;
-  role: 'child' | 'parent';
-  parentEmail?: string;
-  progress: UserProgress;
-  settings?: Record<string, any>;
+// Error types for better error handling
+export enum ErrorType {
+  AUTH = 'auth_error',
+  VALIDATION = 'validation_error',
+  DATABASE = 'database_error',
+  ANALYSIS = 'analysis_error',
+  PROGRESS = 'progress_error',
 }
 
 /**
- * Fetches all stories from Firestore
- * @throws {functions.https.HttpsError} On database errors
+ * Centralized error handler
  */
-export const getStories = functions.https.onCall(async (_data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError('unauthenticated', 'User must be logged in');
-  }
+const handleError = (
+  error: any,
+  type: ErrorType,
+): functions.https.HttpsError => {
+  console.error(`[${type}]`, error);
+  return new functions.https.HttpsError('internal', error.message, {
+    type,
+    timestamp: new Date().toISOString(),
+  });
+};
 
+/**
+ * Validates user authentication
+ */
+const validateAuth = (context: functions.https.CallableContext) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError(
+      'unauthenticated',
+      'Authentication required',
+    );
+  }
+  return context.auth.uid;
+};
+
+/**
+ * Analyzes reading progress and provides feedback
+ */
+export const analyzeReading = functions.https.onCall(async (data, context) => {
   try {
-    const snapshot = await db.collection('stories').get();
-    return snapshot.docs.map<Story>(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
+    const uid = validateAuth(context);
+
+    if (!data.text?.trim() || !data.storyId) {
+      throw new functions.https.HttpsError(
+        'invalid-argument',
+        'Text and story ID are required',
+      );
+    }
+
+    const db = admin.firestore();
+    const storyRef = db.collection('stories').doc(data.storyId);
+    const storyDoc = await storyRef.get();
+
+    if (!storyDoc.exists) {
+      throw new functions.https.HttpsError('not-found', 'Story not found');
+    }
+
+    const analysis: AnalysisResult = {
+      accuracy: calculateAccuracy(data.text, storyDoc.data()?.content),
+      wordsRead: data.text.split(' ').length,
+      timeSpent: data.duration || 0,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    await updateProgress(uid, data.storyId, analysis);
+
+    return analysis;
   } catch (error) {
-    console.error('Error fetching stories:', error);
-    throw new functions.https.HttpsError('internal', 'Error fetching stories');
+    throw handleError(error, ErrorType.ANALYSIS);
   }
 });
 
 /**
- * Analyzes text using Python ML algorithm and updates user progress
- * @param data.text - Text to analyze
- * @param data.storyId - Story identifier
- * @param data.userId - User identifier
+ * Updates user reading progress
  */
-export const analyzeText = functions.https
-  .onCall(async (data: { text: string; storyId: string; userId: string }, context) => {
-    if (!context.auth) {
-      throw new functions.https.HttpsError('unauthenticated', 'User must be logged in');
+export const updateProgress = functions.https.onCall(async (data, context) => {
+  try {
+    const uid = validateAuth(context);
+
+    if (!data.storyId || !data.progress) {
+      throw new functions.https.HttpsError(
+        'invalid-argument',
+        'Story ID and progress data required',
+      );
     }
 
-    if (!data.text?.trim() || !data.storyId || !data.userId) {
-      throw new functions.https.HttpsError('invalid-argument', 'Missing required fields');
+    const db = admin.firestore();
+    const progressRef = db.collection('progress').doc();
+
+    const progressData: ProgressData = {
+      userId: uid,
+      storyId: data.storyId,
+      wordsRead: data.progress.wordsRead,
+      accuracy: data.progress.accuracy,
+      timeSpent: data.progress.timeSpent,
+      completedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    await progressRef.set(progressData);
+
+    return { success: true, progressId: progressRef.id };
+  } catch (error) {
+    throw handleError(error, ErrorType.PROGRESS);
+  }
+});
+
+/**
+ * Retrieves parent dashboard analytics
+ */
+export const getParentDashboard = functions.https.onCall(
+  async (data, context) => {
+    try {
+      const uid = validateAuth(context);
+
+      const db = admin.firestore();
+      const userRef = db.collection('users').doc(uid);
+      const userDoc = await userRef.get();
+
+      if (!userDoc.exists || !userDoc.data()?.isParent) {
+        throw new functions.https.HttpsError(
+          'permission-denied',
+          'Parent access required',
+        );
+      }
+
+      const childrenQuery = await db
+        .collection('users')
+        .where('parentId', '==', uid)
+        .get();
+
+      const childrenProgress = await Promise.all(
+        childrenQuery.docs.map(async child => {
+          const progressQuery = await db
+            .collection('progress')
+            .where('userId', '==', child.id)
+            .orderBy('completedAt', 'desc')
+            .limit(10)
+            .get();
+
+          return {
+            childId: child.id,
+            name: child.data().name,
+            progress: progressQuery.docs.map(doc => doc.data()),
+          };
+        }),
+      );
+
+      return childrenProgress;
+    } catch (error) {
+      throw handleError(error, ErrorType.DATABASE);
     }
+  },
+);
 
-    return new Promise((resolve, reject) => {
-      const pythonProcess = spawn('python', ['../adaptive_algorithm/analyze.py', data.text, data.storyId]);
-      let output = '';
+/**
+ * Calculates reading accuracy
+ */
+const calculateAccuracy = (userText: string, originalText: string): number => {
+  const userWords = userText.toLowerCase().split(' ');
+  const originalWords = originalText.toLowerCase().split(' ');
+  let correctWords = 0;
 
-      pythonProcess.stdout.on('data', chunk => output += chunk);
-
-      pythonProcess.stderr.on('data', error => {
-        console.error(`Python analysis error: ${error}`);
-        reject(new functions.https.HttpsError('internal', 'Text analysis failed'));
-      });
-
-      pythonProcess.on('close', async code => {
-        if (code !== 0) {
-          reject(new functions.https.HttpsError('internal', `Analysis process failed: ${code}`));
-          return;
-        }
-
-        try {
-          const result = JSON.parse(output.trim());
-          const userRef = db.collection('users').doc(data.userId);
-
-          await db.runTransaction(async transaction => {
-            const userDoc = await transaction.get(userRef);
-            if (!userDoc.exists) {
-              throw new functions.https.HttpsError('not-found', 'User not found');
-            }
-
-            const userData = userDoc.data() as UserData;
-            const wordCount = result.adjustedText.split(/\s+/).length;
-
-            transaction.update(userRef, {
-              'progress.totalWordsRead': (userData.progress?.totalWordsRead || 0) + wordCount
-            });
-          });
-
-          resolve({ adjustedText: result.adjustedText });
-        } catch (error) {
-          console.error('Analysis processing error:', error);
-          reject(new functions.https.HttpsError('internal', 'Failed to process analysis results'));
-        }
-      });
-    });
+  userWords.forEach((word, index) => {
+    if (word === originalWords[index]) {
+      correctWords++;
+    }
   });
 
-// Additional functions follow similar pattern...
-// (updateSettings, getParentData, addChild implementations would be enhanced similarly)
+  return (correctWords / originalWords.length) * 100;
+};
+
+export const updateUserSettings = functions.https.onCall(
+  async (data, context) => {
+    try {
+      const uid = validateAuth(context);
+
+      const db = admin.firestore();
+      const userRef = db.collection('users').doc(uid);
+
+      await userRef.update({
+        settings: data.settings,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      return { success: true };
+    } catch (error) {
+      throw handleError(error, ErrorType.DATABASE);
+    }
+  },
+);

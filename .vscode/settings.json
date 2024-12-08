@@ -7,13 +7,13 @@
     "source.fixAll.stylelint": "explicit"
   },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.inlineSuggest.enabled": true,
+  "editor.inlineSuggest.enabled": false,
   "editor.suggestSelection": "first",
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
   "editor.parameterHints.enabled": true,
   "editor.wordWrap": "on",
-  "editor.bracketPairColorization.enabled": true,
+  "editor.bracketPairColorization.enabled": false,
   "editor.guides.bracketPairs": true,
 
   // TypeScript/JavaScript Configuration
@@ -105,7 +105,51 @@
     "**/node_modules/**": true,
     "**/dist/**": true,
     "**/build/**": true,
-    "**/coverage/**": true
+    "**/coverage/**": true,
+    "**/.git/**": true
   },
-  "git.ignoreLimitWarning": true
+  "git.ignoreLimitWarning": true,
+
+  // TypeScript Barrel Generator Configuration
+  "exportall.config.namedExports": true, // Use named exports
+  "exportall.config.includeFoldersToExport": true, // Include folders with index.ts in the barrel
+  "exportall.config.exclude": [
+    ".test.",
+    ".spec.",
+    "__tests__",
+    "__mocks__",
+    ".stories.",
+    ".d.ts",
+    "**/*.generated.*",
+    "**/*.config.*",
+    "**/types.ts",
+    "**/constants.ts"
+  ], // Exclude files with these strings in the name
+  "exportall.config.folderListener": [
+    "src/components/**/*",
+    "src/screens/**/*",
+    "src/services/**/*",
+    "src/utils/**/*",
+    "src/store/**/*",
+    "src/types/**/*",
+    "src/navigation/**/*",
+    "src/hooks/**/*",
+    "src/constants/**/*"
+  ], // Add folders to listen for changes
+  "exportall.config.relExclusion": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/coverage/**",
+    "**/build/**",
+    "**/.next/**",
+    "**/lib/**",
+    "**/types/**",
+    "**/generated/**",
+    "**/__generated__/**"
+  ], // Exclude folders with these strings in the path
+  "exportall.config.semis": true, // Use semicolons
+  "exportall.config.quote": "'", // Use single quotes
+  "exportall.config.message": "// Generated barrel file - do not modify manually", // Add a message to the top of the barrel file
+  "exportall.config.exportFileExtension": null,
+  "cSpell.words": ["barrelsby", "prestart"] // Use the default file extension (or specify e.g., 'js')
 }

@@ -1,8 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+/**
+ * Settings Screen Component
+ *
+ * Manages user preferences including:
+ * - Sound effects
+ * - Text size
+ * - Reading speed
+ * - Highlighting color
+ *
+ * @packageDocumentation
+ */
+
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, StyleSheet, Platform } from 'react-native';
 import { Appbar, List, Text, Divider, Switch } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { NavigationProps } from '../navigation';
+import { useDispatch, useSelector } from 'react-redux';
+import { ErrorBoundary } from '../../components/common/ErrorBoundary';
+import { theme } from '../../theme';
+import { NavigationProps } from '../../navigation';
+import { updateSettings } from '../../store/settingsSlice';
+import type { RootState } from '../../types';
 
 interface Settings {
   soundEnabled: boolean;
@@ -13,258 +30,140 @@ interface Settings {
 
 type SettingsScreenProps = NavigationProps<'Settings'>;
 
+/**
+ * Settings screen component for managing user preferences
+ */
 const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const globalSettings = useSelector((state: RootState) => state.settings);
   const [settings, setSettings] = useState<Settings>({
     soundEnabled: true,
     textSize: 'medium',
     readingSpeed: 1,
     highlightingColor: 'yellow',
   });
+  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    loadSettings();
-  }, []);
-
-  const loadSettings = async () => {
+  /**
+   * Loads user settings from storage
+   */
+  const loadSettings = useCallback(async () => {
     try {
       const savedSettings = await AsyncStorage.getItem('userSettings');
       if (savedSettings) {
-        setSettings(JSON.parse(savedSettings));
+        const parsed = JSON.parse(savedSettings);
+        setSettings(parsed);
+        dispatch(updateSettings(parsed));
       }
     } catch (error) {
       console.error('Error loading settings:', error);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [dispatch]);
 
+  useEffect(() => {
+    loadSettings();
+  }, [loadSettings]);
+
+  /**
+   * Saves settings to storage and updates global state
+   */
   const saveSettings = async (newSettings: Settings) => {
     try {
       await AsyncStorage.setItem('userSettings', JSON.stringify(newSettings));
+      setSettings(newSettings);
+      dispatch(updateSettings(newSettings));
     } catch (error) {
       console.error('Error saving settings:', error);
     }
   };
 
-  const updateSettings = (key: keyof Settings, value: any) => {
+  /**
+   * Updates individual setting values
+   */
+  const updateSetting = <K extends keyof Settings>(key: K, value: Settings[K]) => {
     const newSettings = { ...settings, [key]: value };
-    setSettings(newSettings);
     saveSettings(newSettings);
   };
 
-  return (
-    <View style={styles.container}>
-      <Appbar.Header>
-        <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title="Settings" />
-      </Appbar.Header>
-
-      <List.Section>
-        <List.Item
-          title="Sound Effects"
-          left={() => <List.Icon icon="volume-high" />}
-          right={() => (
-            <Switch
-              value={settings.soundEnabled}
-              onValueChange={value => updateSettings('soundEnabled', value)}
-            />
-          )}
-        />
-        <Divider />
-
-        <List.Item
-          title="Text Size"
-          left={() => <List.Icon icon="format-size" />}
-          right={() => (
-            <View style={styles.textSizeContainer}>
-              {['small', 'medium', 'large'].map(size => (
-                <Text
-                  key={size}
-                  style={[
-                    styles.textSizeOption,
-                    settings.textSize === size && styles.selectedOption,
-                  ]}
-                  onPress={() => updateSettings('textSize', size)}
-                >
-                  {size.charAt(0).toUpperCase()}
-                </Text>
-              ))}
-            </View>
-          )}
-        />
-        <Divider />
-
-        <List.Item
-          title="Reading Speed"
-          left={() => <List.Icon icon="speedometer" />}
-          right={() => (
-            <View style={styles.speedContainer}>
-              {[0.5, 1, 1.5, 2].map(speed => (
-                <Text
-                  key={speed}
-                  style={[
-                    styles.speedOption,
-                    settings.readingSpeed === speed && styles.selectedOption,
-                  ]}
-                  onPress={() => updateSettings('readingSpeed', speed)}
-                >
-                  {speed}x
-                </Text>
-              ))}
-            </View>
-          )}
-        />
-        <Divider />
-
-        <List.Item
-          title="Highlighting Color"
-          left={() => <List.Icon icon="palette" />}
-          right={() => (
-            <View style={styles.colorContainer}>
-              {['yellow', 'green', 'blue', 'pink'].map(color => (
-                <View
-                  key={color}
-                  style={[
-                    styles.colorOption,
-                    { backgroundColor: color },
-                    settings.highlightingColor === color &&
-                      styles.selectedColor,
-                  ]}
-                  onTouchEnd={() => updateSettings('highlightingColor', color)}
-                />
-              ))}
-            </View>
-          )}
-        />
-      </List.Section>
-    </View>
-  );
-};
-
-const styles = StyleSheet.create({
-  colorContainer: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 8,
-  },
-  colorOption: {
-    borderRadius: 12,
-    height: 24,
-    width: 24,
-  },
-  container: {
-    backgroundColor: '#fff',
-    flex: 1,
-  },
-  selectedColor: {
-    borderColor: '#000',
-    borderWidth: 2,
-  },
-  selectedOption: {
-    backgroundColor: '#e0e0e0',
-  },
-  speedContainer: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 8,
-  },
-  speedOption: {
-    borderRadius: 4,
-    padding: 8,
-  },
-  textSizeContainer: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 8,
-  },
-  textSizeOption: {
-    borderRadius: 4,
-    padding: 8,
-  },
-});
-
-export default SettingsScreen;
-import React, { useState } from 'react';
-import { View, StyleSheet, Switch } from 'react-native';
-import { Appbar, List, Text, Divider } from 'react-native-paper';
-
-const SettingsScreen = () => {
-  const [soundEnabled, setSoundEnabled] = useState(true);
-  const [textSize, setTextSize] = useState('medium');
-  const [readingSpeed, setReadingSpeed] = useState(1);
-  const [highlightingColor, setHighlightingColor] = useState('yellow');
-
-  const toggleSound = () => {
-    setSoundEnabled(previousState => !previousState);
-  };
-
-  const handleTextSizeChange = size => {
-    setTextSize(size);
-  };
-
-  const handleReadingSpeedChange = speed => {
-    setReadingSpeed(speed);
-  };
-
-  const handleHighlightingColorChange = color => {
-    setHighlightingColor(color);
-  };
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" testID="settings-loader" />
+      </View>
+    );
+  }
 
   return (
-    <View style={styles.container}>
-      <Appbar.Header>
-        <Appbar.Content title="Settings" />
-      </Appbar.Header>
+    <ErrorBoundary>
+      <View style={styles.container} testID="settings-screen">
+        <Appbar.Header>
+          <Appbar.BackAction
+            onPress={() => navigation.goBack()}
+            accessibilityLabel="Go back"
+          />
+          <Appbar.Content title="Settings" />
+        </Appbar.Header>
 
-      <List.Section>
-        <List.Item
-          title="Sound Effects"
-          left={() => <List.Icon icon="volume-high" />}
-          right={() => (
-            <Switch value={soundEnabled} onValueChange={toggleSound} />
-          )}
-        />
-        <Divider />
-        <List.Item
-          title="Text Size"
-          left={() => <List.Icon icon="format-size" />}
-          right={() => (
-            <List.Icon
-              icon="chevron-right"
-              onPress={() => navigation.navigate('TextSizeSettings')} // Navigate to a separate screen for text size options
-            />
-          )}
-        />
-        <Divider />
-        <List.Item
-          title="Reading Speed"
-          left={() => <List.Icon icon="speedometer" />}
-          right={() => (
-            <List.Icon
-              icon="chevron-right"
-              onPress={() => navigation.navigate('ReadingSpeedSettings')} // Navigate to a separate screen for speed settings
-            />
-          )}
-        />
-        <Divider />
-        <List.Item
-          title="Highlighting Color"
-          left={() => <List.Icon icon="palette" />}
-          right={() => (
-            <List.Icon
-              icon="chevron-right"
-              onPress={() => navigation.navigate('HighlightingColorSettings')} // Navigate to a separate screen for color options
-            />
-          )}
-        />
-      </List.Section>
-    </View>
+        <List.Section>
+          <List.Subheader>Reading Preferences</List.Subheader>
+          <List.Item
+            title="Sound Effects"
+            description="Enable sound effects while reading"
+            left={props => <List.Icon {...props} icon="volume-high" />}
+            right={() => (
+              <Switch
+                value={settings.soundEnabled}
+                onValueChange={value => updateSetting('soundEnabled', value)}
+                accessibilityLabel="Toggle sound effects"
+                testID="sound-toggle"
+              />
+            )}
+          />
+          <Divider />
+          <List.Item
+            title="Text Size"
+            description={`Current: ${settings.textSize}`}
+            left={props => <List.Icon {...props} icon="format-size" />}
+            onPress={() => navigation.navigate('TextSizeSettings')}
+            accessibilityLabel="Change text size"
+            testID="text-size-button"
+          />
+          <Divider />
+          <List.Item
+            title="Reading Speed"
+            description={`${settings.readingSpeed}x`}
+            left={props => <List.Icon {...props} icon="speedometer" />}
+            onPress={() => navigation.navigate('ReadingSpeedSettings')}
+            accessibilityLabel="Adjust reading speed"
+            testID="reading-speed-button"
+          />
+          <Divider />
+          <List.Item
+            title="Highlighting Color"
+            description={settings.highlightingColor}
+            left={props => <List.Icon {...props} icon="palette" />}
+            onPress={() => navigation.navigate('HighlightingColorSettings')}
+            accessibilityLabel="Choose highlighting color"
+            testID="highlight-color-button"
+          />
+        </List.Section>
+      </View>
+    </ErrorBoundary>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
 export default SettingsScreen;
-import type React from 'react';

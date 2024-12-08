@@ -1,68 +1,102 @@
-// /Users/mathewlewallen/ReadVenture/src/screens/StoryLibraryScreen.tsx
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+/**
+ * Story Library Screen Component
+ *
+ * Displays a list of available stories for reading, with filtering and sorting options.
+ * Handles story selection, loading states, and navigation to reading screen.
+ *
+ * @packageDocumentation
+ */
+
+import React, { useEffect, useState, useCallback } from 'react';
 import { Alert, FlatList, StyleSheet, View } from 'react-native';
-import { ActivityIndicator, Appbar, List } from 'react-native-paper';
+import { ActivityIndicator, Appbar, List, Text } from 'react-native-paper';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import { useDispatch, useSelector } from 'react-redux';
 import { NavigationProps } from '../../navigation';
-import { API_URL } from '../config';
+import { ErrorBoundary } from '../../components/common/ErrorBoundary';
+import { theme } from '../../theme';
+import { fetchStories } from '../../store/storySlice';
+import type { Story, RootState } from '../../types';
 
-interface Story {
-  _id: string;
-  title: string;
-  author: string;
-  difficulty: string;
-  coverImage?: string;
-  description: string;
-}
+interface StoryLibraryScreenProps extends NavigationProps<'StoryLibrary'> {}
 
-type StoryLibraryScreenProps = NavigationProps<'StoryLibrary'>;
-
+/**
+ * Story Library Screen component
+ * Displays available stories and handles story selection
+ */
 const StoryLibraryScreen: React.FC<StoryLibraryScreenProps> = ({
   navigation,
 }) => {
-  const [stories, setStories] = useState<Story[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const dispatch = useDispatch();
+  const { stories, isLoading, error } = useSelector(
+    (state: RootState) => state.stories,
+  );
+  const [refreshing, setRefreshing] = useState(false);
+
+  /**
+   * Fetches stories from the API
+   */
+  const loadStories = useCallback(async () => {
+    try {
+      await dispatch(fetchStories());
+    } catch (err) {
+      console.error('Error loading stories:', err);
+      Alert.alert('Error', 'Failed to load stories. Please try again.');
+    }
+  }, [dispatch]);
 
   useEffect(() => {
-    const fetchStories = async () => {
-      try {
-        const response = await axios.get<Story[]>(`${API_URL}/stories`);
-        setStories(response.data);
-        setError(null);
-      } catch (error) {
-        console.error('Error fetching stories:', error);
-        setError('Failed to load stories');
-        Alert.alert('Error', 'Failed to load stories.');
-      } finally {
-        setIsLoading(false);
-      }
+    loadStories();
+
+    return () => {
+      // Cleanup if needed
     };
+  }, [loadStories]);
 
-    fetchStories();
-  }, []);
+  /**
+   * Handles pull-to-refresh
+   */
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await loadStories();
+    setRefreshing(false);
+  }, [loadStories]);
 
-  const handleStorySelect = (storyId: string) => {
-    navigation.navigate('Reading', { storyId });
-  };
-
-  const renderStoryItem = ({ item }: { item: Story }) => (
-    <List.Item
-      title={item.title}
-      description={`By ${item.author} • ${item.difficulty}`}
-      left={props =>
-        item.coverImage ? (
-          <List.Image {...props} source={{ uri: item.coverImage }} />
-        ) : (
-          <FontAwesome name="book" size={24} color="#666" />
-        )
-      }
-      onPress={() => handleStorySelect(item._id)}
-    />
+  /**
+   * Renders individual story item
+   */
+  const renderStoryItem = useCallback(
+    ({ item }: { item: Story }) => (
+      <List.Item
+        title={item.title}
+        description={item.description}
+        left={props => (
+          <FontAwesome
+            {...props}
+            name="book"
+            size={24}
+            color={theme.colors.primary}
+            accessibilityLabel={`Book icon for ${item.title}`}
+          />
+        )}
+        right={props => (
+          <List.Icon
+            {...props}
+            icon="chevron-right"
+            accessibilityLabel="Navigate to story"
+          />
+        )}
+        onPress={() => navigation.navigate('Reading', { storyId: item._id })}
+        accessibilityRole="button"
+        accessibilityHint={`Navigate to read ${item.title}`}
+        testID={`story-item-${item._id}`}
+        style={styles.storyItem}
+      />
+    ),
+    [navigation],
   );
 
-  if (isLoading) {
+  if (isLoading && !refreshing) {
     return (
       <View style={styles.container}>
         <Appbar.Header>
@@ -70,249 +104,75 @@ const StoryLibraryScreen: React.FC<StoryLibraryScreenProps> = ({
           <Appbar.Content title="Story Library" />
         </Appbar.Header>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" />
+          <ActivityIndicator size="large" testID="loading-indicator" />
         </View>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Appbar.Header>
-        <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title="Story Library" />
-      </Appbar.Header>
-      <FlatList
-        data={stories}
-        renderItem={renderStoryItem}
-        keyExtractor={item => item._id}
-        contentContainerStyle={styles.listContainer}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <FontAwesome name="inbox" size={48} color="#666" />
-            <List.Subheader>{error || 'No stories available'}</List.Subheader>
-          </View>
-        }
-      />
-    </View>
+    <ErrorBoundary>
+      <View style={styles.container} testID="story-library-screen">
+        <Appbar.Header>
+          <Appbar.BackAction
+            onPress={() => navigation.goBack()}
+            accessibilityLabel="Go back"
+          />
+          <Appbar.Content title="Story Library" />
+        </Appbar.Header>
+
+        <FlatList
+          data={stories}
+          renderItem={renderStoryItem}
+          keyExtractor={item => item._id}
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
+          contentContainerStyle={styles.listContainer}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <FontAwesome name="inbox" size={48} color={theme.colors.text} />
+              <Text style={styles.emptyText}>
+                {error || 'No stories available'}
+              </Text>
+            </View>
+          }
+          accessibilityRole="list"
+          accessibilityLabel="List of available stories"
+          testID="story-list"
+        />
+      </View>
+    </ErrorBoundary>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: theme.colors.background,
   },
-  emptyContainer: {
-    alignItems: 'center',
+  loadingContainer: {
     flex: 1,
     justifyContent: 'center',
-    padding: 20,
+    alignItems: 'center',
   },
   listContainer: {
     flexGrow: 1,
-  },
-  loadingContainer: {
-    alignItems: 'center',
-    flex: 1,
-    justifyContent: 'center',
-  },
-});
-
-export default StoryLibraryScreen;
-// StoryLibraryScreen.js
-import { useNavigation } from '@react-navigation/native';
-import React from 'react';
-import { Text, TouchableOpacity } from 'react-native';
-
-const StoryLibraryScreen = () => {
-  const [stories, setStories] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const navigation = useNavigation();
-
-  useEffect(() => {
-    const fetchStories = async () => {
-      try {
-        const response = await axios.get('http://your-api-url/stories'); // Replace with your API URL
-        setStories(response.data);
-      } catch (error) {
-        console.error('Error fetching stories:', error);
-        Alert.alert('Error', 'Failed to load stories.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchStories();
-  }, []);
-
-  const renderItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.storyItem}
-      onPress={() => navigation.navigate('Reading', { storyId: item._id })}
-    >
-      <FontAwesome name="book" size={24} color="blue" />
-      <Text style={styles.storyTitle}>{item.title}</Text>
-      {/* ... display other story details (e.g., author, difficulty) ... */}
-    </TouchableOpacity>
-  );
-
-  if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
-
-  return (
-    <View style={styles.container}>
-      <Appbar.Header>
-        <Appbar.Content title="Story Library" />
-      </Appbar.Header>
-      <FlatList
-        data={stories}
-        renderItem={renderItem}
-        keyExtractor={item => item._id}
-      />
-    </View>
-  );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
   },
   storyItem: {
-    flexDirection: 'row', // Arrange icon and text in a row
-    alignItems: 'center', // Center vertically
-    padding: 10,
-    marginVertical: 5,
-    borderWidth: 1,
-    borderColor: '#ccc',
-  },
-  storyTitle: {
-    fontSize: 18,
-    marginLeft: 10, // Add some space between the icon and text
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
-
-export default StoryLibraryScreen;
-// /Users/mathewlewallen/ReadVenture/src/screens/StoryLibraryScreen.tsx
-import React from 'react';
-
-interface Story {
-  _id: string;
-  title: string;
-  author: string;
-  difficulty: string;
-  coverImage?: string;
-  description: string;
-}
-
-type StoryLibraryScreenProps = NavigationProps<'StoryLibrary'>;
-
-const StoryLibraryScreen: React.FC<StoryLibraryScreenProps> = ({
-  navigation,
-}) => {
-  const [stories, setStories] = useState<Story[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchStories = async () => {
-      try {
-        const response = await axios.get<Story[]>(`${API_URL}/stories`);
-        setStories(response.data);
-        setError(null);
-      } catch (error) {
-        console.error('Error fetching stories:', error);
-        setError('Failed to load stories');
-        Alert.alert('Error', 'Failed to load stories.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchStories();
-  }, []);
-
-  const handleStorySelect = (storyId: string) => {
-    navigation.navigate('Reading', { storyId });
-  };
-
-  const renderStoryItem = ({ item }: { item: Story }) => (
-    <List.Item
-      title={item.title}
-      description={`By ${item.author} • ${item.difficulty}`}
-      left={props =>
-        item.coverImage ? (
-          <List.Image {...props} source={{ uri: item.coverImage }} />
-        ) : (
-          <FontAwesome name="book" size={24} color="#666" />
-        )
-      }
-      onPress={() => handleStorySelect(item._id)}
-    />
-  );
-
-  if (isLoading) {
-    return (
-      <View style={styles.container}>
-        <Appbar.Header>
-          <Appbar.BackAction onPress={() => navigation.goBack()} />
-          <Appbar.Content title="Story Library" />
-        </Appbar.Header>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" />
-        </View>
-      </View>
-    );
-  }
-
-  return (
-    <View style={styles.container}>
-      <Appbar.Header>
-        <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title="Story Library" />
-      </Appbar.Header>
-      <FlatList
-        data={stories}
-        renderItem={renderStoryItem}
-        keyExtractor={item => item._id}
-        contentContainerStyle={styles.listContainer}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <FontAwesome name="inbox" size={48} color="#666" />
-            <List.Subheader>{error || 'No stories available'}</List.Subheader>
-          </View>
-        }
-      />
-    </View>
-  );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  listContainer: {
-    flexGrow: 1,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: theme.colors.text,
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+  },
+  emptyText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: theme.colors.text,
+    textAlign: 'center',
   },
 });
 

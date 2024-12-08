@@ -1,60 +1,92 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Common validation functions
+    // ===== Helper Functions =====
+
+    /**
+     * Checks if the request is from an authenticated user
+     * @return {boolean} True if user is authenticated with valid UID
+     */
     function isAuthenticated() {
       return request.auth != null && request.auth.uid != null;
     }
 
+    /**
+     * Validates email format
+     * @param {string} email - Email to validate
+     * @return {boolean} True if email format is valid
+     */
     function isValidEmail(email) {
       return email.matches('^[^@]+@[^@]+\\.[^@]+$');
     }
 
+    /**
+     * Checks if authenticated user is parent of given child
+     * @param {string} childId - Child user ID to check
+     * @return {boolean} True if user is parent of child
+     */
     function isParentOf(childId) {
       return isAuthenticated() &&
         exists(/databases/$(database)/documents/users/$(request.auth.uid)/parentOf/$(childId));
     }
 
+    /**
+     * Verifies user owns the document being accessed
+     * @return {boolean} True if document belongs to authenticated user
+     */
     function isOwnDocument() {
       return isAuthenticated() &&
         request.auth.uid == resource.data.userId;
     }
 
+    /**
+     * Validates presence of required fields in data
+     * @param {object} data - Data object to check
+     * @param {string[]} fields - Required field names
+     * @return {boolean} True if all required fields exist
+     */
     function hasRequiredFields(data, fields) {
       return data.keys().hasAll(fields);
     }
 
-    // User profiles with improved validation
+    // ===== User Profiles =====
     match /users/{userId} {
+      // Allow read if user is authenticated and either owns profile or is parent
       allow read: if isAuthenticated() &&
         (request.auth.uid == userId || isParentOf(userId));
 
+      // Allow create with required fields and valid data
       allow create: if isAuthenticated() &&
         hasRequiredFields(request.resource.data, ['email', 'role', 'createdAt']) &&
         isValidEmail(request.resource.data.email) &&
         (request.resource.data.role in ['child', 'parent']) &&
         request.resource.data.createdAt is timestamp;
 
+      // Allow update by owner or parent, protecting critical fields
       allow update: if isAuthenticated() &&
         (request.auth.uid == userId || isParentOf(userId)) &&
         (!request.resource.data.diff(resource.data).affectedKeys()
           .hasAny(['role', 'createdAt'])) &&
         (request.resource.data.updatedAt is timestamp);
 
+      // Disable delete operations
       allow delete: if false;
     }
 
-    // Stories - read-only for authenticated users
+    // ===== Stories =====
     match /stories/{storyId} {
+      // Read-only access for authenticated users
       allow read: if isAuthenticated();
       allow write: if false;
     }
 
-    // Reading progress with data validation
+    // ===== Reading Progress =====
     match /progress/{progressId} {
+      // Allow read by owner or parent
       allow read: if isAuthenticated() &&
         (isOwnDocument() || isParentOf(resource.data.userId));
 
+      // Allow create with validation
       allow create: if isAuthenticated() &&
         hasRequiredFields(request.resource.data, ['userId', 'timestamp', 'wordCount']) &&
         request.resource.data.userId == request.auth.uid &&
@@ -62,19 +94,32 @@ service cloud.firestore {
         request.resource.data.wordCount is number &&
         request.resource.data.wordCount > 0;
 
+      // Allow update by owner only
       allow update: if isAuthenticated() &&
         isOwnDocument() &&
         request.resource.data.userId == resource.data.userId &&
         request.resource.data.timestamp is timestamp;
 
+      // Disable delete operations
       allow delete: if false;
     }
 
-    // Parent-child relationships - read-only
+    // ===== Parent-Child Relationships =====
     match /users/{parentId}/parentOf/{childId} {
+      // Read-only access for parent and child
       allow read: if isAuthenticated() &&
         (request.auth.uid == parentId || request.auth.uid == childId);
       allow write: if false;
+    }
+
+    // ===== User Settings =====
+    match /users/{userId}/settings {
+      // Allow read/write for owner or parent
+      allow read: if isAuthenticated() &&
+        (request.auth.uid == userId || isParentOf(userId));
+
+      allow write: if isAuthenticated() &&
+        (request.auth.uid == userId || isParentOf(userId));
     }
   }
 }

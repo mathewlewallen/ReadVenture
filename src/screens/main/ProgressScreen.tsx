@@ -1,165 +1,185 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Appbar, ProgressBar } from 'react-native-paper';
+/**
+ * Progress Screen Component
+ *
+ * Displays user's reading progress including:
+ * - Total words read
+ * - Stories completed
+ * - Badges earned
+ * - Progress visualization
+ *
+ * @packageDocumentation
+ */
 
-const ProgressScreen = () => {
-  const [progress, setProgress] = useState({
-    totalWordsRead: 0,
-    storiesCompleted: 0,
-    badgesEarned: [],
-  });
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, ScrollView } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { Appbar, Text, Card, List } from 'react-native-paper';
+import { ErrorBoundary } from '../../components/common/ErrorBoundary';
+import { ProgressBar } from '../../components/reading/ProgressBar';
+import { NavigationProps } from '../../navigation';
+import { theme } from '../../theme';
+import { fetchUserProgress } from '../../store/progressSlice';
+import type { RootState, UserProgress } from '../../types';
+
+interface ProgressScreenProps extends NavigationProps<'Progress'> {}
+
+/**
+ * Progress screen component
+ */
+const ProgressScreen: React.FC<ProgressScreenProps> = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const { progress, isLoading, error } = useSelector(
+    (state: RootState) => state.progress
+  );
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    const loadProgress = async () => {
-      try {
-        const storedProgress = await AsyncStorage.getItem('progress');
-        if (storedProgress !== null) {
-          setProgress(JSON.parse(storedProgress));
-        }
-        const storedTotalWordsRead =
-          await AsyncStorage.getItem('totalWordsRead');
-        if (storedTotalWordsRead !== null) {
-          setProgress(prevProgress => ({
-            ...prevProgress,
-            totalWordsRead: parseInt(storedTotalWordsRead, 10),
-          }));
-        }
-      } catch (error) {
-        console.error('Error loading progress:', error);
-      }
-    };
-
     loadProgress();
-  }, []);
 
-  const calculateProgress = () => {
-    const totalWordsPossible = 10000; // Example value, adjust as needed
-    const progressPercentage =
-      (progress.totalWordsRead / totalWordsPossible) * 100;
-    return progressPercentage;
+    return () => {
+      // Cleanup if needed
+    };
+  }, [dispatch]);
+
+  /**
+   * Loads user progress data from Redux/API
+   */
+  const loadProgress = async () => {
+    try {
+      await dispatch(fetchUserProgress());
+    } catch (err) {
+      console.error('Error loading progress:', err);
+    }
   };
 
-  return (
-    <View style={styles.container}>
-      <Appbar.Header>
-        <Appbar.Content title="Progress" />
-      </Appbar.Header>
-      <View style={styles.content}>
-        <Text style={styles.title}>Your Progress</Text>
-        <ProgressBar
-          progress={calculateProgress() / 100}
-          color="blue"
-          testID="progress-bar"
-        />
-        <Text>Total words read: {progress.totalWordsRead}</Text>
-        <Text>Stories completed: {progress.storiesCompleted}</Text>
-        <Text>Badges Earned:</Text>
-        {progress.badgesEarned.map((badge, index) => (
-          <Text key={index}>{badge}</Text>
-        ))}
+  /**
+   * Calculates percentage completion
+   */
+  const calculateProgress = (): number => {
+    const totalWordsPossible = 10000; // Example value
+    return Math.min((progress.totalWordsRead / totalWordsPossible) * 100, 100);
+  };
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Appbar.Header>
+          <Appbar.BackAction onPress={() => navigation.goBack()} />
+          <Appbar.Content title="Progress" />
+        </Appbar.Header>
+        <View style={styles.content}>
+          <Text
+            style={styles.errorText}
+            accessibilityRole="alert"
+          >
+            {error}
+          </Text>
+        </View>
       </View>
-    </View>
+    );
+  }
+
+  return (
+    <ErrorBoundary>
+      <View style={styles.container} testID="progress-screen">
+        <Appbar.Header>
+          <Appbar.BackAction 
+            onPress={() => navigation.goBack()}
+            accessibilityLabel="Go back"
+          />
+          <Appbar.Content title="Your Progress" />
+        </Appbar.Header>
+
+        <ScrollView 
+          style={styles.content}
+          contentContainerStyle={styles.scrollContent}
+        >
+          <Card style={styles.card}>
+            <Card.Content>
+              <Text style={styles.title}>Overall Progress</Text>
+              <ProgressBar 
+                progress={calculateProgress() / 100}
+                color={theme.colors.primary}
+                testID="progress-bar"
+              />
+              <Text style={styles.progressText}>
+                {`${Math.round(calculateProgress())}% Complete`}
+              </Text>
+            </Card.Content>
+          </Card>
+
+          <Card style={styles.card}>
+            <Card.Content>
+              <List.Item
+                title="Total Words Read"
+                description={progress.totalWordsRead.toString()}
+                left={props => <List.Icon {...props} icon="book" />}
+                accessibilityRole="text"
+              />
+              <List.Item
+                title="Stories Completed"
+                description={progress.storiesCompleted.toString()}
+                left={props => <List.Icon {...props} icon="check-circle" />}
+                accessibilityRole="text"
+              />
+            </Card.Content>
+          </Card>
+
+          {progress.badges.length > 0 && (
+            <Card style={styles.card}>
+              <Card.Content>
+                <Text style={styles.subtitle}>Badges Earned</Text>
+                {progress.badges.map((badge, index) => (
+                  <List.Item
+                    key={badge.id}
+                    title={badge.name}
+                    description={badge.description}
+                    left={props => <List.Icon {...props} icon="trophy" />}
+                    accessibilityRole="text"
+                  />
+                ))}
+              </Card.Content>
+            </Card>
+          )}
+        </ScrollView>
+      </View>
+    </ErrorBoundary>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  content: {
-    alignItems: 'center',
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-});
-
-export default ProgressScreen;
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Appbar, ProgressBar } from 'react-native-paper';
-
-const ProgressScreen = () => {
-  const [progress, setProgress] = useState({
-    totalWordsRead: 0,
-    storiesCompleted: 0,
-    badgesEarned: [],
-  });
-
-  useEffect(() => {
-    const loadProgress = async () => {
-      try {
-        const storedProgress = await AsyncStorage.getItem('progress');
-        if (storedProgress !== null) {
-          setProgress(JSON.parse(storedProgress));
-        }
-        const storedTotalWordsRead =
-          await AsyncStorage.getItem('totalWordsRead');
-        if (storedTotalWordsRead !== null) {
-          setProgress(prevProgress => ({
-            ...prevProgress,
-            totalWordsRead: parseInt(storedTotalWordsRead, 10),
-          }));
-        }
-      } catch (error) {
-        console.error('Error loading progress:', error);
-      }
-    };
-
-    loadProgress();
-  }, []);
-
-  const calculateProgress = () => {
-    const totalWordsPossible = 10000; // Example value, adjust as needed
-    const progressPercentage =
-      (progress.totalWordsRead / totalWordsPossible) * 100;
-    return progressPercentage;
-  };
-
-  return (
-    <View style={styles.container}>
-      <Appbar.Header>
-        <Appbar.Content title="Progress" />
-      </Appbar.Header>
-      <View style={styles.content}>
-        <Text style={styles.title}>Your Progress</Text>
-        <ProgressBar
-          progress={calculateProgress() / 100}
-          color="blue"
-          testID="progress-bar"
-        />
-        <Text>Total words read: {progress.totalWordsRead}</Text>
-        <Text>Stories completed: {progress.storiesCompleted}</Text>
-        <Text>Badges Earned:</Text>
-        {progress.badgesEarned.map((badge, index) => (
-          <Text key={index}>{badge}</Text>
-        ))}
-      </View>
-    </View>
-  );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+    backgroundColor: theme.colors.background,
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
+  },
+  scrollContent: {
+    padding: 16,
+  },
+  card: {
+    marginBottom: 16,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
+    fontSize: 20,
+    fontFamily: theme.fonts.medium,
+    marginBottom: 16,
+  },
+  subtitle: {
+    fontSize: 18,
+    fontFamily: theme.fonts.medium,
+    marginBottom: 12,
+  },
+  progressText: {
+    textAlign: 'center',
+    marginTop: 8,
+    color: theme.colors.primary,
+  },
+  errorText: {
+    color: theme.colors.error,
+    textAlign: 'center',
+    margin: 16,
   },
 });
 

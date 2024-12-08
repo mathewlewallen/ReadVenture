@@ -1,210 +1,148 @@
-// /Users/mathewlewallen/ReadVenture/src/screens/WelcomeScreen.tsx
-import type React from 'react';
-import { default as React, default as React } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+/**
+ * Welcome Screen Component
+ *
+ * Initial landing screen that provides login and registration options.
+ * Handles navigation to authentication flows and displays app branding.
+ *
+ * @packageDocumentation
+ */
+
+import React, { useEffect } from 'react';
+import { StyleSheet, Text, View, Platform } from 'react-native';
 import { Appbar, Button } from 'react-native-paper';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import { useSelector, useDispatch } from 'react-redux';
+import { ErrorBoundary } from '../../components/common/ErrorBoundary';
+import { theme } from '../../theme';
 import { NavigationProps } from '../../navigation';
+import { clearAuthState } from '../../store/authSlice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type WelcomeScreenProps = NavigationProps<'Welcome'>;
 
+/**
+ * Welcome screen component
+ * Displays app branding and authentication options
+ */
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+
+  useEffect(() => {
+    // Clear any existing auth state on mount
+    dispatch(clearAuthState());
+
+    // Check for existing session
+    const checkSession = async () => {
+      try {
+        const session = await AsyncStorage.getItem('userSession');
+        if (session && isAuthenticated) {
+          navigation.replace('Home');
+        }
+      } catch (error) {
+        console.error('Session check failed:', error);
+      }
+    };
+
+    checkSession();
+
+    return () => {
+      // Cleanup any subscriptions/listeners
+    };
+  }, [dispatch, navigation, isAuthenticated]);
+
   return (
-    <View style={styles.container}>
-      <Appbar.Header>
-        <Appbar.Content title="Welcome to ReadVenture!" />
-      </Appbar.Header>
+    <ErrorBoundary>
+      <View style={styles.container} testID="welcome-screen">
+        <Appbar.Header>
+          <Appbar.Content
+            title="Welcome to ReadVenture!"
+            accessibilityRole="header"
+          />
+        </Appbar.Header>
 
-      <View style={styles.content}>
-        <FontAwesome
-          name="book"
-          size={80}
-          color="#6200ee"
-          style={styles.icon}
-        />
+        <View style={styles.content}>
+          <FontAwesome
+            name="book"
+            size={80}
+            color={theme.colors.primary}
+            style={styles.icon}
+            accessibilityLabel="ReadVenture logo"
+          />
 
-        <Text style={styles.welcomeText}>
-          Welcome to ReadVenture, the app that helps children learn to read!
-        </Text>
+          <Text
+            style={styles.welcomeText}
+            accessibilityRole="text"
+            accessibilityHint="Welcome message describing the app's purpose"
+          >
+            Welcome to ReadVenture, the app that helps children learn to read!
+          </Text>
 
-        <Button
-          mode="contained"
-          style={styles.button}
-          onPress={() => navigation.navigate('Login')}
-          icon={() => <FontAwesome name="sign-in" size={24} color="white" />}
-        >
-          Login
-        </Button>
+          <Button
+            mode="contained"
+            style={styles.button}
+            onPress={() => navigation.navigate('Login')}
+            icon={() => <FontAwesome name="sign-in" size={24} color="white" />}
+            accessibilityLabel="Login button"
+            accessibilityHint="Navigate to login screen"
+            testID="login-button"
+          >
+            Login
+          </Button>
 
-        <Button
-          mode="contained"
-          style={styles.button}
-          onPress={() => navigation.navigate('Registration')}
-          icon={() => <FontAwesome name="user-plus" size={24} color="white" />}
-        >
-          Register
-        </Button>
+          <Button
+            mode="contained"
+            style={styles.button}
+            onPress={() => navigation.navigate('Registration')}
+            icon={() => (
+              <FontAwesome name="user-plus" size={24} color="white" />
+            )}
+            accessibilityLabel="Register button"
+            accessibilityHint="Navigate to registration screen"
+            testID="register-button"
+          >
+            Register
+          </Button>
+        </View>
       </View>
-    </View>
-  );
-};
-
-const styles = StyleSheet.create({
-  button: {
-    borderRadius: 8,
-    marginVertical: 10,
-    paddingVertical: 8,
-    width: '80%',
-  },
-  container: {
-    backgroundColor: '#fff',
-    flex: 1,
-  },
-  content: {
-    alignItems: 'center',
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-  },
-  icon: {
-    marginBottom: 20,
-  },
-  welcomeText: {
-    color: '#333',
-    fontSize: 24,
-    lineHeight: 32,
-    marginBottom: 40,
-    textAlign: 'center',
-  },
-});
-
-export default WelcomeScreen;
-
-const WelcomeScreen = ({ navigation }) => {
-  return (
-    <View style={styles.container}>
-      <Appbar.Header>
-        <Appbar.Content title="Welcome to ReadVenture!" />
-      </Appbar.Header>
-      <View style={styles.content}>
-        <Text style={styles.welcomeText}>
-          {/* Add a welcome message or description */}
-          Welcome to ReadVenture, the app that helps children learn to read!
-        </Text>
-        <Button
-          mode="contained"
-          style={styles.button}
-          onPress={() => navigation.navigate('Login')}
-          icon={() => <FontAwesome name="sign-in" size={24} color="white" />}
-        >
-          Login
-        </Button>
-        <Button
-          mode="contained"
-          style={styles.button}
-          onPress={() => navigation.navigate('Registration')}
-          icon={() => <FontAwesome name="user-plus" size={24} color="white" />}
-        >
-          Register
-        </Button>
-      </View>
-    </View>
+    </ErrorBoundary>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: theme.colors.background,
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
     padding: 20,
   },
-  welcomeText: {
-    fontSize: 20,
-    textAlign: 'center',
-    marginBottom: 30,
-  },
-  button: {
-    margin: 10,
-  },
-});
-
-export default WelcomeScreen;
-// /Users/mathewlewallen/ReadVenture/src/screens/WelcomeScreen.tsx
-import React from 'react';
-
-type WelcomeScreenProps = NavigationProps<'Welcome'>;
-
-const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
-  return (
-    <View style={styles.container}>
-      <Appbar.Header>
-        <Appbar.Content title="Welcome to ReadVenture!" />
-      </Appbar.Header>
-
-      <View style={styles.content}>
-        <FontAwesome
-          name="book"
-          size={80}
-          color="#6200ee"
-          style={styles.icon}
-        />
-
-        <Text style={styles.welcomeText}>
-          Welcome to ReadVenture, the app that helps children learn to read!
-        </Text>
-
-        <Button
-          mode="contained"
-          style={styles.button}
-          onPress={() => navigation.navigate('Login')}
-          icon={() => <FontAwesome name="sign-in" size={24} color="white" />}
-        >
-          Login
-        </Button>
-
-        <Button
-          mode="contained"
-          style={styles.button}
-          onPress={() => navigation.navigate('Registration')}
-          icon={() => <FontAwesome name="user-plus" size={24} color="white" />}
-        >
-          Register
-        </Button>
-      </View>
-    </View>
-  );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
   icon: {
     marginBottom: 20,
   },
   welcomeText: {
     fontSize: 24,
     textAlign: 'center',
-    marginBottom: 40,
-    color: '#333',
-    lineHeight: 32,
+    marginBottom: 30,
+    fontFamily: theme.fonts.medium,
+    color: theme.colors.text,
+    ...Platform.select({
+      ios: {
+        fontWeight: '600',
+      },
+      android: {
+        fontWeight: 'bold',
+      },
+    }),
   },
   button: {
     width: '80%',
     marginVertical: 10,
-    paddingVertical: 8,
     borderRadius: 8,
+    paddingVertical: 8,
   },
 });
 
