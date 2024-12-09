@@ -1,221 +1,167 @@
-/*
-Generate a complete implementation for this file that:
-1. Follows the project's React Native / TypeScript patterns
-2. Uses proper imports and type definitions
-3. Implements error handling and loading states
-4. Includes JSDoc documentation
-5. Follows project ESLint/Prettier rules
-6. Integrates with existing app architecture
-7. Includes proper testing considerations
-8. Uses project's defined components and utilities
-9. Handles proper memory management/cleanup
-10. Follows accessibility guidelines
+/**
+ * API Service
+ *
+ * Handles HTTP requests with proper error handling, type safety, and security.
+ * Integrates with Firebase Cloud Functions and implements request/response interceptors.
+ *
+ * @packageDocumentation
+ */
 
-File requirements:
-- Must integrate with Redux store
-- Must use React hooks appropriately
-- Must handle mobile-specific considerations
-- Must maintain type safety
-- Must have proper error boundaries
-- Must follow project folder structure
-- Must use existing shared components
-- Must handle navigation properly
-- Must scale well as app grows
-- Must follow security best practices
-*/
-import axios from 'axios';
-
-const api = axios.create({
-  baseURL: 'http://localhost:3000', // Replace with your API URL
-});
-
-// Function to set the authorization token in the request headers
-api.setToken = token => {
-  api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-};
-
-export default api;
-
-import axios from 'axios';
-
-const api = axios.create({
-  baseURL: 'https://your-project-id.cloudfunctions.net', // Replace with your Firebase Cloud Functions URL
-});
-
-api.setToken = token => {
-  api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-};
-
-api.handleError = error => {
-  if (error.response) {
-    // The request was made and the server responded with a status code
-    // that falls out of the range of 2xx
-    console.error('Response error:', error.response.data);
-    console.error('Status:', error.response.status);
-    console.error('Headers:', error.response.headers);
-  } else if (error.request) {
-    // The request was made but no response was received
-    // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-    // http.ClientRequest in node.js
-    console.error('Request error:', error.request);
-  } else {
-    // Something happened in setting up the request that triggered an Error
-    console.error('Error:', error.message);
-  }
-  console.error('Error config:', error.config);
-
-  // You can add more specific error handling logic here, such as
-  // displaying error messages to the user or retrying the request.
-};
-
-export default api;
-
-// src/services/api/client.ts
-import axios, {
-  AxiosInstance,
-  AxiosError,
-  AxiosRequestConfig,
-  AxiosResponse,
-} from 'axios';
+import axios, { AxiosInstance, AxiosError, AxiosRequestConfig } from 'axios';
+import { store } from '../store';
+import { setLoading, setError } from '../store/appSlice';
+import { logError } from '../utils/analytics';
+import { ApiResponse, PaginatedResponse } from '../types';
 import Config from 'react-native-config';
 
-interface ApiErrorResponse {
-  message: string;
-  code?: string;
-  details?: unknown;
+/**
+ * API configuration interface
+ */
+interface ApiConfig extends AxiosRequestConfig {
+  retryAttempts?: number;
+  retryDelay?: number;
 }
 
-class ApiClient {
-  private static instance: AxiosInstance;
-  private static retryCount = 3;
-  private static retryDelay = 1000;
+/**
+ * API error interface
+ */
+interface ApiError extends Error {
+  code: string;
+  response?: any;
+  config?: AxiosRequestConfig;
+}
 
-  static getInstance(): AxiosInstance {
-    if (!this.instance) {
-      this.instance = axios.create({
-        baseURL: Config.API_URL || 'http://localhost:3000',
-        timeout: 15000,
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-      });
+/**
+ * Creates and configures API client
+ */
+class ApiService {
+  private static instance: ApiService;
+  private api: AxiosInstance;
+  private retryAttempts: number;
+  private retryDelay: number;
 
-      this.setupInterceptors();
-    }
-    return this.instance;
+  private constructor() {
+    this.retryAttempts = 3;
+    this.retryDelay = 1000;
+
+    this.api = axios.create({
+      baseURL: Config.API_URL,
+      timeout: 10000,
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    });
+
+    this.setupInterceptors();
   }
 
-  private static setupInterceptors() {
-    this.instance.interceptors.request.use(
-      this.addTimestampToRequest.bind(this),
-      this.handleRequestError.bind(this),
+  /**
+   * Gets singleton instance
+   */
+  public static getInstance(): ApiService {
+    if (!ApiService.instance) {
+      ApiService.instance = new ApiService();
+    }
+    return ApiService.instance;
+  }
+
+  /**
+   * Sets up request/response interceptors
+   */
+  private setupInterceptors(): void {
+    // Request interceptor
+    this.api.interceptors.request.use(
+      config => {
+        store.dispatch(setLoading(true));
+
+        // Add auth token if available
+        const token = store.getState().auth.token;
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+      },
+      error => {
+        store.dispatch(setLoading(false));
+        return Promise.reject(error);
+      },
     );
 
-    this.instance.interceptors.response.use(
-      this.handleResponse.bind(this),
-      this.handleResponseError.bind(this),
+    // Response interceptor
+    this.api.interceptors.response.use(
+      response => {
+        store.dispatch(setLoading(false));
+        return response;
+      },
+      error => {
+        store.dispatch(setLoading(false));
+        store.dispatch(setError(error.message));
+        logError(error);
+        return Promise.reject(error);
+      },
     );
   }
 
-  private static addTimestampToRequest(
-    config: AxiosRequestConfig,
-  ): AxiosRequestConfig {
-    const url = config.url || '';
-    config.url = url + (url.includes('?') ? '&' : '?') + '_ts=' + Date.now();
-
-    // Log requests in development
-    if (__DEV__) {
-      console.log('API Request:', {
-        url: config.url,
-        method: config.method,
-        data: config.data,
-      });
+  /**
+   * Makes a GET request
+   */
+  public async get<T>(
+    url: string,
+    config?: ApiConfig,
+  ): Promise<ApiResponse<T>> {
+    try {
+      const response = await this.api.get<ApiResponse<T>>(url, config);
+      return response.data;
+    } catch (error) {
+      this.handleError(error);
     }
-
-    return config;
   }
 
-  private static handleRequestError(error: AxiosError): Promise<any> {
-    console.error('Request interceptor error:', error);
-    return Promise.reject(error);
+  /**
+   * Makes a POST request
+   */
+  public async post<T>(
+    url: string,
+    data: any,
+    config?: ApiConfig,
+  ): Promise<ApiResponse<T>> {
+    try {
+      const response = await this.api.post<ApiResponse<T>>(url, data, config);
+      return response.data;
+    } catch (error) {
+      this.handleError(error);
+    }
   }
 
-  private static handleResponse(response: AxiosResponse): AxiosResponse {
-    if (__DEV__) {
-      console.log('API Response:', {
-        status: response.status,
-        data: response.data,
-      });
-    }
-    return response;
-  }
-
-  private static handleResponseError(error: AxiosError): Promise<any> {
-    const originalRequest = error.config;
-    if (!originalRequest) {
-      return Promise.reject(error);
-    }
-
-    // Implement retry logic for network errors
-    if (
-      error.message === 'Network Error' &&
-      originalRequest._retry !== this.retryCount
-    ) {
-      originalRequest._retry = (originalRequest._retry || 0) + 1;
-      await new Promise(resolve => setTimeout(resolve, this.retryDelay));
-      return this.instance(originalRequest);
-    }
-
-    return this.handleError(error);
-  }
-
-  private static handleError(error: AxiosError<ApiErrorResponse>) {
-    const errorResponse: ApiErrorResponse = {
-      message: 'An unexpected error occurred',
-      code: 'UNKNOWN_ERROR',
+  /**
+   * Handles API errors
+   */
+  private handleError(error: AxiosError<ApiError>): void {
+    const apiError: ApiError = {
+      name: 'ApiError',
+      message: error.message,
+      code: error.code || 'UNKNOWN_ERROR',
+      response: error.response,
+      config: error.config,
     };
 
     if (error.response) {
-      errorResponse.message = error.response.data?.message || error.message;
-      errorResponse.code = error.response.status.toString();
-      errorResponse.details = {
-        data: error.response.data,
-        headers: error.response.headers,
-      };
+      apiError.message = error.response.data?.message || error.message;
+      apiError.code = error.response.status.toString();
     } else if (error.request) {
-      errorResponse.message = 'No response received from server';
-      errorResponse.code = 'NO_RESPONSE';
-      errorResponse.details = error.request;
-    } else {
-      errorResponse.message = error.message;
-      errorResponse.code = 'REQUEST_SETUP_ERROR';
+      apiError.message = 'No response received from server';
+      apiError.code = 'NO_RESPONSE';
     }
 
     // Log error in development
     if (__DEV__) {
-      console.error('API Error:', errorResponse);
+      console.error('API Error:', apiError);
     }
 
-    return Promise.reject(errorResponse);
-  }
-
-  static setToken(token: string | null) {
-    if (token) {
-      this.instance.defaults.headers.common.Authorization = `Bearer ${token}`;
-    } else {
-      delete this.instance.defaults.headers.common.Authorization;
-    }
-  }
-
-  static setBaseUrl(url: string) {
-    this.instance.defaults.baseURL = url;
-  }
-
-  static setTimeout(timeout: number) {
-    this.instance.defaults.timeout = timeout;
+    throw apiError;
   }
 }
 
-export const api = ApiClient.getInstance();
-export default api;
+export const apiService = ApiService.getInstance();
+export default apiService;

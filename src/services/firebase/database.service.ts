@@ -1,29 +1,7 @@
-/*
-Generate a complete implementation for this file that:
-1. Follows the project's React Native / TypeScript patterns
-2. Uses proper imports and type definitions
-3. Implements error handling and loading states
-4. Includes JSDoc documentation
-5. Follows project ESLint/Prettier rules
-6. Integrates with existing app architecture
-7. Includes proper testing considerations
-8. Uses project's defined components and utilities
-9. Handles proper memory management/cleanup
-10. Follows accessibility guidelines
-
-File requirements:
-- Must integrate with Redux store
-- Must use React hooks appropriately
-- Must handle mobile-specific considerations
-- Must maintain type safety
-- Must have proper error boundaries
-- Must follow project folder structure
-- Must use existing shared components
-- Must handle navigation properly
-- Must scale well as app grows
-- Must follow security best practices
-*/
-// src/services/firebase/database.service.ts
+/**
+ * Firebase Database Service with offline support
+ */
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { db } from './config';
 import {
   collection,
@@ -42,15 +20,16 @@ import {
   setDoc,
 } from 'firebase/firestore';
 import { Story, ReadingProgress, User } from '../../types/firebase.types';
+import { logError } from '../../utils/analytics';
 
-// Collection names as constants
+/** Collection names as constants */
 enum Collections {
   STORIES = 'stories',
   READING_PROGRESS = 'readingProgress',
   USERS = 'users',
 }
 
-// Query parameter interfaces
+/** Query parameter interfaces */
 interface StoryFilters {
   difficulty?: number;
   ageRange?: [number, number];
@@ -63,11 +42,27 @@ interface ProgressFilters {
   limit?: number;
 }
 
+/**
+ * Database service using singleton pattern
+ */
 class DatabaseService {
   private static instance: DatabaseService;
+  private readonly CACHE_PREFIX = '@db_cache_';
+  private readonly CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
 
-  private constructor() {}
+  private constructor() {
+    // Initialize offline queue processing
+    if (!__DEV__) {
+      // Process queue on startup in production
+      this.processQueue().catch(err =>
+        logError('Queue processing failed on startup', err),
+      );
+    }
+  }
 
+  /**
+   * Gets singleton instance
+   */
   static getInstance(): DatabaseService {
     if (!DatabaseService.instance) {
       DatabaseService.instance = new DatabaseService();
@@ -75,136 +70,94 @@ class DatabaseService {
     return DatabaseService.instance;
   }
 
-  // Query builder helpers
-  private buildStoryQuery(filters?: StoryFilters): QueryConstraint[] {
-    const constraints: QueryConstraint[] = [];
-
-    if (filters?.difficulty !== undefined) {
-      constraints.push(where('difficulty', '<=', filters.difficulty));
-    }
-
-    if (filters?.ageRange) {
-      const [minAge, maxAge] = filters.ageRange;
-      constraints.push(
-        where('minAge', '>=', minAge),
-        where('maxAge', '<=', maxAge),
-      );
-    }
-
-    constraints.push(orderBy('difficulty', 'asc'));
-
-    if (filters?.limit) {
-      constraints.push(limit(filters.limit));
-    }
-
-    return constraints;
-  }
-
-  // Stories methods
+  /**
+   * Gets stories with cache support
+   */
   async getStories(filters?: StoryFilters): Promise<Story[]> {
     try {
-      const constraints = this.buildStoryQuery(filters);
-      const q = query(collection(db, Collections.STORIES), ...constraints);
-      const snapshot = await getDocs(q);
-
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Story[];
-    } catch (error) {
-      console.error('Error fetching stories:', error);
-      throw error;
-    }
-  }
-
-  async getStoryById(storyId: string): Promise<Story | null> {
-    try {
-      const storyDoc = await getDoc(doc(db, Collections.STORIES, storyId));
-      if (!storyDoc.exists()) return null;
-      return { id: storyDoc.id, ...storyDoc.data() } as Story;
-    } catch (error) {
-      console.error('Error fetching story:', error);
-      throw error;
-    }
-  }
-
-  async addStory(story: Omit<Story, 'id'>): Promise<string> {
-    try {
-      const docRef = await addDoc(collection(db, Collections.STORIES), {
-        ...story,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      });
-      return docRef.id;
-    } catch (error) {
-      console.error('Error adding story:', error);
-      throw error;
-    }
-  }
-
-  async updateStory(storyId: string, story: Partial<Story>): Promise<void> {
-    try {
-      const storyRef = doc(db, Collections.STORIES, storyId);
-      await updateDoc(storyRef, {
-        ...story,
-        updatedAt: new Date().toISOString(),
-      });
-    } catch (error) {
-      console.error('Error updating story:', error);
-      throw error;
-    }
-  }
-
-  async deleteStory(storyId: string): Promise<void> {
-    try {
-      await deleteDoc(doc(db, Collections.STORIES, storyId));
-    } catch (error) {
-      console.error('Error deleting story:', error);
-      throw error;
-    }
-  }
-
-  // Reading Progress methods
-  async saveReadingProgress(
-    progress: Omit<ReadingProgress, 'id'>,
-  ): Promise<string> {
-    try {
-      const docRef = await addDoc(
-        collection(db, Collections.READING_PROGRESS),
-        {
-          ...progress,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
+      // Try cache first
+      const cached = await this.getFromCache(
+        `stories_${JSON.stringify(filters)}`,
       );
-      return docRef.id;
+      if (cached) return cached;
+
+      const stories = await this.fetchStories(filters);
+      await this.saveToCache(`stories_${JSON.stringify(filters)}`, stories);
+      return stories;
     } catch (error) {
-      console.error('Error saving reading progress:', error);
+      logError('Error fetching stories:', error);
+      // Return cached data on error if available
+      return this.getFromCache(`stories_${JSON.stringify(filters)}`) || [];
+    }
+  }
+
+  /**
+   * Fetches stories with optional filters
+   */
+  private async fetchStories(filters?: StoryFilters): Promise<Story[]> {
+    try {
+      const constraints: QueryConstraint[] = [];
+
+      if (filters?.difficulty) {
+        constraints.push(where('difficulty', '<=', filters.difficulty));
+      }
+
+      if (filters?.ageRange) {
+        constraints.push(
+          where('ageRange.min', '>=', filters.ageRange[0]),
+          where('ageRange.max', '<=', filters.ageRange[1]),
+        );
+      }
+
+      if (filters?.limit) {
+        constraints.push(limit(filters.limit));
+      }
+
+      constraints.push(orderBy('difficulty', 'asc'));
+
+      const storiesRef = collection(db, Collections.STORIES);
+      const q = query(storiesRef, ...constraints);
+      const querySnapshot = await getDocs(q);
+
+      return querySnapshot.docs.map(
+        doc =>
+          ({
+            id: doc.id,
+            ...doc.data(),
+          }) as Story,
+      );
+    } catch (error) {
+      logError('Error fetching stories:', error);
       throw error;
     }
   }
 
-  async updateReadingProgress(
-    progressId: string,
-    updates: Partial<ReadingProgress>,
+  /**
+   * Updates reading progress
+   */
+  async updateProgress(
+    userId: string,
+    progress: Partial<ReadingProgress>,
   ): Promise<void> {
     try {
-      const progressRef = doc(db, Collections.READING_PROGRESS, progressId);
+      const progressRef = doc(db, Collections.READING_PROGRESS, userId);
       await updateDoc(progressRef, {
-        ...updates,
+        ...progress,
         updatedAt: new Date().toISOString(),
       });
     } catch (error) {
-      console.error('Error updating reading progress:', error);
+      logError('Error updating progress:', error);
       throw error;
     }
   }
 
-  async getUserProgress(filters: ProgressFilters): Promise<ReadingProgress[]> {
+  /**
+   * Fetches user reading progress
+   */
+  async getProgress(filters: ProgressFilters): Promise<ReadingProgress[]> {
     try {
       const constraints: QueryConstraint[] = [
         where('userId', '==', filters.userId),
-        orderBy('updatedAt', 'desc'),
       ];
 
       if (filters.storyId) {
@@ -215,59 +168,192 @@ class DatabaseService {
         constraints.push(limit(filters.limit));
       }
 
-      const q = query(
-        collection(db, Collections.READING_PROGRESS),
-        ...constraints,
+      constraints.push(orderBy('updatedAt', 'desc'));
+
+      const progressRef = collection(db, Collections.READING_PROGRESS);
+      const q = query(progressRef, ...constraints);
+      const querySnapshot = await getDocs(q);
+
+      return querySnapshot.docs.map(
+        doc =>
+          ({
+            id: doc.id,
+            ...doc.data(),
+          }) as ReadingProgress,
       );
-      const snapshot = await getDocs(q);
-
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as ReadingProgress[];
     } catch (error) {
-      console.error('Error fetching reading progress:', error);
+      logError('Error fetching progress:', error);
       throw error;
     }
   }
 
-  // User methods
-  async createUser(userId: string, userData: Omit<User, 'id'>): Promise<void> {
+  /**
+   * Gets user with cache support
+   */
+  async getUser(userId: string): Promise<User | null> {
     try {
-      await setDoc(doc(db, Collections.USERS, userId), {
-        ...userData,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      });
+      // Try cache first
+      const cached = await this.getFromCache(`user_${userId}`);
+      if (cached) return cached;
+
+      const userRef = doc(db, Collections.USERS, userId);
+      const userDoc = await getDoc(userRef);
+
+      if (!userDoc.exists()) {
+        return null;
+      }
+
+      const userData = {
+        id: userDoc.id,
+        ...userDoc.data(),
+      } as User;
+
+      await this.saveToCache(`user_${userId}`, userData);
+      return userData;
     } catch (error) {
-      console.error('Error creating user:', error);
-      throw error;
+      logError('Error fetching user:', error);
+      // Return cached data on error if available
+      return this.getFromCache(`user_${userId}`);
     }
   }
 
-  async getUserProfile(userId: string): Promise<User | null> {
-    try {
-      const userDoc = await getDoc(doc(db, Collections.USERS, userId));
-      if (!userDoc.exists()) return null;
-      return { id: userDoc.id, ...userDoc.data() } as User;
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
-      throw error;
-    }
-  }
-
-  async updateUserProfile(userId: string, data: Partial<User>): Promise<void> {
+  /**
+   * Updates user with offline queueing
+   */
+  async updateUser(userId: string, userData: Partial<User>): Promise<void> {
     try {
       const userRef = doc(db, Collections.USERS, userId);
-      await updateDoc(userRef, {
-        ...data,
+      const updateData = {
+        ...userData,
         updatedAt: new Date().toISOString(),
-      });
+      };
+
+      await updateDoc(userRef, updateData);
+      await this.saveToCache(`user_${userId}`, updateData);
+      await this.removeFromQueue(`update_user_${userId}`);
     } catch (error) {
-      console.error('Error updating user profile:', error);
+      logError('Error updating user:', error);
+      // Queue update for later if offline
+      await this.addToQueue(`update_user_${userId}`, {
+        type: 'UPDATE_USER',
+        data: { userId, userData },
+      });
       throw error;
+    }
+  }
+
+  /**
+   * Deletes user data
+   */
+  async deleteUser(userId: string): Promise<void> {
+    try {
+      const userRef = doc(db, Collections.USERS, userId);
+      await deleteDoc(userRef);
+    } catch (error) {
+      logError('Error deleting user:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Saves data to cache
+   */
+  private async saveToCache<T>(key: string, data: T): Promise<void> {
+    try {
+      await AsyncStorage.setItem(
+        `${this.CACHE_PREFIX}${key}`,
+        JSON.stringify({
+          data,
+          timestamp: Date.now(),
+        }),
+      );
+    } catch (error) {
+      logError('Cache save failed:', error);
+    }
+  }
+
+  /**
+   * Gets data from cache
+   */
+  private async getFromCache<T>(key: string): Promise<T | null> {
+    try {
+      const cached = await AsyncStorage.getItem(`${this.CACHE_PREFIX}${key}`);
+      if (!cached) return null;
+
+      const { data, timestamp } = JSON.parse(cached);
+      if (Date.now() - timestamp > this.CACHE_EXPIRY) {
+        await AsyncStorage.removeItem(`${this.CACHE_PREFIX}${key}`);
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      logError('Cache retrieval failed:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Adds operation to offline queue
+   */
+  private async addToQueue(key: string, operation: any): Promise<void> {
+    try {
+      await AsyncStorage.setItem(
+        `${this.CACHE_PREFIX}queue_${key}`,
+        JSON.stringify(operation),
+      );
+    } catch (error) {
+      logError('Queue add failed:', error);
+    }
+  }
+
+  /**
+   * Removes operation from offline queue
+   */
+  private async removeFromQueue(key: string): Promise<void> {
+    try {
+      await AsyncStorage.removeItem(`${this.CACHE_PREFIX}queue_${key}`);
+    } catch (error) {
+      logError('Queue remove failed:', error);
+    }
+  }
+
+  /**
+   * Processes offline queue
+   */
+  public async processQueue(): Promise<void> {
+    try {
+      const keys = await AsyncStorage.getAllKeys();
+      const queueKeys = keys.filter(key =>
+        key.startsWith(`${this.CACHE_PREFIX}queue_`),
+      );
+
+      for (const key of queueKeys) {
+        const operation = JSON.parse((await AsyncStorage.getItem(key)) || '{}');
+
+        switch (operation.type) {
+          case 'UPDATE_USER':
+            await this.updateUser(
+              operation.data.userId,
+              operation.data.userData,
+            );
+            break;
+          // Add other operation types as needed
+        }
+      }
+    } catch (error) {
+      logError('Queue processing failed:', error);
     }
   }
 }
 
-export default DatabaseService.getInstance();
+export const databaseService = DatabaseService.getInstance();
+
+// Get cached data with fallback to network
+const stories = await databaseService.getStories(filters);
+
+// Updates work offline and sync when online
+await databaseService.updateUser(userId, userData);
+
+// Process pending offline operations
+await databaseService.processQueue();

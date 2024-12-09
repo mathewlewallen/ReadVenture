@@ -18,17 +18,23 @@
 
   // TypeScript/JavaScript Configuration
   "typescript.tsdk": "node_modules/typescript/lib",
-  "javascript.updateImportsOnFileMove.enabled": "always",
-  "typescript.updateImportsOnFileMove.enabled": "always",
+  "javascript.updateImportsOnFileMove.enabled": "never",
+  "typescript.updateImportsOnFileMove.enabled": "never",
   "typescript.preferences.importModuleSpecifier": "non-relative",
   "javascript.preferences.importModuleSpecifier": "non-relative",
   "typescript.preferences.preferTypeOnlyAutoImports": true,
   "typescript.preferences.importModuleSpecifierEnding": "minimal",
   "typescript.enablePromptUseWorkspaceTsdk": true,
-  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
   "typescript.tsserver.log": "off",
-  "typescript.tsserver.maxTsServerMemory": 4096,
+  "typescript.tsserver.maxTsServerMemory": 3072,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": false,
+  "typescript.tsserver.watchOptions": {
+    "watchFile": "useFsEventsOnParentDirectory",
+    "fallbackPolling": "dynamicPriorityPolling"
+  },
+  "typescript.disableAutomaticTypeAcquisition": true,
   "javascript.suggestionActions.enabled": true,
+  "typescript.surveys.enabled": false,
 
   // Language-specific Formatters
   "[javascript][typescript][javascriptreact][typescriptreact][json][jsonc]": {
@@ -68,7 +74,9 @@
   "files.autoSave": "onFocusChange",
   "files.exclude": {
     "**/node_modules": true,
+    "**/node_modules/**": true,
     "**/dist": true,
+    "**/dist/**": true,
     "**/.git": true,
     "**/.DS_Store": true,
     "**/coverage": true,
@@ -98,17 +106,23 @@
   "search.exclude": {
     "**/node_modules": true,
     "**/dist": true,
-    "**/build": true,
-    "**/coverage": true
+    "**/build": true
   },
   "files.watcherExclude": {
     "**/node_modules/**": true,
     "**/dist/**": true,
     "**/build/**": true,
     "**/coverage/**": true,
-    "**/.git/**": true
+    "**/.git/**": true,
+    "**/.env*": true,
+    "**/android/**": true,
+    "**/ios/**": true
   },
-  "git.ignoreLimitWarning": true,
+
+  // Git Configuration
+  "git.enabled": true,
+  "git.autofetch": false, // Disable auto-fetch
+  "git.decorations.enabled": false, // Disable Git decorations
 
   // TypeScript Barrel Generator Configuration
   "exportall.config.namedExports": true, // Use named exports
@@ -134,7 +148,7 @@
     "src/types/**/*",
     "src/navigation/**/*",
     "src/hooks/**/*",
-    "src/constants/**/*"
+    "src.constants/**/*"
   ], // Add folders to listen for changes
   "exportall.config.relExclusion": [
     "**/node_modules/**",

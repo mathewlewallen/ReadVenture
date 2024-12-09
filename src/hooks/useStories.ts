@@ -10,13 +10,22 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { databaseService } from '../services/firebase/database.service';
-import { fetchStoriesStart, fetchStoriesSuccess, fetchStoriesFailure } from '../store/storySlice';
+import {
+  fetchStoriesStart,
+  fetchStoriesSuccess,
+  fetchStoriesFailure,
+} from '../store/storySlice';
+import { logError } from '../utils/analytics';
 import type { Story, RootState } from '../types';
 
 interface UseStoriesOptions {
+  /** Difficulty level (1-10) */
   difficulty?: number;
+  /** Target age range [min, max] */
   ageRange?: [number, number];
+  /** Maximum number of stories to fetch */
   limit?: number;
+  /** Cache duration in milliseconds */
   cacheTime?: number;
 }
 
@@ -53,12 +62,13 @@ export const useStories = ({
     if (difficulty && (difficulty < 1 || difficulty > 10)) {
       throw new Error('Difficulty must be between 1 and 10');
     }
-    if (ageRange && (
-      ageRange.length !== 2 ||
-      ageRange[0] > ageRange[1] ||
-      ageRange[0] < 4 ||
-      ageRange[1] > 12
-    )) {
+    if (
+      ageRange &&
+      (ageRange.length !== 2 ||
+        ageRange[0] > ageRange[1] ||
+        ageRange[0] < 4 ||
+        ageRange[1] > 12)
+    ) {
       throw new Error('Invalid age range');
     }
   }, [difficulty, ageRange]);
@@ -74,57 +84,61 @@ export const useStories = ({
 
       dispatch(fetchStoriesStart());
 
-      const filters = {
+      // Build query parameters
+      const queryParams = {
         ...(difficulty && { difficulty }),
         ...(ageRange && { ageRange }),
         limit,
       };
 
-      const data = await databaseService.getStories(filters);
-      dispatch(fetchStoriesSuccess({ stories: data, timestamp: Date.now() }));
-      return data;
+      // Fetch stories from database
+      const stories = await databaseService.getStories(queryParams);
+
+      // Update Redux store
+      dispatch(
+        fetchStoriesSuccess({
+          items: stories,
+          lastFetch: Date.now(),
+        }),
+      );
+
+      setLoading(false);
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to fetch stories');
+      const error =
+        err instanceof Error ? err : new Error('Failed to fetch stories');
       setError(error);
       dispatch(fetchStoriesFailure(error.message));
-      throw error;
-    } finally {
+      logError('Story fetch failed', error);
       setLoading(false);
     }
   }, [dispatch, difficulty, ageRange, limit, validateParams]);
 
   /**
-   * Determines if cache is valid
+   * Checks if cache is valid
    */
   const isCacheValid = useCallback(() => {
-    if (!lastFetch) return false;
+    if (!lastFetch || !cachedStories.length) return false;
     return Date.now() - lastFetch < cacheTime;
-  }, [lastFetch, cacheTime]);
+  }, [lastFetch, cachedStories, cacheTime]);
 
   /**
-   * Initial data fetch and cache management
+   * Effect to fetch stories on mount or when params change
    */
   useEffect(() => {
-    const loadStories = async () => {
-      if (isCacheValid() && cachedStories.length > 0) {
-        setLoading(false);
-        return;
-      }
+    if (!isCacheValid()) {
+      fetchStories();
+    } else {
+      setLoading(false);
+    }
 
-      try {
-        await fetchStories();
-      } catch (err) {
-        console.error('Error loading stories:', err);
-      }
-    };
-
-    loadStories();
-
+    // Cleanup function
     return () => {
-      // Cleanup if needed
+      setLoading(false);
+      setError(null);
     };
-  }, [fetchStories, isCacheValid, cachedStories.length]);
+  }, [fetchStories, isCacheValid]);
 
+  // Return hook result
   return {
     stories: cachedStories,
     loading,

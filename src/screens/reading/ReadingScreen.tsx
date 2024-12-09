@@ -1,425 +1,336 @@
-/*
-Generate a complete implementation for this file that:
-1. Follows the project's React Native / TypeScript patterns
-2. Uses proper imports and type definitions
-3. Implements error handling and loading states
-4. Includes JSDoc documentation
-5. Follows project ESLint/Prettier rules
-6. Integrates with existing app architecture
-7. Includes proper testing considerations
-8. Uses project's defined components and utilities
-9. Handles proper memory management/cleanup
-10. Follows accessibility guidelines
+/**
+ * Reading Screen Component
+ *
+ * Handles interactive reading sessions with voice recognition and progress tracking.
+ * Provides real-time feedback and accuracy assessment.
+ *
+ * @packageDocumentation
+ */
 
-File requirements:
-- Must integrate with Redux store
-- Must use React hooks appropriately
-- Must handle mobile-specific considerations
-- Must maintain type safety
-- Must have proper error boundaries
-- Must follow project folder structure
-- Must use existing shared components
-- Must handle navigation properly
-- Must scale well as app grows
-- Must follow security best practices
-*/
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, Alert, Platform } from 'react-native';
 import * as Progress from 'react-native-progress';
-import { View, Text, StyleSheet, Alert } from 'react-native';
-import axios from 'axios';
-import Voice from '@react-native-voice/voice';
 import { Button, Appbar } from 'react-native-paper';
+import Voice, { SpeechResultsEvent } from '@react-native-voice/voice';
 import { jaroWinkler } from 'jaro-winkler';
-import { NavigationProps } from '../navigation';
+import { useDispatch, useSelector } from 'react-redux';
+import { ErrorBoundary } from '../../components/common/ErrorBoundary';
+import { NavigationProps } from '../../navigation';
+import { theme } from '../../theme';
+import { updateProgress } from '../../store/progressSlice';
+import { logError } from '../../utils/analytics';
+import type { RootState } from '../../types';
 
 interface Story {
   id: string;
   title: string;
   text: string;
   difficulty: string;
-}
-
-interface VoiceResults {
-  value: string[];
+  words?: string[];
 }
 
 type ReadingScreenProps = NavigationProps<'Reading'>;
 
+/**
+ * Reading screen component for interactive reading sessions
+ */
 const ReadingScreen: React.FC<ReadingScreenProps> = ({ route, navigation }) => {
+  const dispatch = useDispatch();
   const { storyId } = route.params;
+
+  // Local state
   const [story, setStory] = useState<Story | null>(null);
-  const [currentText, setCurrentText] = useState('');
+  const [currentWord, setCurrentWord] = useState('');
   const [isRecording, setIsRecording] = useState(false);
-  const [totalWordsRead, setTotalWordsRead] = useState(0);
+  const [wordsRead, setWordsRead] = useState(0);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [feedbackText, setFeedbackText] = useState('');
-  const [progress, setProgress] = useState(0);
+  const [accuracy, setAccuracy] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const MAX_RETRIES = 3;
 
-  useEffect(() => {
-    const initializeVoice = async () => {
-      try {
-        await Voice.initialize();
-        Voice.onSpeechStart = () => setIsRecording(true);
-        Voice.onSpeechEnd = () => setIsRecording(false);
-        Voice.onSpeechResults = handleSpeechResults;
-      } catch (error) {
-        console.error('Error initializing voice:', error);
-        Alert.alert('Error', 'Failed to initialize voice recognition');
+  // Redux state
+  const settings = useSelector((state: RootState) => state.settings);
+
+  /**
+   * Handles speech recognition results
+   */
+  const handleSpeechResults = useCallback(
+    (e: SpeechResultsEvent) => {
+      if (e.value && story?.words) {
+        const spokenWord = e.value[0].toLowerCase();
+        const targetWord = story.words[currentIndex].toLowerCase();
+        const similarity = jaroWinkler(spokenWord, targetWord);
+
+        setAccuracy(prevAccuracy => (prevAccuracy + similarity) / 2);
+        setCurrentWord(spokenWord);
+
+        if (similarity > 0.8) {
+          setWordsRead(prev => prev + 1);
+          setCurrentIndex(prev => prev + 1);
+
+          dispatch(
+            updateProgress({
+              storyId,
+              wordsRead: wordsRead + 1,
+              accuracy: similarity,
+            }),
+          );
+        }
       }
-    };
+    },
+    [story, currentIndex, dispatch, storyId, wordsRead],
+  );
 
-    initializeVoice();
-    return () => {
-      Voice.destroy().then(Voice.removeAllListeners);
-    };
-  }, []);
+  /**
+   * Handles voice recognition errors with retry logic
+   */
+  const handleError = useCallback(
+    async (err: Error, operation: string) => {
+      logError(`Reading error: ${operation}`, err);
+      setError(err.message);
 
-  useEffect(() => {
-    const fetchStory = async () => {
-      try {
-        const response = await axios.get<Story>(`/stories/${storyId}`);
-        setStory(response.data);
-        const initialText = response.data.text
-          .split(/\s+/)
-          .slice(0, 10)
-          .join(' ');
-        setCurrentText(initialText);
-      } catch (error) {
-        console.error('Error fetching story:', error);
-        Alert.alert('Error', 'Failed to load the story');
+      if (retryCount < MAX_RETRIES) {
+        setRetryCount(prev => prev + 1);
+        // Attempt recovery based on operation type
+        switch (operation) {
+          case 'voice':
+            await initializeVoice();
+            break;
+          case 'story':
+            await loadStory();
+            break;
+          default:
+            break;
+        }
+      } else {
+        Alert.alert(
+          'Error',
+          'Unable to continue reading session. Please try again later.',
+          [{ text: 'OK', onPress: () => navigation.goBack() }],
+        );
       }
-    };
+    },
+    [retryCount, navigation, initializeVoice],
+  );
 
-    fetchStory();
-  }, [storyId]);
+  /**
+   * Loads story data with error handling
+   */
+  const loadStory = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const response = await fetch(`/api/stories/${storyId}`);
 
-  const handleSpeechResults = (results: VoiceResults) => {
-    const spokenText = results.value[0];
-    const words = currentText.split(/\s+/);
-    const spokenWords = spokenText.split(/\s+/);
-
-    let correctWords = 0;
-    words.forEach((word, index) => {
-      if (
-        spokenWords[index] &&
-        jaroWinkler(word.toLowerCase(), spokenWords[index].toLowerCase()) > 0.8
-      ) {
-        correctWords++;
+      if (!response.ok) {
+        throw new Error('Failed to fetch story');
       }
-    });
 
-    const accuracy = (correctWords / words.length) * 100;
-    setTotalWordsRead(prev => prev + correctWords);
-    setProgress(totalWordsRead / (story?.text.split(/\s+/).length || 1));
-
-    if (accuracy > 80) {
-      moveToNextSection();
-      setFeedbackText('Great job! Moving to next section.');
-    } else {
-      setFeedbackText('Try reading that section again.');
+      const data = await response.json();
+      setStory({
+        ...data,
+        words: data.text.split(' '),
+      });
+    } catch (error) {
+      await handleError(error as Error, 'story');
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [storyId, handleError]);
 
-  const startRecording = async () => {
+  /**
+   * Initializes voice recognition with error handling
+   */
+  const initializeVoice = useCallback(async () => {
+    try {
+      setError(null);
+      await Voice.initialize();
+      Voice.onSpeechStart = () => setIsRecording(true);
+      Voice.onSpeechEnd = () => setIsRecording(false);
+      Voice.onSpeechResults = handleSpeechResults;
+      Voice.onSpeechError = (e: any) => {
+        handleError(
+          new Error(e.error?.message || 'Speech recognition failed'),
+          'voice',
+        );
+      };
+    } catch (error) {
+      await handleError(error as Error, 'voice');
+    }
+  }, [handleSpeechResults, handleError]);
+
+  /**
+   * Starts voice recording
+   */
+  const startReading = useCallback(async () => {
     try {
       await Voice.start('en-US');
     } catch (error) {
-      console.error('Error starting voice recording:', error);
+      logError('Voice recording failed', error);
       Alert.alert('Error', 'Failed to start voice recording');
     }
-  };
+  }, []);
 
-  const stopRecording = async () => {
+  /**
+   * Stops voice recording
+   */
+  const stopReading = useCallback(async () => {
     try {
       await Voice.stop();
+      await Voice.destroy();
     } catch (error) {
-      console.error('Error stopping voice recording:', error);
-      Alert.alert('Error', 'Failed to stop voice recording');
+      logError('Voice stop failed', error);
     }
-  };
+  }, []);
 
-  const moveToNextSection = () => {
-    if (!story) return;
+  // Initialize voice and fetch story
+  useEffect(() => {
+    initializeVoice();
+    loadStory();
 
-    const words = story.text.split(/\s+/);
-    const nextIndex = currentIndex + 10;
-    if (nextIndex >= words.length) {
-      Alert.alert('Congratulations!', 'You have finished the story!');
-      navigation.goBack();
-      return;
-    }
+    return () => {
+      stopReading();
+    };
+  }, [storyId, initializeVoice, stopReading]);
 
-    const nextText = words.slice(nextIndex, nextIndex + 10).join(' ');
-    setCurrentText(nextText);
-    setCurrentIndex(nextIndex);
-  };
-
-  if (!story) {
+  if (error) {
     return (
-      <View style={styles.loadingContainer}>
+      <View style={styles.container}>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText} accessibilityRole="alert">
+            {error}
+          </Text>
+          <Button
+            mode="contained"
+            onPress={loadStory}
+            style={styles.button}
+            disabled={retryCount >= MAX_RETRIES}
+            accessibilityLabel="Try again"
+          >
+            Try Again ({MAX_RETRIES - retryCount} attempts remaining)
+          </Button>
+        </View>
+      </View>
+    );
+  }
+
+  if (isLoading || !story) {
+    return (
+      <View style={styles.container}>
         <Progress.Circle size={50} indeterminate />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Appbar.Header>
-        <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title={story.title} />
-      </Appbar.Header>
+    <ErrorBoundary>
+      <View style={styles.container} testID="reading-screen">
+        <Appbar.Header>
+          <Appbar.BackAction
+            onPress={() => navigation.goBack()}
+            accessibilityLabel="Go back"
+          />
+          <Appbar.Content title={story.title} />
+        </Appbar.Header>
 
-      <View style={styles.content}>
-        <Progress.Bar
-          progress={progress}
-          width={null}
-          style={styles.progressBar}
-        />
+        <View style={styles.content}>
+          <Text style={[styles.word, styles.highlighted]}>
+            {story.words?.[currentIndex]}
+          </Text>
 
-        <Text style={styles.text}>{currentText}</Text>
+          <Progress.Bar
+            progress={currentIndex / (story.words?.length || 1)}
+            width={null}
+            style={styles.progressBar}
+            accessibilityLabel={`Reading progress: ${Math.round((currentIndex / (story.words?.length || 1)) * 100)}%`}
+          />
 
-        <Text style={styles.feedback}>{feedbackText}</Text>
+          <View style={styles.stats}>
+            <Text style={styles.statText}>Words Read: {wordsRead}</Text>
+            <Text style={styles.statText}>
+              Accuracy: {Math.round(accuracy * 100)}%
+            </Text>
+          </View>
 
-        <Button
-          mode="contained"
-          onPress={isRecording ? stopRecording : startRecording}
-          style={styles.button}
-          icon={isRecording ? 'stop' : 'microphone'}
-        >
-          {isRecording ? 'Stop Reading' : 'Start Reading'}
-        </Button>
+          <Button
+            mode="contained"
+            onPress={isRecording ? stopReading : startReading}
+            style={styles.button}
+            loading={isLoading}
+            icon={isRecording ? 'stop' : 'microphone'}
+            accessibilityLabel={isRecording ? 'Stop reading' : 'Start reading'}
+          >
+            {isRecording ? 'Stop Reading' : 'Start Reading'}
+          </Button>
+        </View>
       </View>
-    </View>
+    </ErrorBoundary>
   );
 };
 
 const styles = StyleSheet.create({
-  button: {
-    marginTop: 16,
-    paddingVertical: 8,
-  },
   container: {
-    backgroundColor: '#fff',
     flex: 1,
+    backgroundColor: theme.colors.background,
   },
   content: {
     flex: 1,
-    padding: 16,
-  },
-  feedback: {
-    color: '#666',
-    fontSize: 16,
-    marginVertical: 16,
-    textAlign: 'center',
-  },
-  loadingContainer: {
-    alignItems: 'center',
-    flex: 1,
-    justifyContent: 'center',
-  },
-  progressBar: {
-    marginVertical: 16,
-  },
-  text: {
-    fontSize: 24,
-    lineHeight: 36,
-    marginVertical: 16,
-  },
-});
-
-export default ReadingScreen;
-import React, { useState, useEffect } from 'react';
-import * as Progress from 'react-native-progress';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import axios from 'axios';
-import Tts from 'react-native-tts';
-import Voice from 'react-native-voice';
-import { Button } from 'react-native-paper';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-const jaroWinkler = require('jaro-winkler');
-
-const ReadingScreen = ({ route, navigation }) => {
-  const { storyId } = route.params;
-  const [story, setStory] = useState(null);
-  const [currentText, setCurrentText] = useState('');
-  const [highlightedWord, setHighlightedWord] = useState('');
-  const [isRecording, setIsRecording] = useState(false);
-  const [totalWordsRead, setTotalWordsRead] = useState(0);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [feedbackText, setFeedbackText] = useState('');
-
-  useEffect(() => {
-    const fetchStory = async () => {
-      try {
-        const response = await axios.get(`/stories/${storyId}`);
-        setStory(response.data);
-        const initialText = response.data.text
-          .split(/\s+/)
-          .slice(0, 10)
-          .join(' ');
-        setCurrentText(initialText);
-      } catch (error) {
-        console.error('Error fetching story:', error);
-        Alert.alert('Error', 'Failed to load the story.');
-      }
-    };
-
-    fetchStory();
-  }, [storyId]);
-
-  useEffect(() => {
-    const loadProgress = async () => {
-      try {
-        const storedWordsRead = await AsyncStorage.getItem('totalWordsRead');
-        if (storedWordsRead !== null) {
-          setTotalWordsRead(parseInt(storedWordsRead, 10));
-        }
-      } catch (error) {
-        console.error('Error loading progress:', error);
-      }
-    };
-
-    loadProgress();
-  }, []);
-
-  useEffect(() => {
-    const saveProgress = async () => {
-      try {
-        await AsyncStorage.setItem('totalWordsRead', totalWordsRead.toString());
-      } catch (error) {
-        console.error('Error saving progress:', error);
-      }
-    };
-
-    saveProgress();
-  }, [totalWordsRead]);
-
-  useEffect(() => {
-    Voice.onSpeechStart = onSpeechStartHandler;
-    Voice.onSpeechEnd = onSpeechEndHandler;
-    Voice.onSpeechResults = onSpeechResultsHandler;
-
-    return () => {
-      Voice.destroy().then(Voice.removeAllListeners);
-    };
-  }, []);
-
-  const onSpeechStartHandler = e => {
-    console.log('Speech recognition started.');
-    setIsRecording(true);
-  };
-
-  const onSpeechEndHandler = e => {
-    console.log('Speech recognition ended.');
-    setIsRecording(false);
-  };
-
-  const onSpeechResultsHandler = e => {
-    const spokenText = e.value[0];
-    handleReadingInput(spokenText);
-  };
-
-  const startRecording = async () => {
-    try {
-      await Voice.start('en-US');
-    } catch (error) {
-      console.error('Error starting recording:', error);
-    }
-  };
-
-  const handleReadingInput = async spokenText => {
-    try {
-      const response = await axios.post('/analyze', {
-        text: spokenText,
-        storyId: story._id,
-      });
-      const adjustedText = response.data.adjustedText;
-      setCurrentText(adjustedText);
-
-      const accuracy = calculateAccuracy(spokenText, adjustedText);
-      console.log('Accuracy:', accuracy);
-
-      if (accuracy > 0.8) {
-        // Update total words read
-        setTotalWordsRead(
-          prevTotal => prevTotal + adjustedText.split(/\s+/).length,
-        );
-
-        setFeedbackText('Great job!');
-      } else if (accuracy > 0.5) {
-        setFeedbackText('Keep trying!');
-      } else {
-        setFeedbackText('Try that again.');
-      }
-    } catch (error) {
-      console.error('Error analyzing text:', error);
-      Alert.alert('Error', 'There was an error analyzing the text.');
-    }
-  };
-
-  const calculateAccuracy = (spokenText, expectedText) => {
-    const similarity = jaroWinkler(
-      spokenText.toLowerCase(),
-      expectedText.toLowerCase(),
-    );
-    return similarity;
-  };
-
-  const handlePronunciation = word => {
-    Tts.speak(word);
-    setHighlightedWord(word);
-  };
-
-  const handleNextChunk = () => {
-    const words = story.text.split(/\s+/);
-    const nextIndex = currentIndex + 10;
-    if (nextIndex < words.length) {
-      const nextChunk = words.slice(nextIndex, nextIndex + 10).join(' ');
-      setCurrentText(nextChunk);
-      setCurrentIndex(nextIndex);
-    } else {
-      navigation.navigate('Progress');
-    }
-  };
-
-  if (!story) {
-    return <Text>Loading story...</Text>;
-  }
-
-  return (
-    <View style={styles.container}>{/* ... rest of your component ... */}</View>
-  );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
     padding: 20,
+    alignItems: 'center',
   },
-  storyTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  storyText: {
-    fontSize: 20,
-    lineHeight: 30,
-    textAlign: 'center',
+  word: {
+    fontSize: 32,
+    marginVertical: 20,
+    fontFamily: theme.fonts.medium,
   },
   highlighted: {
-    backgroundColor: 'yellow',
-    fontWeight: 'bold',
+    backgroundColor: theme.colors.primary + '40',
+    padding: 10,
+    borderRadius: 8,
   },
-  feedback: {
-    fontSize: 18,
-    color: 'green',
-    marginTop: 10,
-    textAlign: 'center',
+  progressBar: {
+    marginVertical: 20,
+    width: '100%',
   },
-  controls: {
+  stats: {
     flexDirection: 'row',
     justifyContent: 'space-around',
+    width: '100%',
+    marginVertical: 20,
+  },
+  statText: {
+    fontSize: 16,
+    color: theme.colors.text,
+  },
+  button: {
     marginTop: 20,
+    paddingHorizontal: 32,
+    borderRadius: 8,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+      },
+      android: {
+        elevation: 5,
+      },
+    }),
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    color: theme.colors.error,
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 20,
   },
 });
 

@@ -1,52 +1,81 @@
-/*
-Generate a complete implementation for this file that:
-1. Follows the project's React Native / TypeScript patterns
-2. Uses proper imports and type definitions
-3. Implements error handling and loading states
-4. Includes JSDoc documentation
-5. Follows project ESLint/Prettier rules
-6. Integrates with existing app architecture
-7. Includes proper testing considerations
-8. Uses project's defined components and utilities
-9. Handles proper memory management/cleanup
-10. Follows accessibility guidelines
+/**
+ * ProgressBar Component
+ *
+ * A reusable progress indicator component that shows completion status.
+ * Supports accessibility, custom colors, and responsive design.
+ *
+ * @packageDocumentation
+ */
 
-File requirements:
-- Must integrate with Redux store
-- Must use React hooks appropriately
-- Must handle mobile-specific considerations
-- Must maintain type safety
-- Must have proper error boundaries
-- Must follow project folder structure
-- Must use existing shared components
-- Must handle navigation properly
-- Must scale well as app grows
-- Must follow security best practices
-*/
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useMemo } from 'react';
+import { StyleSheet, View, AccessibilityValue } from 'react-native';
 import { ProgressBar as PaperProgressBar } from 'react-native-paper';
+import { useSelector } from 'react-redux';
+import { ErrorBoundary } from '../common/ErrorBoundary';
 import { theme } from '../../theme';
+import type { RootState } from '../../types';
 
 interface ProgressBarProps {
+  /** Current progress value */
   progress: number;
+  /** Total value for calculating percentage */
   total: number;
+  /** Custom color for progress bar */
   color?: string;
+  /** Optional test ID for testing */
+  testID?: string;
 }
 
+/**
+ * Progress bar component showing completion status
+ */
 export const ProgressBar: React.FC<ProgressBarProps> = ({
   progress,
   total,
   color = theme.colors.primary,
+  testID = 'progress-bar',
 }) => {
+  // Get theme from Redux store
+  const isDarkMode = useSelector(
+    (state: RootState) => state.settings.theme === 'dark',
+  );
+
+  // Calculate progress percentage
+  const progressValue = useMemo(() => {
+    // Ensure progress doesn't exceed total
+    const safeProgress = Math.min(progress, total);
+    // Prevent division by zero
+    return total > 0 ? safeProgress / total : 0;
+  }, [progress, total]);
+
+  // Calculate percentage for accessibility
+  const percentage = Math.round(progressValue * 100);
+
+  // Define accessibility props
+  const accessibilityProps = {
+    accessibilityRole: 'progressbar' as const,
+    accessibilityValue: {
+      min: 0,
+      max: 100,
+      now: percentage,
+    } as AccessibilityValue,
+    accessibilityLabel: `Progress: ${percentage}%`,
+  };
+
   return (
-    <View style={styles.container}>
-      <PaperProgressBar
-        progress={progress / total}
-        color={color}
-        style={styles.progressBar}
-      />
-    </View>
+    <ErrorBoundary>
+      <View
+        style={[styles.container, isDarkMode && styles.containerDark]}
+        testID={testID}
+        {...accessibilityProps}
+      >
+        <PaperProgressBar
+          progress={progressValue}
+          color={color}
+          style={[styles.progressBar, isDarkMode && styles.progressBarDark]}
+        />
+      </View>
+    </ErrorBoundary>
   );
 };
 
@@ -54,11 +83,22 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     padding: 8,
+    backgroundColor: theme.colors.background,
+  },
+  containerDark: {
+    backgroundColor: '#1E1E1E',
   },
   progressBar: {
     height: 8,
     borderRadius: 4,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  progressBarDark: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
 });
 
-export default ProgressBar;
+// Add display name for debugging
+ProgressBar.displayName = 'ProgressBar';
+
+export default React.memo(ProgressBar);

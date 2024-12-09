@@ -1,38 +1,25 @@
-/*
-Generate a complete implementation for this file that:
-1. Follows the project's React Native / TypeScript patterns
-2. Uses proper imports and type definitions
-3. Implements error handling and loading states
-4. Includes JSDoc documentation
-5. Follows project ESLint/Prettier rules
-6. Integrates with existing app architecture
-7. Includes proper testing considerations
-8. Uses project's defined components and utilities
-9. Handles proper memory management/cleanup
-10. Follows accessibility guidelines
+/**
+ * Registration Screen Component
+ *
+ * Handles new user registration with email/password and parent email validation.
+ * Integrates with Firebase Auth and Redux for state management.
+ *
+ * @packageDocumentation
+ */
 
-File requirements:
-- Must integrate with Redux store
-- Must use React hooks appropriately
-- Must handle mobile-specific considerations
-- Must maintain type safety
-- Must have proper error boundaries
-- Must follow project folder structure
-- Must use existing shared components
-- Must handle navigation properly
-- Must scale well as app grows
-- Must follow security best practices
-*/
-import React, { useState } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, StyleSheet, Alert, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../services/firebase/config';
 import { useDispatch } from 'react-redux';
-import { loginStart, loginSuccess, loginFailure } from '../store/authSlice';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import { loginStart, loginSuccess, loginFailure } from '../../store/authSlice';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { Button, Appbar, TextInput } from 'react-native-paper';
-import { NavigationProps } from '../navigation';
+import { ErrorBoundary } from '../../components/common/ErrorBoundary';
+import { theme } from '../../theme';
+import { NavigationProps } from '../../navigation';
+import { logError } from '../../utils/analytics';
+import { auth } from '../../services/firebase/config';
 
 type RegistrationScreenProps = NavigationProps<'Registration'>;
 
@@ -42,9 +29,13 @@ interface RegistrationForm {
   parentEmail: string;
 }
 
+/**
+ * Registration screen component for new user signup
+ */
 const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
   navigation,
 }) => {
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState<RegistrationForm>({
     email: '',
     password: '',
@@ -52,302 +43,11 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
   });
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const dispatch = useDispatch();
 
-  const hasMissingFields = (): boolean => {
-    return !formData.email || !formData.password || !formData.parentEmail;
-  };
-
-  const validateForm = (): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (hasMissingFields()) {
-      Alert.alert('Error', 'All fields are required');
-      return false;
-    }
-
-    if (
-      !emailRegex.test(formData.email) ||
-      !emailRegex.test(formData.parentEmail)
-    ) {
-      Alert.alert('Error', 'Please enter valid email addresses');
-      return false;
-    }
-
-    if (formData.password.length < 8) {
-      Alert.alert('Error', 'Password must be at least 8 characters long');
-      return false;
-    }
-
-    return true;
-  };
-
-  const handleRegister = async (): Promise<void> => {
-    if (!validateForm()) return;
-
-    try {
-      setIsLoading(true);
-      dispatch(loginStart());
-
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        formData.email,
-        formData.password,
-      );
-
-      const user = userCredential.user;
-      await user.updateProfile({
-        displayName: formData.email,
-      });
-
-      const token = await user.getIdToken();
-      await AsyncStorage.setItem('token', token);
-      await AsyncStorage.setItem('parentEmail', formData.parentEmail);
-
-      dispatch(loginSuccess({ user, token }));
-      navigation.navigate('Home');
-    } catch (error) {
-      console.error('Registration error:', error);
-      dispatch(loginFailure({ error: error.message }));
-      Alert.alert(
-        'Registration Error',
-        'An error occurred during registration.',
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <View style={styles.container}>
-      <Appbar.Header>
-        <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title="Register" />
-      </Appbar.Header>
-
-      <View style={styles.content}>
-        <TextInput
-          label="Email"
-          value={formData.email}
-          onChangeText={text => setFormData({ ...formData, email: text })}
-          style={styles.input}
-          mode="outlined"
-          left={<TextInput.Icon icon="email" />}
-          autoCapitalize="none"
-          keyboardType="email-address"
-        />
-
-        <TextInput
-          label="Password"
-          value={formData.password}
-          onChangeText={text => setFormData({ ...formData, password: text })}
-          style={styles.input}
-          mode="outlined"
-          secureTextEntry={!showPassword}
-          left={<TextInput.Icon icon="lock" />}
-          right={
-            <TextInput.Icon
-              icon={showPassword ? 'eye-off' : 'eye'}
-              onPress={() => setShowPassword(!showPassword)}
-            />
-          }
-        />
-
-        <TextInput
-          label="Parent's Email"
-          value={formData.parentEmail}
-          onChangeText={text => setFormData({ ...formData, parentEmail: text })}
-          style={styles.input}
-          mode="outlined"
-          left={<TextInput.Icon icon="email" />}
-          autoCapitalize="none"
-          keyboardType="email-address"
-        />
-
-        <Button
-          mode="contained"
-          onPress={handleRegister}
-          style={styles.button}
-          loading={isLoading}
-          disabled={isLoading}
-          icon={() => <FontAwesome name="user-plus" size={24} color="white" />}
-        >
-          Register
-        </Button>
-
-        <Button
-          mode="text"
-          onPress={() => navigation.navigate('Login')}
-          style={styles.linkButton}
-        >
-          Already have an account? Login
-        </Button>
-      </View>
-    </View>
-  );
-};
-
-const styles = StyleSheet.create({
-  button: {
-    borderRadius: 8,
-    marginTop: 24,
-    paddingVertical: 8,
-  },
-  container: {
-    backgroundColor: '#fff',
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 16,
-  },
-  input: {
-    marginBottom: 16,
-  },
-  linkButton: {
-    marginTop: 16,
-  },
-});
-
-export default RegistrationScreen;
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { default as React, default as React, useState } from 'react';
-import { Alert, Button, StyleSheet, TextInput, View } from 'react-native';
-import { Appbar } from 'react-native-paper';
-import { FontAwesome } from 'react-native-vector-icons/FontAwesome';
-import { useDispatch } from 'react-redux';
-import { auth } from '../firebaseConfig';
-import { NavigationProps } from '../navigation';
-import {
-  loginFailure,
-  loginStart,
-  loginSuccess,
-} from '../store/slices/authSlice';
-
-const RegistrationScreen = ({ navigation }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [parentEmail, setParentEmail] = useState('');
-  const dispatch = useDispatch();
-
-  const handleRegister = async () => {
-    try {
-      dispatch(loginStart());
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        username,
-        password,
-      );
-      const user = userCredential.user;
-
-      // Optionally update user profile (e.g., with parentEmail)
-      // await user.updateProfile({ displayName: username, email: parentEmail });
-
-      const token = await user.getIdToken();
-      await AsyncStorage.setItem('token', token);
-      dispatch(loginSuccess({ user, token }));
-      navigation.navigate('Home');
-    } catch (error) {
-      console.error('Registration error:', error);
-      dispatch(loginFailure({ error: error.message }));
-      Alert.alert(
-        'Registration Error',
-        'An error occurred during registration.',
-      );
-    }
-  };
-
-  return (
-    <View style={styles.container}>
-      <Appbar.Header>
-        <Appbar.Content title="Register" />
-      </Appbar.Header>
-      <View style={styles.content}>
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          value={username}
-          onChangeText={setUsername}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Parent's
- Email"
-          value={parentEmail}
-          onChangeText={setParentEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-        <Button
-          mode="contained"
-          style={styles.button}
-          onPress={handleRegister}
-          icon={() => <FontAwesome name="user-plus" size={24} color="white" />}
-        >
-          Register
-        </Button>
-      </View>
-    </View>
-  );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  input: {
-    width: '80%',
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-  },
-  button: {
-    margin: 10,
-  },
-});
-
-export default RegistrationScreen;
-
-type RegistrationScreenProps = NavigationProps<'Registration'>;
-
-interface RegistrationForm {
-  email: string;
-  password: string;
-  parentEmail: string;
-}
-
-const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
-  navigation,
-}) => {
-  const [formData, setFormData] = useState<RegistrationForm>({
-    email: '',
-    password: '',
-    parentEmail: '',
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const dispatch = useDispatch();
-
-  const validateForm = (): boolean => {
+  /**
+   * Validates form fields
+   */
+  const validateForm = useCallback((): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!formData.email || !formData.password || !formData.parentEmail) {
@@ -364,14 +64,17 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
     }
 
     if (formData.password.length < 8) {
-      Alert.alert('Error', 'Password must be at least 8 characters long');
+      Alert.alert('Error', 'Password must be at least 8 characters');
       return false;
     }
 
     return true;
-  };
+  }, [formData]);
 
-  const handleRegister = async (): Promise<void> => {
+  /**
+   * Handles user registration
+   */
+  const handleRegister = useCallback(async () => {
     if (!validateForm()) return;
 
     try {
@@ -384,102 +87,134 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
         formData.password,
       );
 
-      const user = userCredential.user;
-      await user.updateProfile({
-        displayName: formData.email,
-      });
-
-      const token = await user.getIdToken();
+      const token = await userCredential.user.getIdToken();
       await AsyncStorage.setItem('token', token);
-      await AsyncStorage.setItem('parentEmail', formData.parentEmail);
 
-      dispatch(loginSuccess({ user, token }));
-      navigation.navigate('Home');
+      dispatch(
+        loginSuccess({
+          user: userCredential.user,
+          token,
+        }),
+      );
+
+      navigation.replace('Home');
     } catch (error) {
-      console.error('Registration error:', error);
-      dispatch(loginFailure({ error: error.message }));
+      const errorMessage =
+        error instanceof Error ? error.message : 'Registration failed';
+      logError('Registration Error', error);
+      dispatch(loginFailure(errorMessage));
       Alert.alert(
         'Registration Error',
-        'An error occurred during registration.',
+        'Failed to create account. Please try again.',
       );
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [formData, dispatch, navigation, validateForm]);
 
   return (
-    <View style={styles.container}>
-      <Appbar.Header>
-        <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title="Register" />
-      </Appbar.Header>
+    <ErrorBoundary>
+      <View style={styles.container} testID="registration-screen">
+        <Appbar.Header>
+          <Appbar.BackAction
+            onPress={() => navigation.goBack()}
+            accessibilityLabel="Go back"
+          />
+          <Appbar.Content title="Create Account" />
+        </Appbar.Header>
 
-      <View style={styles.content}>
-        <TextInput
-          label="Email"
-          value={formData.email}
-          onChangeText={text => setFormData({ ...formData, email: text })}
-          style={styles.input}
-          mode="outlined"
-          left={<TextInput.Icon icon="email" />}
-          autoCapitalize="none"
-          keyboardType="email-address"
-        />
+        <View style={styles.content}>
+          <TextInput
+            label="Email"
+            value={formData.email}
+            onChangeText={text =>
+              setFormData(prev => ({ ...prev, email: text }))
+            }
+            autoCapitalize="none"
+            keyboardType="email-address"
+            style={styles.input}
+            accessibilityLabel="Email input"
+            accessibilityHint="Enter your email address"
+            testID="email-input"
+          />
 
-        <TextInput
-          label="Password"
-          value={formData.password}
-          onChangeText={text => setFormData({ ...formData, password: text })}
-          style={styles.input}
-          mode="outlined"
-          secureTextEntry={!showPassword}
-          left={<TextInput.Icon icon="lock" />}
-          right={
-            <TextInput.Icon
-              icon={showPassword ? 'eye-off' : 'eye'}
-              onPress={() => setShowPassword(!showPassword)}
-            />
-          }
-        />
+          <TextInput
+            label="Password"
+            value={formData.password}
+            onChangeText={text =>
+              setFormData(prev => ({ ...prev, password: text }))
+            }
+            secureTextEntry={!showPassword}
+            right={
+              <TextInput.Icon
+                icon={showPassword ? 'eye-off' : 'eye'}
+                onPress={() => setShowPassword(!showPassword)}
+                accessibilityLabel={
+                  showPassword ? 'Hide password' : 'Show password'
+                }
+              />
+            }
+            style={styles.input}
+            accessibilityLabel="Password input"
+            accessibilityHint="Enter your password"
+            testID="password-input"
+          />
 
-        <TextInput
-          label="Parent's Email"
-          value={formData.parentEmail}
-          onChangeText={text => setFormData({ ...formData, parentEmail: text })}
-          style={styles.input}
-          mode="outlined"
-          left={<TextInput.Icon icon="email" />}
-          autoCapitalize="none"
-          keyboardType="email-address"
-        />
+          <TextInput
+            label="Parent Email"
+            value={formData.parentEmail}
+            onChangeText={text =>
+              setFormData(prev => ({ ...prev, parentEmail: text }))
+            }
+            autoCapitalize="none"
+            keyboardType="email-address"
+            style={styles.input}
+            accessibilityLabel="Parent email input"
+            accessibilityHint="Enter your parent's email address"
+            testID="parent-email-input"
+          />
 
-        <Button
-          mode="contained"
-          onPress={handleRegister}
-          style={styles.button}
-          loading={isLoading}
-          disabled={isLoading}
-          icon={() => <FontAwesome name="user-plus" size={24} color="white" />}
-        >
-          Register
-        </Button>
+          <Button
+            mode="contained"
+            onPress={handleRegister}
+            loading={isLoading}
+            disabled={isLoading}
+            style={styles.button}
+            icon={() => (
+              <MaterialIcons
+                name="person-add"
+                size={24}
+                color="white"
+                accessibilityLabel="Register icon"
+              />
+            )}
+            accessibilityLabel="Register button"
+            accessibilityHint="Create new account"
+            testID="register-button"
+          >
+            {isLoading ? 'Creating Account...' : 'Register'}
+          </Button>
 
-        <Button
-          mode="text"
-          onPress={() => navigation.navigate('Login')}
-          style={styles.linkButton}
-        >
-          Already have an account? Login
-        </Button>
+          <Button
+            mode="text"
+            onPress={() => navigation.navigate('Login')}
+            style={styles.linkButton}
+            accessibilityLabel="Login link"
+            accessibilityHint="Navigate to login screen"
+            testID="login-link"
+          >
+            Already have an account? Login
+          </Button>
+        </View>
       </View>
-    </View>
+    </ErrorBoundary>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.background,
   },
   content: {
     flex: 1,
@@ -488,11 +223,23 @@ const styles = StyleSheet.create({
   },
   input: {
     marginBottom: 16,
+    backgroundColor: 'transparent',
   },
   button: {
     marginTop: 24,
-    paddingVertical: 8,
+    padding: 4,
     borderRadius: 8,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+      },
+      android: {
+        elevation: 5,
+      },
+    }),
   },
   linkButton: {
     marginTop: 16,

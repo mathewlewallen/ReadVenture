@@ -1,63 +1,103 @@
-/*
-Generate a complete implementation for this file that:
-1. Follows the project's React Native / TypeScript patterns
-2. Uses proper imports and type definitions
-3. Implements error handling and loading states
-4. Includes JSDoc documentation
-5. Follows project ESLint/Prettier rules
-6. Integrates with existing app architecture
-7. Includes proper testing considerations
-8. Uses project's defined components and utilities
-9. Handles proper memory management/cleanup
-10. Follows accessibility guidelines
+/**
+ * TextDisplay Component
+ *
+ * A reusable component for displaying interactive text content with word highlighting
+ * and touch interaction support. Optimized for mobile devices and accessibility.
+ *
+ * @packageDocumentation
+ */
 
-File requirements:
-- Must integrate with Redux store
-- Must use React hooks appropriately
-- Must handle mobile-specific considerations
-- Must maintain type safety
-- Must have proper error boundaries
-- Must follow project folder structure
-- Must use existing shared components
-- Must handle navigation properly
-- Must scale well as app grows
-- Must follow security best practices
-*/
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useMemo, useCallback } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  AccessibilityInfo,
+  Platform,
+} from 'react-native';
+import { useSelector } from 'react-redux';
+import { ErrorBoundary } from '../common/ErrorBoundary';
 import { theme } from '../../theme';
+import type { RootState } from '../../types';
 
 interface TextDisplayProps {
+  /** Text content to display */
   text: string;
+  /** Currently highlighted word */
   highlightedWord?: string;
+  /** Font size override */
   fontSize?: number;
+  /** Callback when word is pressed */
   onWordPress?: (word: string) => void;
+  /** Test ID for component */
+  testID?: string;
 }
 
+/**
+ * Text display component with word highlighting and interaction
+ */
 export const TextDisplay: React.FC<TextDisplayProps> = ({
   text,
   highlightedWord,
   fontSize = 20,
   onWordPress,
+  testID = 'text-display',
 }) => {
-  const words = text.split(' ');
+  // Get theme settings from Redux
+  const { fontFamily, textColor } = useSelector(
+    (state: RootState) => state.settings,
+  );
+
+  // Memoize word splitting for performance
+  const words = useMemo(() => text.split(' '), [text]);
+
+  /**
+   * Handles word press with accessibility announcement
+   */
+  const handleWordPress = useCallback(
+    (word: string) => {
+      if (onWordPress) {
+        onWordPress(word);
+        // Announce word selection for screen readers
+        AccessibilityInfo.announceForAccessibility(`Selected word: ${word}`);
+      }
+    },
+    [onWordPress],
+  );
 
   return (
-    <View style={styles.container}>
-      {words.map((word, index) => (
-        <Text
-          key={`${word}-${index}`}
-          style={[
-            styles.word,
-            { fontSize },
-            word === highlightedWord && styles.highlighted,
-          ]}
-          onPress={() => onWordPress?.(word)}
-        >
-          {word}{' '}
-        </Text>
-      ))}
-    </View>
+    <ErrorBoundary>
+      <View
+        style={styles.container}
+        testID={testID}
+        accessibilityRole="text"
+        accessible={true}
+        accessibilityLabel={text}
+      >
+        {words.map((word, index) => (
+          <Text
+            key={`${word}-${index}`}
+            style={[
+              styles.word,
+              {
+                fontSize,
+                fontFamily,
+                color: textColor || theme.colors.text,
+              },
+              word === highlightedWord && styles.highlighted,
+            ]}
+            onPress={() => handleWordPress(word)}
+            accessibilityRole="button"
+            accessibilityLabel={`Word: ${word}`}
+            accessibilityHint={`Tap to select word ${word}`}
+            testID={`word-${index}`}
+          >
+            {word}
+            {index < words.length - 1 ? ' ' : ''}
+          </Text>
+        ))}
+      </View>
+    </ErrorBoundary>
   );
 };
 
@@ -66,15 +106,35 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     padding: 16,
+    ...Platform.select({
+      ios: {
+        paddingTop: 8, // Adjust for iOS touch targets
+      },
+      android: {
+        paddingTop: 4, // Adjust for Android touch targets
+      },
+    }),
   },
   word: {
-    color: theme.colors.text,
     marginRight: 4,
+    marginVertical: 2,
+    paddingVertical: 2,
+    paddingHorizontal: 4,
+    borderRadius: 4,
+    ...Platform.select({
+      ios: {
+        minHeight: 44, // iOS accessibility minimum
+      },
+      android: {
+        minHeight: 48, // Android accessibility minimum
+      },
+    }),
   },
   highlighted: {
-    backgroundColor: 'yellow',
+    backgroundColor: theme.colors.primary + '40', // 40% opacity
     fontWeight: 'bold',
   },
 });
 
-export default TextDisplay;
+// Export memoized component for better performance
+export default React.memo(TextDisplay);

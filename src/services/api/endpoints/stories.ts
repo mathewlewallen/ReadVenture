@@ -1,35 +1,85 @@
-/*
-Generate a complete implementation for this file that:
-1. Follows the project's React Native / TypeScript patterns
-2. Uses proper imports and type definitions
-3. Implements error handling and loading states
-4. Includes JSDoc documentation
-5. Follows project ESLint/Prettier rules
-6. Integrates with existing app architecture
-7. Includes proper testing considerations
-8. Uses project's defined components and utilities
-9. Handles proper memory management/cleanup
-10. Follows accessibility guidelines
+/**
+ * Story API Endpoints Service
+ *
+ * Handles all story-related API calls with proper error handling,
+ * pagination, and caching support.
+ *
+ * @packageDocumentation
+ */
 
-File requirements:
-- Must integrate with Redux store
-- Must use React hooks appropriately
-- Must handle mobile-specific considerations
-- Must maintain type safety
-- Must have proper error boundaries
-- Must follow project folder structure
-- Must use existing shared components
-- Must handle navigation properly
-- Must scale well as app grows
-- Must follow security best practices
-*/
-// src/services/api/endpoints/stories.ts
-import { PaginatedResponse, Story } from '../../../types';
+import { AxiosError } from 'axios';
 import { api } from './client';
+import { store } from '../../../store';
+import { logError } from '../../../utils/analytics';
+import { validateStoryData } from '../../../utils/validation';
+import {
+  ApiResponse,
+  PaginatedResponse,
+  Story,
+  StoryFilters,
+} from '../../../types';
 
+/**
+ * Story API endpoints and handlers
+ */
 export const storyEndpoints = {
-  getStories: (page: number = 1) =>
-    api.get<PaginatedResponse<Story>>('/stories', { params: { page } }),
+  /**
+   * Fetches paginated list of stories with optional filters
+   * @param page - Page number to fetch
+   * @param filters - Optional filtering criteria
+   * @throws {ApiError} When request fails
+   */
+  getStories: async (
+    page: number = 1,
+    filters?: StoryFilters,
+  ): Promise<PaginatedResponse<Story>> => {
+    try {
+      const response = await api.get<PaginatedResponse<Story>>('/stories', {
+        params: {
+          page,
+          ...filters,
+        },
+        headers: {
+          'Cache-Control': 'max-age=300', // 5 minute cache
+          Authorization: `Bearer ${store.getState().auth.token}`,
+        },
+      });
 
-  getStoryById: (id: string) => api.get<Story>(`/stories/${id}`),
+      return response.data;
+    } catch (error) {
+      logError('Failed to fetch stories:', error);
+      throw new Error(
+        error instanceof AxiosError
+          ? error.response?.data?.message
+          : 'Failed to fetch stories',
+      );
+    }
+  },
+
+  /**
+   * Fetches a single story by ID
+   * @param id - Story ID to fetch
+   * @throws {ApiError} When request fails
+   */
+  getStoryById: async (id: string): Promise<Story> => {
+    try {
+      const response = await api.get<ApiResponse<Story>>(`/stories/${id}`, {
+        headers: {
+          Authorization: `Bearer ${store.getState().auth.token}`,
+        },
+      });
+
+      const story = response.data.data;
+      validateStoryData(story);
+
+      return story;
+    } catch (error) {
+      logError('Failed to fetch story:', error);
+      throw new Error(
+        error instanceof AxiosError
+          ? error.response?.data?.message
+          : 'Failed to fetch story',
+      );
+    }
+  },
 };

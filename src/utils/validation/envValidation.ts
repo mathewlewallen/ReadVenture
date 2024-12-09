@@ -1,31 +1,18 @@
-/*
-Generate a complete implementation for this file that:
-1. Follows the project's React Native / TypeScript patterns
-2. Uses proper imports and type definitions
-3. Implements error handling and loading states
-4. Includes JSDoc documentation
-5. Follows project ESLint/Prettier rules
-6. Integrates with existing app architecture
-7. Includes proper testing considerations
-8. Uses project's defined components and utilities
-9. Handles proper memory management/cleanup
-10. Follows accessibility guidelines
+/**
+ * Environment Validation Utilities
+ *
+ * Validates required environment variables and configuration settings.
+ * Provides type-safe validation and detailed error reporting.
+ *
+ * @packageDocumentation
+ */
 
-File requirements:
-- Must integrate with Redux store
-- Must use React hooks appropriately
-- Must handle mobile-specific considerations
-- Must maintain type safety
-- Must have proper error boundaries
-- Must follow project folder structure
-- Must use existing shared components
-- Must handle navigation properly
-- Must scale well as app grows
-- Must follow security best practices
-*/
-// src/utils/validation/envValidation.ts
 import Config from 'react-native-config';
+import { logError } from '../../utils/analytics';
 
+/**
+ * Environment configuration interface
+ */
 interface EnvConfig {
   // Firebase (Required)
   FIREBASE_API_KEY: string;
@@ -49,6 +36,9 @@ interface EnvConfig {
   NODE_ENV?: string;
 }
 
+/**
+ * Required environment variables
+ */
 const REQUIRED_ENV_VARS = [
   'FIREBASE_API_KEY',
   'FIREBASE_AUTH_DOMAIN',
@@ -61,65 +51,108 @@ const REQUIRED_ENV_VARS = [
   'APP_ENV',
 ] as const;
 
-export const validateEnv = (): boolean => {
+/**
+ * Environment validation result
+ */
+interface ValidationResult {
+  isValid: boolean;
+  missingVars: string[];
+  errors: string[];
+}
+
+/**
+ * Validates environment configuration
+ * @returns Validation result with details
+ */
+export const validateEnv = (): ValidationResult => {
+  const result: ValidationResult = {
+    isValid: true,
+    missingVars: [],
+    errors: [],
+  };
+
   try {
-    return REQUIRED_ENV_VARS.every(key => {
+    // Check for required variables
+    REQUIRED_ENV_VARS.forEach(key => {
       const value = Config[key as keyof typeof Config];
-      return value !== undefined && value !== '';
+      if (!value || value.trim() === '') {
+        result.isValid = false;
+        result.missingVars.push(key);
+      }
     });
-  } catch (error) {
-    console.error('Environment validation failed:', error);
-    return false;
-  }
-};
-// src/utils/configTest.ts
-import Config from 'react-native-config';
 
-// Validates that all required Firebase configuration keys are present in the environment
-export const validateConfig = () => {
-  const requiredKeys = [
-    'FIREBASE_API_KEY',
-    'FIREBASE_AUTH_DOMAIN',
-    'FIREBASE_PROJECT_ID',
-    'FIREBASE_STORAGE_BUCKET',
-    'FIREBASE_MESSAGING_SENDER_ID',
-    'FIREBASE_APP_ID',
-    'FIREBASE_MEASUREMENT_ID',
-  ];
-
-  const missingKeys = requiredKeys.filter(key => !Config[key]);
-
-  if (missingKeys.length > 0) {
-    console.error('Missing required env variables:', missingKeys);
-    return false;
-  }
-  return true;
-};
-/**
- * Environment and configuration testing utility
- * src/utils/envTest.ts
- */
-import Config from 'react-native-config';
-
-/**
- * Tests and logs various configuration values in development environment
- * Only logs in development mode to prevent sensitive data exposure in production
- */
-export const testConfig = (): void => {
-  // Only execute in development environment
-  if (__DEV__) {
-    try {
-      // Log basic environment settings
-      console.log('[ENV] Environment:', Config.APP_ENV);
-      console.log('[ENV] API URL:', Config.API_URL);
-
-      // Log Firebase configuration (sensitive - development only)
-      console.log('[ENV] Firebase Config:', {
-        apiKey: Config.FIREBASE_API_KEY,
-        projectId: Config.FIREBASE_PROJECT_ID,
-      });
-    } catch (error) {
-      console.warn('[ENV] Error reading configuration:', error);
+    // Validate API URL format
+    if (Config.API_URL && !isValidUrl(Config.API_URL)) {
+      result.isValid = false;
+      result.errors.push('Invalid API_URL format');
     }
+
+    // Validate environment type
+    if (
+      Config.APP_ENV &&
+      !['development', 'staging', 'production'].includes(Config.APP_ENV)
+    ) {
+      result.isValid = false;
+      result.errors.push('Invalid APP_ENV value');
+    }
+
+    // Validate numeric values
+    if (Config.API_TIMEOUT && !isValidNumber(Config.API_TIMEOUT)) {
+      result.isValid = false;
+      result.errors.push('Invalid API_TIMEOUT value');
+    }
+
+    return result;
+  } catch (error) {
+    logError('Environment validation failed:', error);
+    return {
+      isValid: false,
+      missingVars: [],
+      errors: [(error as Error).message],
+    };
   }
+};
+
+/**
+ * Gets environment configuration with type safety
+ * @throws {Error} If required variables are missing
+ */
+export const getEnvConfig = (): EnvConfig => {
+  const validation = validateEnv();
+
+  if (!validation.isValid) {
+    const errorMessage = [
+      'Invalid environment configuration:',
+      ...validation.missingVars.map(v => `Missing ${v}`),
+      ...validation.errors,
+    ].join('\n');
+
+    throw new Error(errorMessage);
+  }
+
+  return Config as EnvConfig;
+};
+
+/**
+ * Validates URL format
+ */
+const isValidUrl = (url: string): boolean => {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * Validates numeric string
+ */
+const isValidNumber = (value: string): boolean => {
+  return !isNaN(Number(value)) && isFinite(Number(value));
+};
+
+export default {
+  validateEnv,
+  getEnvConfig,
 };

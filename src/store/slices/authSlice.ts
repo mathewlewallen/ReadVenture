@@ -123,6 +123,17 @@ const authSlice = createSlice({
     clearError(state) {
       state.error = null;
     },
+
+    /**
+     * Updates auth state
+     */
+    updateAuthState(
+      state,
+      action: PayloadAction<{ user?: AuthUser | null; token?: string | null }>,
+    ) {
+      if ('user' in action.payload) state.user = action.payload.user;
+      if ('token' in action.payload) state.token = action.payload.token;
+    },
   },
 });
 
@@ -135,6 +146,7 @@ export const {
   updateSettings,
   logout,
   clearError,
+  updateAuthState,
 } = authSlice.actions;
 
 // Export reducer

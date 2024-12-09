@@ -10,8 +10,8 @@
  * @packageDocumentation
  */
 
-import React, { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useEffect, useCallback } from 'react';
+import { StyleSheet, View, Platform } from 'react-native';
 import { Appbar, Button } from 'react-native-paper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useSelector, useDispatch } from 'react-redux';
@@ -29,9 +29,10 @@ type HomeScreenProps = NavigationProps<'Home'>;
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const dispatch = useDispatch();
   const { role } = useSelector((state: RootState) => state.auth.user || {});
+  const { isLoading } = useSelector((state: RootState) => state.progress);
 
+  // Load initial progress data
   useEffect(() => {
-    // Fetch initial user progress data
     dispatch(fetchUserProgress());
 
     return () => {
@@ -39,14 +40,28 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     };
   }, [dispatch]);
 
+  /**
+   * Navigation handlers with type safety
+   */
+  const handleNavigate = useCallback(
+    (screen: keyof NavigationProps<'Home'>['navigation']) => {
+      navigation.navigate(screen);
+    },
+    [navigation],
+  );
+
   return (
     <ErrorBoundary>
       <View style={styles.container} testID="home-screen">
         <Appbar.Header>
-          <Appbar.Content title="ReadVenture" accessibilityRole="header" />
+          <Appbar.Content
+            title="ReadVenture"
+            accessibilityRole="header"
+            testID="home-header"
+          />
           <Appbar.Action
             icon="settings"
-            onPress={() => navigation.navigate('Settings')}
+            onPress={() => handleNavigate('Settings')}
             accessibilityLabel="Settings"
             testID="settings-button"
           />
@@ -56,7 +71,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           <Button
             mode="contained"
             style={styles.button}
-            onPress={() => navigation.navigate('StoryLibrary')}
+            onPress={() => handleNavigate('StoryLibrary')}
             icon={() => (
               <MaterialIcons
                 name="book"
@@ -67,6 +82,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             )}
             accessibilityLabel="Go to Story Library"
             testID="story-library-button"
+            disabled={isLoading}
           >
             Story Library
           </Button>
@@ -74,36 +90,38 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           <Button
             mode="contained"
             style={styles.button}
-            onPress={() => navigation.navigate('Progress')}
+            onPress={() => handleNavigate('Progress')}
             icon={() => (
               <MaterialIcons
-                name="analytics"
+                name="trending-up"
                 size={24}
                 color="white"
-                accessibilityLabel="Analytics icon"
+                accessibilityLabel="Progress icon"
               />
             )}
             accessibilityLabel="View Reading Progress"
             testID="progress-button"
+            disabled={isLoading}
           >
-            Progress
+            Reading Progress
           </Button>
 
           {role === 'parent' && (
             <Button
               mode="contained"
               style={styles.button}
-              onPress={() => navigation.navigate('ParentDashboard')}
+              onPress={() => handleNavigate('ParentDashboard')}
               icon={() => (
                 <MaterialIcons
-                  name="supervisor-account"
+                  name="people"
                   size={24}
                   color="white"
-                  accessibilityLabel="Parent dashboard icon"
+                  accessibilityLabel="Dashboard icon"
                 />
               )}
-              accessibilityLabel="Go to Parent Dashboard"
+              accessibilityLabel="Open Parent Dashboard"
               testID="parent-dashboard-button"
+              disabled={isLoading}
             >
               Parent Dashboard
             </Button>
@@ -121,15 +139,25 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 20,
+    padding: 16,
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'stretch',
   },
   button: {
-    width: '100%',
-    marginVertical: 10,
+    marginVertical: 8,
+    padding: 8,
     borderRadius: 8,
-    paddingVertical: 8,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+      },
+      android: {
+        elevation: 5,
+      },
+    }),
   },
 });
 

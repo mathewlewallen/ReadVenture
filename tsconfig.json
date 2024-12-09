@@ -4,6 +4,13 @@
  */
 {
   "extends": "@react-native/typescript-config/tsconfig.json",
+  "references": [
+    { "path": "./src" },
+    { "path": "./backend" },
+    { "path": "./backend-firebase" },
+    { "path": "./config" },
+    { "path": "./tests" }
+  ],
   "compilerOptions": {
     // Build settings
     "target": "esnext",
@@ -36,7 +43,16 @@
     "allowJs": true,
     "noEmit": true,
     "isolatedModules": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+
+    // Optimize TypeScript performance
+    "disableSourceOfProjectReferenceRedirect": true,
+    "maxNodeModuleJsDepth": 2,
+    // Reduce type checking scope
+    "incremental": true,
+    "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo",
+    // Memory management
+    "maxNodeModulesJsDepth": 1
   },
   "include": [
     "src/**/*",

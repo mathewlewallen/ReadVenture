@@ -1,35 +1,33 @@
-/*
-Generate a complete implementation for this file that:
-1. Follows the project's React Native / TypeScript patterns
-2. Uses proper imports and type definitions
-3. Implements error handling and loading states
-4. Includes JSDoc documentation
-5. Follows project ESLint/Prettier rules
-6. Integrates with existing app architecture
-7. Includes proper testing considerations
-8. Uses project's defined components and utilities
-9. Handles proper memory management/cleanup
-10. Follows accessibility guidelines
+/**
+ * Firebase Configuration and Services
+ *
+ * Handles Firebase initialization, service configuration, and API setup.
+ * Implements proper error handling, type safety, and security best practices.
+ *
+ * @packageDocumentation
+ */
 
-File requirements:
-- Must integrate with Redux store
-- Must use React hooks appropriately
-- Must handle mobile-specific considerations
-- Must maintain type safety
-- Must have proper error boundaries
-- Must follow project folder structure
-- Must use existing shared components
-- Must handle navigation properly
-- Must scale well as app grows
-- Must follow security best practices
-*/
-// src/firebaseConfig.ts
 import { initializeApp, FirebaseOptions, FirebaseApp } from 'firebase/app';
-import { getAuth, Auth } from 'firebase/auth';
-import { getFirestore, Firestore } from 'firebase/firestore';
-import { getAnalytics, Analytics } from 'firebase/analytics';
+import {
+  getAuth,
+  Auth,
+  setPersistence,
+  browserLocalPersistence,
+} from 'firebase/auth';
+import {
+  getFirestore,
+  Firestore,
+  initializeFirestore,
+} from 'firebase/firestore';
+import {
+  getAnalytics,
+  Analytics,
+  setAnalyticsCollectionEnabled,
+} from 'firebase/analytics';
 import Config from 'react-native-config';
+import { logError } from '../utils/analytics';
 
+/** Firebase services interface */
 interface FirebaseServices {
   app: FirebaseApp;
   auth: Auth;
@@ -37,6 +35,10 @@ interface FirebaseServices {
   analytics: Analytics;
 }
 
+/**
+ * Validates Firebase configuration
+ * @throws {Error} If required config fields are missing
+ */
 const validateFirebaseConfig = (
   config: Partial<FirebaseOptions>,
 ): config is FirebaseOptions => {
@@ -58,6 +60,10 @@ const validateFirebaseConfig = (
   return true;
 };
 
+/**
+ * Initializes Firebase services
+ * @throws {Error} If initialization fails
+ */
 const initializeFirebase = (): FirebaseServices => {
   const firebaseConfig: Partial<FirebaseOptions> = {
     apiKey: Config.FIREBASE_API_KEY,
@@ -69,101 +75,123 @@ const initializeFirebase = (): FirebaseServices => {
     measurementId: Config.FIREBASE_MEASUREMENT_ID,
   };
 
-  if (!validateFirebaseConfig(firebaseConfig)) {
-    throw new Error('Invalid Firebase configuration');
-  }
-
   try {
+    if (!validateFirebaseConfig(firebaseConfig)) {
+      throw new Error('Invalid Firebase configuration');
+    }
+
+    // Initialize Firebase app
     const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
+
+    // Initialize Authentication with persistence
     const auth = getAuth(app);
-    const db = getFirestore(app);
+    setPersistence(auth, browserLocalPersistence);
+
+    // Initialize Firestore with settings
+    const db = initializeFirestore(app, {
+      cacheSizeBytes: 50 * 1024 * 1024, // 50MB cache
+      ignoreUndefinedProperties: true,
+      experimentalForceLongPolling: true, // For better mobile support
+    });
+
+    // Initialize Analytics
+    const analytics = getAnalytics(app);
+    setAnalyticsCollectionEnabled(analytics, !__DEV__);
 
     return { app, auth, db, analytics };
   } catch (error) {
-    console.error('Firebase initialization failed:', error);
+    logError('Firebase initialization failed:', error);
     throw error;
   }
 };
 
-const firebase = initializeFirebase();
+// Initialize services
+let services: FirebaseServices;
 
-export const { auth, db, analytics } = firebase;
-export default firebase;
-// src/services/firebase/analytics.service.ts
-import { analytics } from './config';
-import { logEvent } from 'firebase/analytics';
+try {
+  services = initializeFirebase();
+} catch (error) {
+  logError('Firebase services initialization failed:', error);
+  throw error;
+}
 
-class AnalyticsService {
-  private static instance: AnalyticsService;
+// Export initialized services
+export const { app, auth, db, analytics } = services;
 
-  static getInstance(): AnalyticsService {
-    if (!AnalyticsService.instance) {
-      AnalyticsService.instance = new AnalyticsService();
+// Export type definitions
+export type { FirebaseServices };
+
+/**
+ * Cleanup function for Firebase services
+ */
+export const cleanup = async (): Promise<void> => {
+  try {
+    await Promise.all([auth.signOut(), app.delete()]);
+  } catch (error) {
+    logError('Firebase cleanup failed:', error);
+    throw error;
+  }
+};
+
+/**
+ * API client with interceptors and error handling
+ */
+import axios, { AxiosInstance, AxiosError } from 'axios';
+
+class ApiClient {
+  private static instance: AxiosInstance;
+
+  static getInstance(): AxiosInstance {
+    if (!this.instance) {
+      this.instance = axios.create({
+        baseURL: Config.API_URL,
+        timeout: 10000,
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      });
+
+      // Add request interceptor
+      this.instance.interceptors.request.use(
+        config => {
+          // Add auth token if available
+          const token = auth.currentUser?.getIdToken();
+          if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+          }
+          return config;
+        },
+        error => {
+          logError('API request failed:', error);
+          return Promise.reject(error);
+        },
+      );
+
+      // Add response interceptor
+      this.instance.interceptors.response.use(
+        response => response,
+        (error: AxiosError) => {
+          this.handleApiError(error);
+          return Promise.reject(error);
+        },
+      );
     }
-    return AnalyticsService.instance;
+    return this.instance;
   }
 
-  logStoryRead(storyId: string, userId: string): void {
-    logEvent(analytics, 'story_read', {
-      story_id: storyId,
-      user_id: userId,
-    });
-  }
-
-  logProgressUpdate(userId: string, progress: number): void {
-    logEvent(analytics, 'progress_update', {
-      user_id: userId,
-      progress,
-    });
+  private static handleApiError(error: AxiosError): void {
+    if (error.response) {
+      logError('API response error:', {
+        status: error.response.status,
+        data: error.response.data,
+      });
+    } else if (error.request) {
+      logError('API request error:', error.request);
+    } else {
+      logError('API error:', error.message);
+    }
   }
 }
 
-export const analyticsService = AnalyticsService.getInstance();
-
-import axios from 'axios';
-
-const api = axios.create({
-  baseURL: 'http://localhost:3000', // Replace with your API URL
-});
-
-// Function to set the authorization token in the request headers
-api.setToken = token => {
-  api.defaults.headers.common.Authorization = `Bearer ${token}`;
-};
-
-export default api;
-
-import axios from 'axios';
-
-const api = axios.create({
-  baseURL: 'https://your-project-id.cloudfunctions.net', // Replace with your Firebase Cloud Functions URL
-});
-
-api.setToken = token => {
-  api.defaults.headers.common.Authorization = `Bearer ${token}`;
-};
-
-api.handleError = error => {
-  if (error.response) {
-    // The request was made and the server responded with a status code
-    // that falls out of the range of 2xx
-    console.error('Response error:', error.response.data);
-    console.error('Status:', error.response.status);
-    console.error('Headers:', error.response.headers);
-  } else if (error.request) {
-    // The request was made but no response was received
-    // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-    // http.ClientRequest in node.js
-    console.error('Request error:', error.request);
-  } else {
-    // Something happened in setting up the request that triggered an Error
-    console.error('Error:', error.message);
-  }
-  console.error('Error config:', error.config);
-
-  // You can add more specific error handling logic here, such as
-  // displaying error messages to the user or retrying the request.
-};
-
-export default api;
+export const api = ApiClient.getInstance();

@@ -1,30 +1,14 @@
-/*
-Generate a complete implementation for this file that:
-1. Follows the project's React Native / TypeScript patterns
-2. Uses proper imports and type definitions
-3. Implements error handling and loading states
-4. Includes JSDoc documentation
-5. Follows project ESLint/Prettier rules
-6. Integrates with existing app architecture
-7. Includes proper testing considerations
-8. Uses project's defined components and utilities
-9. Handles proper memory management/cleanup
-10. Follows accessibility guidelines
+/**
+ * Login Screen Component
+ *
+ * Handles user authentication with email/password through Firebase.
+ * Integrates with Redux for state management and provides error handling.
+ *
+ * @packageDocumentation
+ */
 
-File requirements:
-- Must integrate with Redux store
-- Must use React hooks appropriately
-- Must handle mobile-specific considerations
-- Must maintain type safety
-- Must have proper error boundaries
-- Must follow project folder structure
-- Must use existing shared components
-- Must handle navigation properly
-- Must scale well as app grows
-- Must follow security best practices
-*/
-import React, { useState } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, StyleSheet, Alert, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch } from 'react-redux';
 import { loginStart, loginSuccess, loginFailure } from '../store/authSlice';
@@ -33,9 +17,15 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import { Button, Appbar, TextInput } from 'react-native-paper';
 import { NavigationProps } from '../navigation';
+import { ErrorBoundary } from '../components/common/ErrorBoundary';
+import { theme } from '../theme';
+import { logError } from '../utils/analytics';
 
 type LoginScreenProps = NavigationProps<'Login'>;
 
+/**
+ * Login screen component for user authentication
+ */
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -43,14 +33,20 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
 
-  const validateForm = (): boolean => {
+  /**
+   * Validates form inputs
+   */
+  const validateForm = useCallback((): boolean => {
     if (!username || !password) {
       Alert.alert('Validation Error', 'Please fill in all fields');
       return false;
     }
     return true;
-  };
+  }, [username, password]);
 
+  /**
+   * Handles user login attempt
+   */
   const handleLogin = async (): Promise<void> => {
     if (!validateForm()) return;
 
@@ -70,197 +66,129 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       dispatch(loginSuccess({ user, token }));
       navigation.navigate('Home');
     } catch (error) {
-      console.error('Login error:', error);
-      dispatch(loginFailure({ error: error.message }));
-      Alert.alert('Login Error', 'Invalid username or password.');
+      const errorMessage =
+        error instanceof Error ? error.message : 'Login failed';
+      logError('Login Error', error);
+      dispatch(loginFailure(errorMessage));
+      Alert.alert('Login Error', 'Invalid credentials. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Appbar.Header>
-        <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title="Login" />
-      </Appbar.Header>
+    <ErrorBoundary>
+      <View style={styles.container} testID="login-screen">
+        <Appbar.Header>
+          <Appbar.BackAction
+            onPress={() => navigation.goBack()}
+            accessibilityLabel="Go back"
+          />
+          <Appbar.Content title="Login" />
+        </Appbar.Header>
 
-      <View style={styles.content}>
-        <TextInput
-          label="Email"
-          value={username}
-          onChangeText={setUsername}
-          style={styles.input}
-          mode="outlined"
-          left={<TextInput.Icon icon="email" />}
-          autoCapitalize="none"
-        />
+        <View style={styles.content}>
+          <TextInput
+            label="Email"
+            value={username}
+            onChangeText={setUsername}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            style={styles.input}
+            accessibilityLabel="Email input"
+            accessibilityHint="Enter your email address"
+            testID="email-input"
+          />
 
-        <TextInput
-          label="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry={!showPassword}
-          style={styles.input}
-          mode="outlined"
-          left={<TextInput.Icon icon="lock" />}
-          right={
-            <TextInput.Icon
-              icon={showPassword ? 'eye-off' : 'eye'}
-              onPress={() => setShowPassword(!showPassword)}
-            />
-          }
-        />
+          <TextInput
+            label="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword}
+            right={
+              <TextInput.Icon
+                icon={showPassword ? 'eye-off' : 'eye'}
+                onPress={() => setShowPassword(!showPassword)}
+                accessibilityLabel={
+                  showPassword ? 'Hide password' : 'Show password'
+                }
+              />
+            }
+            style={styles.input}
+            accessibilityLabel="Password input"
+            accessibilityHint="Enter your password"
+            testID="password-input"
+          />
 
-        <Button
-          mode="contained"
-          onPress={handleLogin}
-          style={styles.button}
-          loading={isLoading}
-          disabled={isLoading}
-        >
-          Login
-        </Button>
+          <Button
+            mode="contained"
+            onPress={handleLogin}
+            loading={isLoading}
+            disabled={isLoading}
+            style={styles.button}
+            icon={() => (
+              <MaterialIcons
+                name="login"
+                size={24}
+                color="white"
+                accessibilityLabel="Login icon"
+              />
+            )}
+            accessibilityLabel="Login button"
+            accessibilityHint="Press to login"
+            testID="login-button"
+          >
+            {isLoading ? 'Logging in...' : 'Login'}
+          </Button>
 
-        <Button
-          mode="text"
-          onPress={() => navigation.navigate('Registration')}
-          style={styles.linkButton}
-        >
-          Don't have an account? Register
-        </Button>
+          <Button
+            mode="text"
+            onPress={() => navigation.navigate('Registration')}
+            style={styles.linkButton}
+            accessibilityLabel="Register button"
+            accessibilityHint="Navigate to registration screen"
+            testID="register-link"
+          >
+            Don't have an account? Register
+          </Button>
+        </View>
       </View>
-    </View>
+    </ErrorBoundary>
   );
 };
 
 const styles = StyleSheet.create({
-  button: {
-    borderRadius: 8,
-    marginTop: 24,
-    paddingVertical: 8,
-  },
   container: {
-    backgroundColor: '#fff',
     flex: 1,
+    backgroundColor: theme.colors.background,
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
     padding: 16,
+    justifyContent: 'center',
   },
   input: {
     marginBottom: 16,
+    backgroundColor: 'transparent',
+  },
+  button: {
+    marginTop: 24,
+    padding: 4,
+    borderRadius: 8,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+      },
+      android: {
+        elevation: 5,
+      },
+    }),
   },
   linkButton: {
     marginTop: 16,
-  },
-});
-
-export default LoginScreen;
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import React, { useState } from 'react';
-import { Alert, Button, StyleSheet, TextInput, View } from 'react-native';
-import { Appbar } from 'react-native-paper';
-import { FontAwesome } from 'react-native-vector-icons/FontAwesome';
-import { useDispatch } from 'react-redux';
-import { auth } from '../firebaseConfig';
-import {
-  loginFailure,
-  loginStart,
-  loginSuccess,
-} from '../store/slices/authSlice';
-
-const LoginScreen = ({ navigation }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const dispatch = useDispatch();
-
-  const handleLogin = async () => {
-    try {
-      dispatch(loginStart());
-
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        username,
-        password,
-      );
-      const user = userCredential.user;
-      const token = await user.getIdToken();
-
-      await AsyncStorage.setItem('token', token);
-      dispatch(loginSuccess({ user, token }));
-      navigation.navigate('Home');
-    } catch (error) {
-      console.error('Login error:', error);
-      dispatch(loginFailure({ error: error.message }));
-      Alert.alert('Login Error', 'Invalid username or password.');
-    }
-  };
-
-  return (
-    <View style={styles.container}>
-      <Appbar.Header>
-        <Appbar.Content title="Login" />
-      </Appbar.Header>
-      <View style={styles.content}>
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          value={username}
-          onChangeText={setUsername}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
-        <Button
-          mode="contained"
-          style={styles.button}
-          onPress={handleLogin}
-          icon={() => <FontAwesome name="sign-in" size={24} color="white" />}
-        >
-          Login
-        </Button>
-        <Button
-          mode="contained"
-          style={styles.button}
-          onPress={() => navigation.navigate('Registration')}
-          icon={() => <FontAwesome name="user-plus" size={24} color="white" />}
-        >
-          Register
-        </Button>
-      </View>
-    </View>
-  );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  input: {
-    width: '80%',
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-  },
-  button: {
-    margin: 10,
   },
 });
 

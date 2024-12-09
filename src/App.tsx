@@ -11,8 +11,8 @@
  * @packageDocumentation
  */
 
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { ActivityIndicator, StyleSheet, View, Text } from 'react-native';
 import { Provider } from 'react-redux';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -20,7 +20,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 // Store & Services
 import { store } from './store';
 import { validateEnv } from './utils/validation/envValidation';
-import { initializeAnalytics } from './utils/analytics';
+import { initializeAnalytics, logError } from './utils/analytics';
 
 // Components
 import { ErrorBoundary } from './components/common/ErrorBoundary';
@@ -62,32 +62,59 @@ const App: React.FC = () => {
   const [isValidEnv, setIsValidEnv] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Handle error boundary errors
+  const handleError = useCallback(
+    (error: Error, errorInfo: React.ErrorInfo) => {
+      logError('App Crash', { error, errorInfo });
+      setError(error.message);
+    },
+    [],
+  );
+
+  // Reset error state
+  const resetError = useCallback(() => {
+    setError(null);
+    setIsValidEnv(true);
+    // Re-initialize if needed
+    initialize().catch(console.error);
+  }, []);
+
+  // Initialize app
+  const initialize = async () => {
+    try {
+      await validateEnv();
+      setIsValidEnv(true);
+      await initializeAnalytics();
+    } catch (err) {
+      console.error('Initialization failed:', err);
+      setError(err instanceof Error ? err.message : 'Unknown error occurred');
+      throw err; // Re-throw for error boundary
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const initialize = async () => {
-      try {
-        // Validate environment configuration
-        await validateEnv();
-        setIsValidEnv(true);
-
-        // Initialize analytics
-        await initializeAnalytics();
-      } catch (err) {
-        console.error('Initialization failed:', err);
-        setError(err instanceof Error ? err.message : 'Unknown error occurred');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    initialize();
-
-    // Cleanup function
+    initialize().catch(console.error);
     return () => {
-      // Cleanup analytics or other services
+      // Cleanup
     };
   }, []);
 
-  // Handle loading state
+  // Custom error fallback UI
+  const errorFallback = (
+    <View style={styles.container}>
+      <Text
+        style={styles.errorText}
+        accessibilityRole="alert"
+        testID="error-message"
+      >
+        {error || 'An unexpected error occurred'}
+      </Text>
+    </View>
+  );
+
+  // Loading state
   if (isLoading) {
     return (
       <View style={styles.container}>
@@ -100,25 +127,27 @@ const App: React.FC = () => {
     );
   }
 
-  // Handle environment validation errors
+  // Environment validation errors
   if (!isValidEnv || error) {
-    return (
-      <View style={styles.container}>
-        <Text
-          style={styles.errorText}
-          accessibilityRole="alert"
-          testID="error-message"
-        >
-          {error || 'Environment configuration error'}
-        </Text>
-      </View>
-    );
+    return errorFallback;
   }
 
   return (
-    <ErrorBoundary>
+    <ErrorBoundary
+      onError={handleError}
+      resetError={resetError}
+      fallback={errorFallback}
+    >
       <Provider store={store}>
-        <NavigationContainer>
+        <NavigationContainer
+          fallback={<ActivityIndicator size="large" />}
+          onStateChange={state => {
+            // Track navigation state changes
+            if (__DEV__) {
+              console.log('New Navigation State:', state);
+            }
+          }}
+        >
           <Stack.Navigator
             initialRouteName="Welcome"
             screenOptions={{
