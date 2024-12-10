@@ -1,0 +1,71 @@
+# Build and output directories
+build/
+dist/
+coverage/
+.next/
+.cache/
+*.tsbuildinfo
+
+# Dependencies
+node_modules/
+**/node_modules/
+.pnp/
+.pnp.js
+
+# Mobile platform specifics
+ios/Pods/
+ios/build/
+ios/DerivedData/
+ios/*.xcworkspace
+ios/*.xcuserstate
+ios/*.xcarchive
+ios/*.dSYM.zip
+ios/*.ipa
+android/app/build/
+android/build/
+android/.gradle/
+android/local.properties
+android/captures/
+android/*.apk
+android/*.aab
+android/*.hprof
+
+# Generated files
+*.generated.ts
+*.generated.tsx
+src/**/*.js
+*.d.ts
+!src/types/*.d.ts
+
+# Config & environment
+.env*
+!.env.example
+firebase-credentials.json
+google-services.json
+GoogleService-Info.plist
+
+# Cache and logs
+.DS_Store
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.firebase/
+metro-cache/
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# Test artifacts
+__snapshots__/
+coverage/
+junit.xml
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output

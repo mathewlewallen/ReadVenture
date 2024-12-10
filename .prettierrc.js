@@ -14,7 +14,7 @@ module.exports = {
   // JSX/React specific
   jsxSingleQuote: false,
   bracketSpacing: true,
-  bracketSameLine: false, // Previously jsxBracketSameLine
+  bracketSameLine: false,
   arrowParens: 'avoid',
 
   // File handling
@@ -24,4 +24,41 @@ module.exports = {
   // Parser options
   proseWrap: 'preserve',
   htmlWhitespaceSensitivity: 'css',
+
+  // File patterns
+  overrides: [
+    {
+      files: ['*.ts', '*.tsx'],
+      options: {
+        parser: 'typescript',
+      },
+    },
+    {
+      files: ['*.js', '*.jsx'],
+      options: {
+        parser: 'babel',
+      },
+    },
+    {
+      files: '*.json',
+      options: {
+        parser: 'json',
+      },
+    },
+    {
+      files: ['*.md', '*.mdx'],
+      options: {
+        proseWrap: 'always',
+      },
+    },
+    {
+      files: ['.prettierrc', '.eslintrc', '*.json', '*.code-workspace'],
+      options: {
+        parser: 'json',
+      },
+    },
+  ],
+
+  // Ignore patterns
+  ignorePath: '.prettierignore',
 };

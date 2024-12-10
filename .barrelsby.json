@@ -1,21 +1,19 @@
 {
   "directory": [
-    "src",
-    "backend",
-    "backend-firebase/functions/src"
+    "src"
   ],
   "delete": true,
   "exclude": [
-    ".test.",
-    ".spec.",
+    "\\.test\\.",
+    "\\.spec\\.",
     "__tests__",
     "__mocks__",
-    "*.config.*",
-    "metro.config.*",
-    "babel.config.*"
+    "\\.config\\.",
+    "metro\\.config\\.",
+    "babel\\.config\\."
   ],
   "include": [
-    "**/index.ts"
+    ".*\\.ts$"
   ],
   "location": "top",
   "structure": "flat",
