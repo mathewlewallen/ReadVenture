@@ -20,6 +20,7 @@ target 'ReadVenture' do
 
   pod 'react-native-config', :path => '../node_modules/react-native-config'
   pod 'react-native-vector-icons', :path => '../node_modules/react-native-vector-icons'
+  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
 
   use_react_native!(
     :path => config[:reactNativePath],

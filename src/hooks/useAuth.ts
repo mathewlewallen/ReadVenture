@@ -3,17 +3,18 @@
  * @packageDocumentation
  */
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useState, useEffect, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { authService } from '../services/firebase/auth.service';
 import { setUser, clearUser } from '../store/authSlice';
-import { logError } from '../utils/analytics';
 import type {
   AuthUser,
   LoginCredentials,
   RegistrationData,
 } from '../types/firebase.types';
+import { logError } from '../utils/analytics';
 
 interface AuthState {
   user: AuthUser | null;

@@ -59,3 +59,25 @@ export const getChildProgress = functions.https.onCall(
     }
   },
 );
+
+export const getChildrenAnalytics = functions.https.onCall(
+  async (data, context) => {
+    const uid = validateAuth(context);
+
+    const childrenQuery = await db
+      .collection('users')
+      .where('parentEmail', '==', context.auth?.token.email)
+      .get();
+
+    return Promise.all(
+      childrenQuery.docs.map(async child => {
+        const progress = await getChildProgress(child.id);
+        return {
+          childId: child.id,
+          displayName: child.data().displayName,
+          progress,
+        };
+      }),
+    );
+  },
+);

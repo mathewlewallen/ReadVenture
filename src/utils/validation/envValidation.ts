@@ -8,6 +8,7 @@
  */
 
 import Config from 'react-native-config';
+
 import { logError } from '../../utils/analytics';
 
 /**

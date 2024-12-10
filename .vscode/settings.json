@@ -2,9 +2,7 @@
   // Core Editor Configuration
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit",
-    "source.organizeImports": "explicit",
-    "source.fixAll.stylelint": "explicit"
+    "source.fixAll.eslint": "explicit"
   },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.inlineSuggest.enabled": false,
@@ -27,7 +25,7 @@
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "typescript.tsserver.log": "off",
   "typescript.tsserver.maxTsServerMemory": 3072,
-  "typescript.tsserver.experimental.enableProjectDiagnostics": false,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
   "typescript.tsserver.watchOptions": {
     "watchFile": "useFsEventsOnParentDirectory",
     "fallbackPolling": "dynamicPriorityPolling"
@@ -55,12 +53,8 @@
     "javascript",
     "typescript",
     "javascriptreact",
-    "typescriptreact",
-    "json",
-    "jsonc",
-    "markdown"
+    "typescriptreact"
   ],
-  "stylelint.validate": ["css", "scss", "postcss"],
   "eslint.workingDirectories": [
     "./src",
     "./tests",
@@ -132,29 +126,22 @@
     ".spec.",
     "__tests__",
     "__mocks__",
-    ".stories.",
-    ".d.ts",
-    "**/*.generated.*",
-    "**/*.config.*",
-    "**/types.ts",
-    "**/constants.ts"
+    "*.config.*",
+    "metro.config.*",
+    "babel.config.*"
   ], // Exclude files with these strings in the name
   "exportall.config.folderListener": [
-    "src/components/**/*",
-    "src/screens/**/*",
-    "src/services/**/*",
-    "src/utils/**/*",
-    "src/store/**/*",
-    "src/types/**/*",
-    "src/navigation/**/*",
-    "src/hooks/**/*",
-    "src.constants/**/*"
+    "**/*",
+    "!node_modules/**",
+    "!dist/**",
+    "!build/**",
+    "!coverage/**"
   ], // Add folders to listen for changes
   "exportall.config.relExclusion": [
     "**/node_modules/**",
     "**/dist/**",
-    "**/coverage/**",
     "**/build/**",
+    "**/coverage/**",
     "**/.next/**",
     "**/lib/**",
     "**/types/**",
@@ -164,6 +151,5 @@
   "exportall.config.semis": true, // Use semicolons
   "exportall.config.quote": "'", // Use single quotes
   "exportall.config.message": "// Generated barrel file - do not modify manually", // Add a message to the top of the barrel file
-  "exportall.config.exportFileExtension": null,
-  "cSpell.words": ["barrelsby", "prestart"] // Use the default file extension (or specify e.g., 'js')
+  "exportall.config.exportFileExtension": null
 }

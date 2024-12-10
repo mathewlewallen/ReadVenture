@@ -1,15 +1,17 @@
-import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native'; // Added missing fireEvent import
+import React from 'react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
+
 import ParentDashboardScreen from '../../../../src/screens/ParentDashboardScreen'; // Fixed import path
 
 // Configure mock store with thunk middleware
 const mockStore = configureStore([thunk]);
 
 // Mock Firebase configuration
-jest.mock('../../../../src/firebaseConfig', () => ({ // Fixed mock path
+jest.mock('../../../../src/firebaseConfig', () => ({
+  // Fixed mock path
   auth: {
     currentUser: {
       uid: 'test-user-uid',
@@ -84,18 +86,20 @@ describe('ParentDashboardScreen', () => {
     const mockUpdateDoc = jest.fn(() => Promise.resolve());
 
     // Mock Firestore document update
-    jest.requireMock('../../../../src/firebaseConfig').db.collection.mockReturnValue({
-      where: jest.fn(() => ({
-        getDocs: jest.fn(() =>
-          Promise.resolve({
-            forEach: jest.fn(),
-          }),
-        ),
-      })),
-      doc: jest.fn(() => ({
-        update: mockUpdateDoc, // Changed updateDoc to update to match Firestore API
-      })),
-    });
+    jest
+      .requireMock('../../../../src/firebaseConfig')
+      .db.collection.mockReturnValue({
+        where: jest.fn(() => ({
+          getDocs: jest.fn(() =>
+            Promise.resolve({
+              forEach: jest.fn(),
+            }),
+          ),
+        })),
+        doc: jest.fn(() => ({
+          update: mockUpdateDoc, // Changed updateDoc to update to match Firestore API
+        })),
+      });
 
     const { findByText } = render(
       <Provider store={store}>
@@ -148,14 +152,16 @@ describe('ParentDashboardScreen', () => {
     const store = mockStore({ auth: { user: { uid: 'test-user-uid' } } });
 
     // Mock Firestore error
-    jest.requireMock('../../../../src/firebaseConfig').db.collection.mockReturnValue({
-      where: jest.fn(() => ({
-        getDocs: jest.fn(() => Promise.reject(new Error('Firestore error'))),
-      })),
-    });
+    jest
+      .requireMock('../../../../src/firebaseConfig')
+      .db.collection.mockReturnValue({
+        where: jest.fn(() => ({
+          getDocs: jest.fn(() => Promise.reject(new Error('Firestore error'))),
+        })),
+      });
 
     const { findByText } = render(
-      <Provider store={store}></Provider>
+      <Provider store={store}>
         <ParentDashboardScreen navigation={{ navigate: jest.fn() }} />
       </Provider>,
     );

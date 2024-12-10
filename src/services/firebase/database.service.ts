@@ -2,7 +2,6 @@
  * Firebase Database Service with offline support
  */
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { db } from './config';
 import {
   collection,
   query,
@@ -19,6 +18,8 @@ import {
   getDoc,
   setDoc,
 } from 'firebase/firestore';
+
+import { db } from './config';
 import { Story, ReadingProgress, User } from '../../types/firebase.types';
 import { logError } from '../../utils/analytics';
 

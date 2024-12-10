@@ -7,6 +7,7 @@
  * @packageDocumentation
  */
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   collection,
   query,
@@ -15,11 +16,11 @@ import {
   updateDoc,
   doc,
 } from 'firebase/firestore';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { db } from '../firebase/config';
+
 import { store } from '../../store';
-import { logError } from '../../utils/analytics';
 import type { ReadingProgress, UserProgress, ApiResponse } from '../../types';
+import { logError } from '../../utils/analytics';
+import { db } from '../firebase/config';
 
 /**
  * Progress tracking service class
@@ -66,7 +67,7 @@ export class ProgressService {
         data: await this.getProgress(storyId),
       };
     } catch (error) {
-      logError('Progress update failed', error);
+      logError('Progress update failed:', error);
       throw error;
     }
   }

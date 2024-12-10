@@ -1,11 +1,12 @@
 // Unit tests for RegistrationScreen component
-import React from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import React from 'react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
 import RegistrationScreen from '../../../../src/screens/RegistrationScreen';
 import {
   loginStart,

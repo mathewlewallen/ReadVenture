@@ -1,9 +1,10 @@
 // src/__tests__/firebase/firebaseConfig.test.ts
-import Config from 'react-native-config';
+import { getAnalytics } from 'firebase/analytics';
 import { FirebaseOptions, initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-import { getAnalytics } from 'firebase/analytics';
+import Config from 'react-native-config';
+
 import { initializeFirebase } from '../../config/firebase';
 
 // Mock react-native-config

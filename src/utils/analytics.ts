@@ -7,9 +7,10 @@
  * @packageDocumentation
  */
 
-import { Platform } from 'react-native';
 import { Analytics, logEvent } from '@react-native-firebase/analytics';
 import * as Sentry from '@sentry/react-native';
+import { Platform } from 'react-native';
+
 import { store } from '../store';
 import { updateAnalytics } from '../store/analyticsSlice';
 import type {

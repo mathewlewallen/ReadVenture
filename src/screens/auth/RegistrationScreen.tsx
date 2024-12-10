@@ -7,19 +7,20 @@
  * @packageDocumentation
  */
 
-import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, Alert, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { useDispatch } from 'react-redux';
-import { loginStart, loginSuccess, loginFailure } from '../../store/authSlice';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import React, { useState, useCallback } from 'react';
+import { View, StyleSheet, Alert, Platform } from 'react-native';
 import { Button, Appbar, TextInput } from 'react-native-paper';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { useDispatch } from 'react-redux';
+
 import { ErrorBoundary } from '../../components/common/ErrorBoundary';
-import { theme } from '../../theme';
 import { NavigationProps } from '../../navigation';
-import { logError } from '../../utils/analytics';
 import { auth } from '../../services/firebase/config';
+import { loginStart, loginSuccess, loginFailure } from '../../store/authSlice';
+import { theme } from '../../theme';
+import { logError } from '../../utils/analytics';
 
 type RegistrationScreenProps = NavigationProps<'Registration'>;
 
@@ -212,23 +213,10 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  content: {
-    flex: 1,
-    padding: 16,
-    justifyContent: 'center',
-  },
-  input: {
-    marginBottom: 16,
-    backgroundColor: 'transparent',
-  },
   button: {
+    borderRadius: 8,
     marginTop: 24,
     padding: 4,
-    borderRadius: 8,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -240,6 +228,19 @@ const styles = StyleSheet.create({
         elevation: 5,
       },
     }),
+  },
+  container: {
+    backgroundColor: theme.colors.background,
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 16,
+  },
+  input: {
+    backgroundColor: 'transparent',
+    marginBottom: 16,
   },
   linkButton: {
     marginTop: 16,

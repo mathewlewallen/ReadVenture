@@ -1,24 +1,42 @@
 # Dependencies
 node_modules/
+**/node_modules/
 ios/Pods/
+.yarn/cache
+.pnp.*
 
 # Build outputs
 /build/
 /dist/
 *.tsbuildinfo
 .gradle/
+*.jsbundle
+*.bundle.js
+index.android.bundle
+index.ios.bundle
 
-# Environment files
+# Environment & Secrets
 .env*
 !.env.example
 /config/env/.env.*
 !/config/env/.env.example
+google-services.json
+GoogleService-Info.plist
+firebase-credentials.json
+*.keystore
+!debug.keystore
 
 # IDE
 .vscode/*
 !.vscode/settings.json
 !.vscode/extensions.json
+!.vscode/launch.json
 .idea/
+*.swp
+*.swo
+xcuserdata/
+.project
+.classpath
 
 # iOS specific
 ios/build/
@@ -26,31 +44,79 @@ ios/DerivedData/
 ios/Pods/
 *.xcworkspace
 *.xcuserstate
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+ios/*.xcarchive
 
 # Android specific
 android/app/build/
 android/build/
 android/.gradle/
 android/local.properties
+android/captures/
 *.apk
 *.aab
+*.hprof
+.cxx/
+*.keystore
+!debug.keystore
 
 # Testing and coverage
 /coverage/
 .nyc_output/
+__snapshots__/
+*.lcov
+junit.xml
 
 # Logs and debugging
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.firebase/
+firebase-debug.log
+.firebase-debug.log
+metro-cache/
 
 # System files
 .DS_Store
 Thumbs.db
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
 
 # Cache and temp
 *.sw?
 .cache/
 .temp/
+.tmp/
+tmp/
+temp/
+
+# Project specific
 backend/adaptive/data/cleaned_stories_dataset.csv
+backend/adaptive/data/raw/
+backend/functions/lib/
+ios/assets/
+
+# Generated files
+*.generated.ts
+*.generated.tsx
+src/**/*.js
+*.d.ts
+!src/types/*.d.ts
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# React Native specific
+.watchmanconfig
+.buckconfig
+*.jsbundle.map
+*.sourcemap.map

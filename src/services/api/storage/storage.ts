@@ -9,8 +9,9 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { encryptData, decryptData } from '../utils/security';
+
 import { logError } from '../utils/analytics';
+import { encryptData, decryptData } from '../utils/security';
 
 /**
  * Storage item metadata

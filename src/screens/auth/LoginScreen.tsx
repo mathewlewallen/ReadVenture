@@ -7,17 +7,18 @@
  * @packageDocumentation
  */
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, Alert, Platform } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useDispatch } from 'react-redux';
-import { loginStart, loginSuccess, loginFailure } from '../store/authSlice';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebaseConfig';
 import { Button, Appbar, TextInput } from 'react-native-paper';
-import { NavigationProps } from '../navigation';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { useDispatch } from 'react-redux';
+
 import { ErrorBoundary } from '../components/common/ErrorBoundary';
+import { auth } from '../firebaseConfig';
+import { NavigationProps } from '../navigation';
+import { loginStart, loginSuccess, loginFailure } from '../store/authSlice';
 import { theme } from '../theme';
 import { logError } from '../utils/analytics';
 
@@ -158,23 +159,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  content: {
-    flex: 1,
-    padding: 16,
-    justifyContent: 'center',
-  },
-  input: {
-    marginBottom: 16,
-    backgroundColor: 'transparent',
-  },
   button: {
+    borderRadius: 8,
     marginTop: 24,
     padding: 4,
-    borderRadius: 8,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -186,6 +174,19 @@ const styles = StyleSheet.create({
         elevation: 5,
       },
     }),
+  },
+  container: {
+    backgroundColor: theme.colors.background,
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 16,
+  },
+  input: {
+    backgroundColor: 'transparent',
+    marginBottom: 16,
   },
   linkButton: {
     marginTop: 16,

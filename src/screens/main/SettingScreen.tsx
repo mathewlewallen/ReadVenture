@@ -10,15 +10,16 @@
  * @packageDocumentation
  */
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
 import { Appbar, List, Text, Divider, Switch } from 'react-native-paper';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from 'react-redux';
+
 import { ErrorBoundary } from '../../components/common/ErrorBoundary';
-import { theme } from '../../theme';
 import { NavigationProps } from '../../navigation';
 import { updateSettings } from '../../store/settingsSlice';
+import { theme } from '../../theme';
 import type { RootState } from '../../types';
 
 interface Settings {
@@ -156,13 +157,13 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: theme.colors.background,
+    flex: 1,
   },
   loadingContainer: {
+    alignItems: 'center',
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
   },
 });
 

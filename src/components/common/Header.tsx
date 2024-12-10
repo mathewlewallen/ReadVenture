@@ -8,16 +8,17 @@
  * @packageDocumentation
  */
 
+import { useNavigation } from '@react-navigation/native';
 import React, { useCallback } from 'react';
 import { StyleSheet, Platform, View } from 'react-native';
 import { Appbar } from 'react-native-paper';
-import { useSelector, useDispatch } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { ErrorBoundary } from '../common/ErrorBoundary';
+import { useSelector, useDispatch } from 'react-redux';
+
+import { toggleSettings } from '../../store/settingsSlice';
 import { theme } from '../../theme';
 import { RootState } from '../../types';
-import { toggleSettings } from '../../store/settingsSlice';
+import { ErrorBoundary } from '../common/ErrorBoundary';
 
 interface HeaderProps {
   /** Title to display in the header */

@@ -8,6 +8,7 @@
  */
 
 import { FirebaseFirestore } from '@firebase/firestore-types';
+
 import { Story, User, ReadingProgress, UserSettings } from '../../types';
 
 /**

@@ -7,15 +7,16 @@
  * @packageDocumentation
  */
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Voice, { SpeechResultsEvent } from '@react-native-voice/voice';
+import { useNavigation } from '@react-navigation/native';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import Voice, { SpeechResultsEvent } from '@react-native-voice/voice';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { logError } from '../utils/analytics';
-import { useNavigation } from '@react-navigation/native';
+
 import { updateProgress } from '../store/progressSlice';
 import type { RootState } from '../types';
 import type { ReadingProgress, ReadingSettings, Story } from '../types/reading';
+import { logError } from '../utils/analytics';
 
 interface UseReadingOptions {
   storyId: string;

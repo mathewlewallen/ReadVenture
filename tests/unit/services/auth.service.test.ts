@@ -1,6 +1,7 @@
 // src/__tests__/services/auth.service.test.ts
-import { authService } from '../../services/firebase/auth.service';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+
+import { authService } from '../../services/firebase/auth.service';
 
 jest.mock('../../firebaseConfig', () => ({
   auth: {

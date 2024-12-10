@@ -1,8 +1,9 @@
 // src/__tests__/setup/test-utils.tsx
-import React from 'react';
-import { render } from '@testing-library/react-native';
 import { NavigationContainer } from '@react-navigation/native';
+import { render } from '@testing-library/react-native';
+import React from 'react';
 import { Provider } from 'react-redux';
+
 import store from '../../src/store';
 
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {

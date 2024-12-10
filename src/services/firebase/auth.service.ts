@@ -10,7 +10,6 @@
  * @packageDocumentation
  */
 
-import { auth } from './config';
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -21,14 +20,16 @@ import {
   User,
   UserCredential,
 } from 'firebase/auth';
+
+import { auth } from './config';
+import { store } from '../../store';
+import { updateAuthState } from '../../store/authSlice';
 import {
   AuthUser,
   LoginCredentials,
   RegistrationData,
 } from '../../types/firebase.types';
 import { logError } from '../../utils/analytics';
-import { store } from '../../store';
-import { updateAuthState } from '../../store/authSlice';
 
 /**
  * Authentication service class using singleton pattern

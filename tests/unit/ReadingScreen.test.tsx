@@ -1,12 +1,13 @@
 // Unit tests for ReadingScreen component
-import React from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import ReadingScreen from '../../src/screens/ReadingScreen';
-import { calculateAccuracy } from '../../src/screens/ReadingScreen';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React from 'react';
+
+import ReadingScreen, { calculateAccuracy } from '../../src/screens/ReadingScreen';
+
 
 // Define navigation types for TypeScript
 type RootStackParamList = {

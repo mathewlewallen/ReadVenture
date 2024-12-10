@@ -8,11 +8,12 @@
  */
 
 import axios, { AxiosInstance, AxiosError, AxiosRequestConfig } from 'axios';
+import Config from 'react-native-config';
+
 import { store } from '../store';
 import { setLoading, setError } from '../store/appSlice';
-import { logError } from '../utils/analytics';
 import { ApiResponse, PaginatedResponse } from '../types';
-import Config from 'react-native-config';
+import { logError } from '../utils/analytics';
 
 /**
  * API configuration interface

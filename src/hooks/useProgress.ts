@@ -7,10 +7,11 @@
  * @packageDocumentation
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { collection, query, where, getDocs } from 'firebase/firestore';
+import { useState, useEffect, useCallback } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+
 import { db } from '../services/firebase/config';
 import { updateProgress } from '../store/progressSlice';
 import type { RootState, UserProgress, ReadingSession } from '../types';

@@ -8,6 +8,7 @@
  */
 
 import { Platform } from 'react-native';
+
 import { store } from '../store';
 import { logError } from './analytics';
 import type { TextSize, ReadingLevel } from '../types';

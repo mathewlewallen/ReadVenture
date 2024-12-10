@@ -11,9 +11,10 @@ import React, { useMemo } from 'react';
 import { StyleSheet, View, AccessibilityValue } from 'react-native';
 import { ProgressBar as PaperProgressBar } from 'react-native-paper';
 import { useSelector } from 'react-redux';
-import { ErrorBoundary } from '../common/ErrorBoundary';
+
 import { theme } from '../../theme';
 import type { RootState } from '../../types';
+import { ErrorBoundary } from '../common/ErrorBoundary';
 
 interface ProgressBarProps {
   /** Current progress value */
@@ -81,17 +82,17 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
-    padding: 8,
     backgroundColor: theme.colors.background,
+    padding: 8,
+    width: '100%',
   },
   containerDark: {
     backgroundColor: '#1E1E1E',
   },
   progressBar: {
-    height: 8,
-    borderRadius: 4,
     backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    borderRadius: 4,
+    height: 8,
   },
   progressBarDark: {
     backgroundColor: 'rgba(255, 255, 255, 0.1)',

@@ -9,14 +9,15 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+
 import { databaseService } from '../services/firebase/database.service';
 import {
   fetchStoriesStart,
   fetchStoriesSuccess,
   fetchStoriesFailure,
 } from '../store/storySlice';
-import { logError } from '../utils/analytics';
 import type { Story, RootState } from '../types';
+import { logError } from '../utils/analytics';
 
 interface UseStoriesOptions {
   /** Difficulty level (1-10) */

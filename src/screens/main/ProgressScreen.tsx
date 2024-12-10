@@ -12,13 +12,14 @@
 
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
 import { Appbar, Text, Card, List } from 'react-native-paper';
+import { useDispatch, useSelector } from 'react-redux';
+
 import { ErrorBoundary } from '../../components/common/ErrorBoundary';
 import { ProgressBar } from '../../components/reading/ProgressBar';
 import { NavigationProps } from '../../navigation';
-import { theme } from '../../theme';
 import { fetchUserProgress } from '../../store/progressSlice';
+import { theme } from '../../theme';
 import type { RootState, UserProgress } from '../../types';
 
 interface ProgressScreenProps extends NavigationProps<'Progress'> {}
@@ -148,38 +149,38 @@ const ProgressScreen: React.FC<ProgressScreenProps> = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  card: {
+    marginBottom: 16,
+  },
   container: {
-    flex: 1,
     backgroundColor: theme.colors.background,
+    flex: 1,
   },
   content: {
     flex: 1,
   },
+  errorText: {
+    color: theme.colors.error,
+    margin: 16,
+    textAlign: 'center',
+  },
+  progressText: {
+    color: theme.colors.primary,
+    marginTop: 8,
+    textAlign: 'center',
+  },
   scrollContent: {
     padding: 16,
   },
-  card: {
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 20,
-    fontFamily: theme.fonts.medium,
-    marginBottom: 16,
-  },
   subtitle: {
-    fontSize: 18,
     fontFamily: theme.fonts.medium,
+    fontSize: 18,
     marginBottom: 12,
   },
-  progressText: {
-    textAlign: 'center',
-    marginTop: 8,
-    color: theme.colors.primary,
-  },
-  errorText: {
-    color: theme.colors.error,
-    textAlign: 'center',
-    margin: 16,
+  title: {
+    fontFamily: theme.fonts.medium,
+    fontSize: 20,
+    marginBottom: 16,
   },
 });
 

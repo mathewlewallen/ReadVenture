@@ -8,6 +8,7 @@
  * @packageDocumentation
  */
 
+import * as Sentry from '@sentry/react-native';
 import React, { Component } from 'react';
 import {
   StyleSheet,
@@ -17,10 +18,10 @@ import {
   Platform,
 } from 'react-native';
 import { connect } from 'react-redux';
-import * as Sentry from '@sentry/react-native';
+
 import { theme } from '../../theme';
-import { logError } from '../../utils/analytics';
 import type { RootState } from '../../types';
+import { logError } from '../../utils/analytics';
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -123,33 +124,11 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-    backgroundColor: theme.colors.background,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: theme.colors.error,
-    marginBottom: 10,
-    fontFamily: theme.fonts.medium,
-    textAlign: 'center',
-  },
-  message: {
-    fontSize: 16,
-    color: theme.colors.text,
-    marginBottom: 20,
-    textAlign: 'center',
-    fontFamily: theme.fonts.regular,
-  },
   button: {
     backgroundColor: theme.colors.primary,
+    borderRadius: 8,
     paddingHorizontal: 20,
     paddingVertical: 10,
-    borderRadius: 8,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -164,9 +143,31 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#FFFFFF',
+    fontFamily: theme.fonts.medium,
     fontSize: 16,
     fontWeight: '600',
+  },
+  container: {
+    alignItems: 'center',
+    backgroundColor: theme.colors.background,
+    flex: 1,
+    justifyContent: 'center',
+    padding: 20,
+  },
+  message: {
+    color: theme.colors.text,
+    fontFamily: theme.fonts.regular,
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  title: {
+    color: theme.colors.error,
     fontFamily: theme.fonts.medium,
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
   },
 });
 

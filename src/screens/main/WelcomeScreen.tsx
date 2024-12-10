@@ -7,16 +7,17 @@
  * @packageDocumentation
  */
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect } from 'react';
 import { StyleSheet, Text, View, Platform } from 'react-native';
 import { Appbar, Button } from 'react-native-paper';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useSelector, useDispatch } from 'react-redux';
+
 import { ErrorBoundary } from '../../components/common/ErrorBoundary';
-import { theme } from '../../theme';
 import { NavigationProps } from '../../navigation';
 import { clearAuthState } from '../../store/authSlice';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { theme } from '../../theme';
 
 type WelcomeScreenProps = NavigationProps<'Welcome'>;
 
@@ -110,13 +111,19 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  button: {
+    borderRadius: 8,
+    marginVertical: 10,
+    paddingVertical: 8,
+    width: '80%',
+  },
   container: {
-    flex: 1,
     backgroundColor: theme.colors.background,
+    flex: 1,
   },
   content: {
-    flex: 1,
     alignItems: 'center',
+    flex: 1,
     justifyContent: 'center',
     padding: 20,
   },
@@ -124,11 +131,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   welcomeText: {
-    fontSize: 24,
-    textAlign: 'center',
-    marginBottom: 30,
-    fontFamily: theme.fonts.medium,
     color: theme.colors.text,
+    fontFamily: theme.fonts.medium,
+    fontSize: 24,
+    marginBottom: 30,
+    textAlign: 'center',
     ...Platform.select({
       ios: {
         fontWeight: '600',
@@ -137,12 +144,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
       },
     }),
-  },
-  button: {
-    width: '80%',
-    marginVertical: 10,
-    borderRadius: 8,
-    paddingVertical: 8,
   },
 });
 

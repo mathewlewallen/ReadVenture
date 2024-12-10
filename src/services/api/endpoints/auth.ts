@@ -8,14 +8,15 @@
  */
 
 import { AxiosError } from 'axios';
+
+import { api } from './client';
+import { store } from '../../../store';
 import {
   AuthResponse,
   LoginCredentials,
   RegisterCredentials,
   AuthError,
 } from '../../../types';
-import { api } from './client';
-import { store } from '../../../store';
 import { logError } from '../../../utils/analytics';
 import { encryptData } from '../../../utils/security';
 

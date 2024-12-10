@@ -10,8 +10,9 @@
  */
 
 import Config from 'react-native-config';
-import { validateEnv, ValidationResult } from '../envValidation';
+
 import { logError } from '../../analytics';
+import { validateEnv, ValidationResult } from '../envValidation';
 
 // Mock analytics
 jest.mock('../../analytics', () => ({

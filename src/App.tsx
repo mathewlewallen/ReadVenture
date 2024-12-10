@@ -11,21 +11,14 @@
  * @packageDocumentation
  */
 
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { useEffect, useState, useCallback } from 'react';
 import { ActivityIndicator, StyleSheet, View, Text } from 'react-native';
 import { Provider } from 'react-redux';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 // Store & Services
-import { store } from './store';
-import { validateEnv } from './utils/validation/envValidation';
-import { initializeAnalytics, logError } from './utils/analytics';
-
-// Components
 import { ErrorBoundary } from './components/common/ErrorBoundary';
-
-// Screens
 import {
   HomeScreen,
   LoginScreen,
@@ -37,6 +30,13 @@ import {
   StoryLibraryScreen,
   WelcomeScreen,
 } from './screens';
+import { store } from './store';
+import { initializeAnalytics, logError } from './utils/analytics';
+import { validateEnv } from './utils/validation/envValidation';
+
+// Components
+
+// Screens
 
 // Types
 export type RootStackParamList = {
@@ -211,15 +211,15 @@ const App: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
+    alignItems: 'center',
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
   },
   errorText: {
     color: '#FF0000',
     fontSize: 16,
-    textAlign: 'center',
     padding: 20,
+    textAlign: 'center',
   },
 });
 

@@ -8,6 +8,7 @@
  */
 
 import { Platform } from 'react-native';
+
 import { store } from '../store';
 import { theme } from '../theme';
 import { logError } from './analytics';

@@ -1,5 +1,6 @@
 // src/__tests__/config.test.ts
 import Config from 'react-native-config';
+
 import { validateEnvironment } from '../../src/App'; // Update the import path
 
 // Define Config type to handle possible undefined values

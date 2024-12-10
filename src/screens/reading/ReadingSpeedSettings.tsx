@@ -8,15 +8,16 @@
  * @packageDocumentation
  */
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState, useCallback, useEffect } from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
 import { Appbar, Text, Slider, Button } from 'react-native-paper';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDispatch, useSelector } from 'react-redux';
+
 import { ErrorBoundary } from '../../components/common/ErrorBoundary';
-import { theme } from '../../theme';
-import { updateSettings } from '../../store/settingsSlice';
 import { NavigationProps } from '../../navigation';
+import { updateSettings } from '../../store/settingsSlice';
+import { theme } from '../../theme';
 import type { RootState } from '../../types';
 
 interface ReadingSpeedSettingsProps
@@ -117,39 +118,10 @@ const ReadingSpeedSettings: React.FC<ReadingSpeedSettingsProps> = ({
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  content: {
-    flex: 1,
-    padding: 16,
-    alignItems: 'center',
-  },
-  previewText: {
-    fontSize: 24,
-    marginVertical: 32,
-    textAlign: 'center',
-    fontFamily: theme.fonts.medium,
-    color: theme.colors.text,
-  },
-  sliderContainer: {
-    width: '100%',
-    marginVertical: 24,
-  },
-  label: {
-    textAlign: 'center',
-    marginBottom: 16,
-    fontSize: 16,
-    color: theme.colors.text,
-  },
-  slider: {
-    width: '100%',
-  },
   button: {
+    borderRadius: 8,
     marginTop: 32,
     paddingHorizontal: 32,
-    borderRadius: 8,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -161,6 +133,35 @@ const styles = StyleSheet.create({
         elevation: 5,
       },
     }),
+  },
+  container: {
+    backgroundColor: theme.colors.background,
+    flex: 1,
+  },
+  content: {
+    alignItems: 'center',
+    flex: 1,
+    padding: 16,
+  },
+  label: {
+    color: theme.colors.text,
+    fontSize: 16,
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  previewText: {
+    color: theme.colors.text,
+    fontFamily: theme.fonts.medium,
+    fontSize: 24,
+    marginVertical: 32,
+    textAlign: 'center',
+  },
+  slider: {
+    width: '100%',
+  },
+  sliderContainer: {
+    marginVertical: 24,
+    width: '100%',
   },
 });
 

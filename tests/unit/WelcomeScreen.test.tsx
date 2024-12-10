@@ -1,6 +1,7 @@
 // src/__tests__/components/WelcomeScreen.test.tsx
-import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
+import React from 'react';
+
 import WelcomeScreen from '../../screens/WelcomeScreen';
 
 describe('WelcomeScreen', () => {

@@ -12,10 +12,11 @@ import { Alert, FlatList, StyleSheet, View } from 'react-native';
 import { ActivityIndicator, Appbar, List, Text } from 'react-native-paper';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useDispatch, useSelector } from 'react-redux';
-import { NavigationProps } from '../../navigation';
+
 import { ErrorBoundary } from '../../components/common/ErrorBoundary';
-import { theme } from '../../theme';
+import { NavigationProps } from '../../navigation';
 import { fetchStories } from '../../store/storySlice';
+import { theme } from '../../theme';
 import type { Story, RootState } from '../../types';
 
 interface StoryLibraryScreenProps extends NavigationProps<'StoryLibrary'> {}
@@ -147,32 +148,32 @@ const StoryLibraryScreen: React.FC<StoryLibraryScreenProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: theme.colors.background,
+    flex: 1,
   },
-  loadingContainer: {
+  emptyContainer: {
+    alignItems: 'center',
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
+    padding: 20,
+  },
+  emptyText: {
+    color: theme.colors.text,
+    fontSize: 16,
+    marginTop: 10,
+    textAlign: 'center',
   },
   listContainer: {
     flexGrow: 1,
   },
-  storyItem: {
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: theme.colors.text,
-  },
-  emptyContainer: {
+  loadingContainer: {
+    alignItems: 'center',
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
   },
-  emptyText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: theme.colors.text,
-    textAlign: 'center',
+  storyItem: {
+    borderBottomColor: theme.colors.text,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
 });
 

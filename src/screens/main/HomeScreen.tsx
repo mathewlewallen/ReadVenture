@@ -15,10 +15,11 @@ import { StyleSheet, View, Platform } from 'react-native';
 import { Appbar, Button } from 'react-native-paper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useSelector, useDispatch } from 'react-redux';
-import { NavigationProps } from '../../navigation';
+
 import { ErrorBoundary } from '../../components/common/ErrorBoundary';
-import { theme } from '../../theme';
+import { NavigationProps } from '../../navigation';
 import { fetchUserProgress } from '../../store/progressSlice';
+import { theme } from '../../theme';
 import type { RootState } from '../../types';
 
 type HomeScreenProps = NavigationProps<'Home'>;
@@ -133,20 +134,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  content: {
-    flex: 1,
-    padding: 16,
-    justifyContent: 'center',
-    alignItems: 'stretch',
-  },
   button: {
+    borderRadius: 8,
     marginVertical: 8,
     padding: 8,
-    borderRadius: 8,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -158,6 +149,16 @@ const styles = StyleSheet.create({
         elevation: 5,
       },
     }),
+  },
+  container: {
+    backgroundColor: theme.colors.background,
+    flex: 1,
+  },
+  content: {
+    alignItems: 'stretch',
+    flex: 1,
+    justifyContent: 'center',
+    padding: 16,
   },
 });
 

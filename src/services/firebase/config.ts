@@ -7,6 +7,11 @@
  * @packageDocumentation
  */
 
+import {
+  getAnalytics,
+  Analytics,
+  setAnalyticsCollectionEnabled,
+} from 'firebase/analytics';
 import { initializeApp, FirebaseOptions, FirebaseApp } from 'firebase/app';
 import {
   getAuth,
@@ -19,12 +24,8 @@ import {
   Firestore,
   initializeFirestore,
 } from 'firebase/firestore';
-import {
-  getAnalytics,
-  Analytics,
-  setAnalyticsCollectionEnabled,
-} from 'firebase/analytics';
 import Config from 'react-native-config';
+
 import { logError } from '../utils/analytics';
 
 /** Firebase services interface */

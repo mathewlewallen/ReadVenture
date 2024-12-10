@@ -16,9 +16,10 @@ import {
   Platform,
 } from 'react-native';
 import { useSelector } from 'react-redux';
-import { ErrorBoundary } from '../common/ErrorBoundary';
+
 import { theme } from '../../theme';
 import type { RootState } from '../../types';
+import { ErrorBoundary } from '../common/ErrorBoundary';
 
 interface TextDisplayProps {
   /** Text content to display */
@@ -115,12 +116,16 @@ const styles = StyleSheet.create({
       },
     }),
   },
+  highlighted: {
+    backgroundColor: theme.colors.primary + '40', // 40% opacity
+    fontWeight: 'bold',
+  },
   word: {
+    borderRadius: 4,
     marginRight: 4,
     marginVertical: 2,
-    paddingVertical: 2,
     paddingHorizontal: 4,
-    borderRadius: 4,
+    paddingVertical: 2,
     ...Platform.select({
       ios: {
         minHeight: 44, // iOS accessibility minimum
@@ -129,10 +134,6 @@ const styles = StyleSheet.create({
         minHeight: 48, // Android accessibility minimum
       },
     }),
-  },
-  highlighted: {
-    backgroundColor: theme.colors.primary + '40', // 40% opacity
-    fontWeight: 'bold',
   },
 });
 

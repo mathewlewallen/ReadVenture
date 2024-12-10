@@ -15,7 +15,7 @@
     // Build settings
     "target": "esnext",
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "node16", // Add this
     "lib": ["esnext", "dom"], // Added dom for browser APIs
     "jsx": "react-native",
 
@@ -25,18 +25,26 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
 
     // Module resolution
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@backend/*": ["backend/src/*"],
-      "@config/*": ["config/*"],
-      "@tests/*": ["tests/*"]
+      "@/*": ["./src/*"],
+      "@components/*": ["src/components/*"],
+      "@screens/*": ["src/screens/*"],
+      "@services/*": ["src/services/*"],
+      "@utils/*": ["src/utils/*"],
+      "@types/*": ["src/types/*"]
     },
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
+    "verbatimModuleSyntax": true,
+
+    // Remove preserveValueImports since we're using verbatimModuleSyntax
 
     // Development
     "skipLibCheck": true,
@@ -47,27 +55,11 @@
 
     // Optimize TypeScript performance
     "disableSourceOfProjectReferenceRedirect": true,
-    "maxNodeModuleJsDepth": 2,
+    "maxNodeModuleJsDepth": 1,
     // Reduce type checking scope
     "incremental": true,
-    "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo",
-    // Memory management
-    "maxNodeModulesJsDepth": 1
+    "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo"
   },
-  "include": [
-    "src/**/*",
-    "backend/**/*",
-    "config/**/*",
-    "tests/**/*",
-    "*.{js,ts,tsx}"
-  ],
-  "exclude": [
-    "node_modules",
-    "babel.config.js",
-    "metro.config.js",
-    "jest.config.ts",
-    "**/dist",
-    "**/build",
-    "**/coverage"
-  ]
+  "include": ["src/**/*", "backend/**/*", "config/**/*", "tests/**/*"],
+  "exclude": ["node_modules", "dist", "build"]
 }

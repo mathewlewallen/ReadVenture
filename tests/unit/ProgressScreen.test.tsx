@@ -1,7 +1,8 @@
 // Import required dependencies
-import React from 'react';
-import { render } from '@testing-library/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { render } from '@testing-library/react-native';
+import React from 'react';
+
 import ProgressScreen from '../../../../src/screens/ProgressScreen';
 
 describe('ProgressScreen', () => {

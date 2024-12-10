@@ -9,15 +9,16 @@
  * @packageDocumentation
  */
 
+import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { Appbar, List, ActivityIndicator, Text, Switch } from 'react-native-paper';
-import { NavigationProps } from '../../navigation';
+import { useDispatch, useSelector } from 'react-redux';
+
 import { ErrorBoundary } from '../../components/common/ErrorBoundary';
-import { theme } from '../../theme';
+import { NavigationProps } from '../../navigation';
 import { db } from '../../services/firebase/config';
+import { theme } from '../../theme';
 import type { RootState } from '../../types';
 
 interface Settings {
@@ -167,33 +168,33 @@ const ParentDashboardScreen: React.FC<ParentDashboardProps> = ({ navigation }) =
 };
 
 const styles = StyleSheet.create({
+  childItem: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
   container: {
-    flex: 1,
     backgroundColor: theme.colors.background,
+    flex: 1,
   },
   content: {
     flex: 1,
     padding: 16,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  emptyText: {
+    color: theme.colors.text,
+    marginTop: 20,
+    textAlign: 'center',
   },
   errorText: {
     color: theme.colors.error,
-    textAlign: 'center',
     marginTop: 20,
-  },
-  emptyText: {
     textAlign: 'center',
-    marginTop: 20,
-    color: theme.colors.text,
   },
-  childItem: {
-    borderRadius: 8,
-    marginBottom: 8,
-    backgroundColor: theme.colors.surface,
+  loadingContainer: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
   },
 });
 

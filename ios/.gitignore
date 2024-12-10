@@ -1,12 +1,82 @@
 # Xcode
+## User settings
 xcuserdata/
-*.xcworkspace/xcuserdata/
+*.xcuserdata/
 *.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+
+## Xcode build files
+build/
 DerivedData/
 .build/
+
+## Xcode configuration files
 *.pbxuser
+!default.pbxuser
 *.mode1v3
+!default.mode1v3
 *.mode2v3
+!default.mode2v3
 *.perspectivev3
+!default.perspectivev3
+*.xcworkspace
+!*.xcworkspace/contents.xcworkspacedata
+
+## App packaging
+*.ipa
+*.dSYM.zip
+*.dSYM
+*.xcarchive
+
+## Obj-C/Swift specific
+*.hmap
+*.ipa
+*.swiftpm
+
+## CocoaPods
+Pods/
+Podfile.lock
+*.xcconfig
+
+## fastlane specific
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+## Code Injection
+iOSInjectionProject/
+
+## App specific
 *.xcuserstate
 project.xcworkspace/
+IDEWorkspaceChecks.plist
+WorkspaceSettings.xcsettings
+
+## Environment & Secrets
+GoogleService-Info.plist
+firebase_app_id_file.json
+.env.*
+!.env.example
+
+## Build generated
+*.moved-aside
+*.xccheckout
+*.xcscmblueprint
+*.xcuserstate
+*.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
+
+## Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+## Swift Package Manager
+.swiftpm/
+Package.resolved
+xcuserdata/
+
+## Other
+.DS_Store
+*.log
+temp/
+tmp/

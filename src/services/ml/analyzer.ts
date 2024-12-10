@@ -9,7 +9,6 @@
  * @packageDocumentation
  */
 
-import { logError } from '../../utils/analytics';
 import {
   AnalysisResult,
   ComprehensionResult,
@@ -17,6 +16,7 @@ import {
   TextComplexity,
 } from './types';
 import { countSyllables, calculateFleschKincaid } from './utils';
+import { logError } from '../../utils/analytics';
 
 /**
  * Text analysis service class
@@ -36,45 +36,24 @@ export class TextAnalyzer {
    */
   static analyzeReadingLevel(text: string): AnalysisResult {
     try {
-      if (!text || text.trim().length < this.MIN_TEXT_LENGTH) {
-        throw new Error('Text is too short for analysis');
-      }
+      if (!text?.trim()) throw new Error('Invalid text input');
 
-      // Split text into components
       const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
-      const words = text.split(/\s+/).filter(word => word.length > 0);
-      const syllables = words.reduce(
-        (total, word) => total + countSyllables(word),
-        0,
-      );
+      const words = text.split(/\s+/).filter(w => w.trim().length > 0);
 
-      // Calculate metrics
-      const metrics: TextMetrics = {
-        avgSentenceLength: words.length / sentences.length,
-        avgWordLength: words.join('').length / words.length,
-        uniqueWords: new Set(words.map(w => w.toLowerCase())).size,
+      const metrics = {
         totalWords: words.length,
         totalSentences: sentences.length,
-        syllablesPerWord: syllables / words.length,
-      };
-
-      // Calculate reading level
-      const readingLevel = Math.min(
-        Math.round(calculateFleschKincaid(metrics)),
-        this.MAX_GRADE_LEVEL,
-      );
-
-      // Calculate complexity scores
-      const complexity: TextComplexity = {
-        vocabulary: this.calculateVocabularyScore(metrics),
-        sentenceStructure: this.calculateSentenceScore(metrics),
-        textLength: this.calculateLengthScore(metrics.totalWords),
+        avgWordLength: words.join('').length / words.length,
+        uniqueWords: new Set(words.map(w => w.toLowerCase())).size,
+        syllablesPerWord: this.calculateSyllables(words),
       };
 
       return {
-        readingLevel,
-        complexity,
+        readingLevel: this.calculateGradeLevel(metrics),
+        complexity: this.calculateComplexity(metrics),
         metrics,
+        confidence: this.calculateConfidence(metrics),
         timestamp: new Date().toISOString(),
       };
     } catch (error) {

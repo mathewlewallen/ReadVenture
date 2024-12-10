@@ -1,9 +1,10 @@
-import React from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import React from 'react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { NavigationProps } from '../../../../src/navigation';
 import LoginScreen from '../../../../src/screens/auth/LoginScreen';
 import {

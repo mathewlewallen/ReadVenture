@@ -7,19 +7,20 @@
  * @packageDocumentation
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, Alert, Platform } from 'react-native';
-import * as Progress from 'react-native-progress';
-import { Button, Appbar } from 'react-native-paper';
 import Voice, { SpeechResultsEvent } from '@react-native-voice/voice';
 import { jaroWinkler } from 'jaro-winkler';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, Alert, Platform } from 'react-native';
+import { Button, Appbar } from 'react-native-paper';
+import * as Progress from 'react-native-progress';
 import { useDispatch, useSelector } from 'react-redux';
+
 import { ErrorBoundary } from '../../components/common/ErrorBoundary';
 import { NavigationProps } from '../../navigation';
-import { theme } from '../../theme';
 import { updateProgress } from '../../store/progressSlice';
-import { logError } from '../../utils/analytics';
+import { theme } from '../../theme';
 import type { RootState } from '../../types';
+import { logError } from '../../utils/analytics';
 
 interface Story {
   id: string;
@@ -69,7 +70,6 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ route, navigation }) => {
         if (similarity > 0.8) {
           setWordsRead(prev => prev + 1);
           setCurrentIndex(prev => prev + 1);
-
           dispatch(
             updateProgress({
               storyId,
@@ -80,7 +80,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ route, navigation }) => {
         }
       }
     },
-    [story, currentIndex, dispatch, storyId, wordsRead],
+    [story, currentIndex, dispatch, storyId, wordsRead, updateProgress],
   );
 
   /**
@@ -108,6 +108,27 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ route, navigation }) => {
         Alert.alert(
           'Error',
           'Unable to continue reading session. Please try again later.',
+          [{ text: 'OK', onPress: () => navigation.goBack() }],
+        );
+      }
+    },
+    [retryCount, navigation, initializeVoice],
+  );
+
+  /**
+   * Handles voice recognition errors with retry logic
+   */
+  const handleVoiceError = useCallback(
+    async (error: Error) => {
+      logError('Voice recognition error:', error);
+
+      if (retryCount < MAX_RETRIES) {
+        setRetryCount(prev => prev + 1);
+        await initializeVoice();
+      } else {
+        Alert.alert(
+          'Voice Recognition Error',
+          'Unable to continue. Please try again later.',
           [{ text: 'OK', onPress: () => navigation.goBack() }],
         );
       }
@@ -271,43 +292,10 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-    alignItems: 'center',
-  },
-  word: {
-    fontSize: 32,
-    marginVertical: 20,
-    fontFamily: theme.fonts.medium,
-  },
-  highlighted: {
-    backgroundColor: theme.colors.primary + '40',
-    padding: 10,
-    borderRadius: 8,
-  },
-  progressBar: {
-    marginVertical: 20,
-    width: '100%',
-  },
-  stats: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    marginVertical: 20,
-  },
-  statText: {
-    fontSize: 16,
-    color: theme.colors.text,
-  },
   button: {
+    borderRadius: 8,
     marginTop: 20,
     paddingHorizontal: 32,
-    borderRadius: 8,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -320,17 +308,50 @@ const styles = StyleSheet.create({
       },
     }),
   },
+  container: {
+    backgroundColor: theme.colors.background,
+    flex: 1,
+  },
+  content: {
+    alignItems: 'center',
+    flex: 1,
+    padding: 20,
+  },
   errorContainer: {
+    alignItems: 'center',
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
     padding: 20,
   },
   errorText: {
     color: theme.colors.error,
     fontSize: 16,
-    textAlign: 'center',
     marginBottom: 20,
+    textAlign: 'center',
+  },
+  highlighted: {
+    backgroundColor: theme.colors.primary + '40',
+    borderRadius: 8,
+    padding: 10,
+  },
+  progressBar: {
+    marginVertical: 20,
+    width: '100%',
+  },
+  statText: {
+    color: theme.colors.text,
+    fontSize: 16,
+  },
+  stats: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginVertical: 20,
+    width: '100%',
+  },
+  word: {
+    fontFamily: theme.fonts.medium,
+    fontSize: 32,
+    marginVertical: 20,
   },
 });
 

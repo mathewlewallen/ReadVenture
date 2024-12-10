@@ -17,9 +17,10 @@ import {
 } from 'react-native';
 import { Button as PaperButton } from 'react-native-paper';
 import { useSelector } from 'react-redux';
+
 import { theme } from '../../theme';
-import { ErrorBoundary } from '../common/ErrorBoundary';
 import type { RootState } from '../../types';
+import { ErrorBoundary } from '../common/ErrorBoundary';
 
 interface ButtonProps {
   /** Button label text */
@@ -121,15 +122,15 @@ const styles = StyleSheet.create({
       },
     }),
   },
-  label: {
-    fontSize: 16,
-    fontFamily: theme.fonts.medium,
-    textAlign: 'center',
-  },
   content: {
-    height: 48,
     alignItems: 'center',
+    height: 48,
     justifyContent: 'center',
+  },
+  label: {
+    fontFamily: theme.fonts.medium,
+    fontSize: 16,
+    textAlign: 'center',
   },
 });
 

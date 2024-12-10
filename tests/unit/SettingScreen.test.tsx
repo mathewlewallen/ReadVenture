@@ -1,7 +1,8 @@
 // Tests for the SettingsScreen component
-import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { render, fireEvent } from '@testing-library/react-native';
+import React from 'react';
+
 import SettingsScreen from '../../../src/screens/SettingsScreen'; // Fixed import path
 
 // Define navigation types for type safety

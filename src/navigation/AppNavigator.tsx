@@ -7,13 +7,13 @@
  * @packageDocumentation
  */
 
-import React, { useEffect } from 'react';
-import { Platform } from 'react-native';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React, { useEffect } from 'react';
+import { Platform } from 'react-native';
 import { useSelector } from 'react-redux';
+
 import { linking } from './linking';
-import { theme } from '../theme';
 import { ErrorBoundary } from '../components/common/ErrorBoundary';
 
 // Screen Imports
@@ -28,6 +28,7 @@ import {
   SplashScreen,
   StoryLibraryScreen,
 } from '../screens';
+import { theme } from '../theme';
 
 // Types
 export type RootStackParamList = {
