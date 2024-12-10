@@ -9,4 +9,4 @@ export {
   StoryLibraryScreen,
   WelcomeScreen,
 } from './main';
-export { ReadingScreen } from './reading';
+export { ReadingScreen, ReadingSpeedSettings } from './reading';

@@ -1,3 +1,7 @@
 // // Generated barrel file - do not modify manually
 
-export { testConfig, validateConfig, validateEnv } from './envValidation';
+export {
+  validateEnv,
+  getEnvConfig,
+  default as envValidation,
+} from './envValidation';
