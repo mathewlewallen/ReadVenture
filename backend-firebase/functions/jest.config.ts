@@ -24,7 +24,7 @@ const config: JestConfigWithTsJest = {
     'jsx',
     'mjs',
     'json',
-    'node'
+    'node',
   ],
 
   // ESM support
@@ -32,10 +32,7 @@ const config: JestConfigWithTsJest = {
 
   // Test configuration
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
-  testMatch: [
-    '**/__tests__/**/*.[jt]s?(x)',
-    '**/?(*.)+(spec|test).[jt]s?(x)'
-  ],
+  testMatch: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
 
   // TypeScript transformation
   transform: {
@@ -45,17 +42,17 @@ const config: JestConfigWithTsJest = {
         useESM: true,
         tsconfig: '<rootDir>/tsconfig.json',
         diagnostics: {
-          ignoreCodes: [151001] // Ignore ESM warnings
-        }
-      }
-    ]
+          ignoreCodes: [151001], // Ignore ESM warnings
+        },
+      },
+    ],
   },
 
   // Path aliases and module resolution
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^(\\.{1,2}/.*)\\.js$': '$1', // ESM import support
-    '^@tests/(.*)$': '<rootDir>/tests/$1'
+    '^@tests/(.*)$': '<rootDir>/tests/$1',
   },
 
   // Code coverage configuration
@@ -65,7 +62,7 @@ const config: JestConfigWithTsJest = {
     '!src/**/*.d.ts',
     '!src/**/*.test.{ts,tsx}',
     '!src/types/**',
-    '!src/mocks/**'
+    '!src/mocks/**',
   ],
   coverageDirectory: '<rootDir>/coverage',
   coverageReporters: ['text', 'lcov'],
@@ -74,8 +71,8 @@ const config: JestConfigWithTsJest = {
       branches: 80,
       functions: 80,
       lines: 80,
-      statements: 80
-    }
+      statements: 80,
+    },
   },
 
   // Performance and resource settings
@@ -88,7 +85,7 @@ const config: JestConfigWithTsJest = {
     '/dist/',
     '/coverage/',
     '/.build/',
-    '/\\..*/' // Ignore dot folders
+    '/\\..*/', // Ignore dot folders
   ],
 
   // Error handling and reporting

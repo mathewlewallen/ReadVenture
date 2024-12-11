@@ -14,9 +14,9 @@
   "compilerOptions": {
     // Build settings
     "target": "esnext",
-    "module": "esnext",
-    "moduleResolution": "node16", // Add this
-    "lib": ["esnext", "dom"], // Added dom for browser APIs
+    "module": "commonjs",
+    "moduleResolution": "node16",
+    "lib": ["esnext"], // Removed dom for browser APIs
     "jsx": "react-native",
 
     // Type checking
@@ -32,7 +32,7 @@
     // Module resolution
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
+      "@/*": ["src/*"],
       "@components/*": ["src/components/*"],
       "@screens/*": ["src/screens/*"],
       "@services/*": ["src/services/*"],
@@ -42,7 +42,7 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "verbatimModuleSyntax": true,
+    "verbatimModuleSyntax": false,
 
     // Remove preserveValueImports since we're using verbatimModuleSyntax
 
@@ -60,6 +60,28 @@
     "incremental": true,
     "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo"
   },
-  "include": ["src/**/*", "backend/**/*", "config/**/*", "tests/**/*"],
-  "exclude": ["node_modules", "dist", "build"]
+  "include": [
+    "*.ts",
+    "*.tsx",
+    "*.js",
+    "*.jsx",
+    "index.ts",
+    "src/**/*",
+    "tests/**/*",
+    "backend/**/*",
+    "backend-firebase/**/*",
+    "config/**/*",
+    "__mocks__/**/*",
+    "*.config.ts",
+    "*.config.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "coverage",
+    "babel.config.js",
+    "metro.config.js",
+    "jest.config.js"
+  ]
 }

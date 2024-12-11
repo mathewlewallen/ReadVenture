@@ -83,7 +83,10 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
   /**
    * Updates individual setting values
    */
-  const updateSetting = <K extends keyof Settings>(key: K, value: Settings[K]) => {
+  const updateSetting = <K extends keyof Settings>(
+    key: K,
+    value: Settings[K],
+  ) => {
     const newSettings = { ...settings, [key]: value };
     saveSettings(newSettings);
   };

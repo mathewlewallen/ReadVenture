@@ -64,10 +64,13 @@ export const useProgress = ({
       }
 
       const progressData = snapshot.docs[0].data() as UserProgress;
-      await AsyncStorage.setItem(PROGRESS_CACHE_KEY, JSON.stringify({
-        data: progressData,
-        timestamp: Date.now(),
-      }));
+      await AsyncStorage.setItem(
+        PROGRESS_CACHE_KEY,
+        JSON.stringify({
+          data: progressData,
+          timestamp: Date.now(),
+        }),
+      );
 
       dispatch(updateProgress(progressData));
       return progressData;
@@ -80,7 +83,9 @@ export const useProgress = ({
   /**
    * Updates user progress with new session data
    */
-  const updateUserProgress = async (sessionData: ReadingSession): Promise<void> => {
+  const updateUserProgress = async (
+    sessionData: ReadingSession,
+  ): Promise<void> => {
     try {
       setLoading(true);
       const targetUserId = userId || currentUser?.id;
@@ -89,12 +94,13 @@ export const useProgress = ({
       // Calculate new progress totals
       const existingProgress = await fetchProgress();
       const newProgress: UserProgress = {
-        totalWordsRead: (existingProgress?.totalWordsRead || 0) + sessionData.wordsRead,
+        totalWordsRead:
+          (existingProgress?.totalWordsRead || 0) + sessionData.wordsRead,
         storiesCompleted: (existingProgress?.storiesCompleted || 0) + 1,
         averageAccuracy: calculateNewAverage(
           existingProgress?.averageAccuracy || 0,
           sessionData.accuracy,
-          existingProgress?.storiesCompleted || 0
+          existingProgress?.storiesCompleted || 0,
         ),
         badges: existingProgress?.badges || [],
         lastActivity: sessionData.timestamp,
@@ -104,7 +110,8 @@ export const useProgress = ({
       await updateProgressInFirestore(targetUserId, newProgress);
       dispatch(updateProgress(newProgress));
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to update progress');
+      const error =
+        err instanceof Error ? err : new Error('Failed to update progress');
       setError(error);
       throw error;
     } finally {
@@ -125,7 +132,8 @@ export const useProgress = ({
       await AsyncStorage.removeItem(PROGRESS_CACHE_KEY);
       dispatch(updateProgress(null));
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to reset progress');
+      const error =
+        err instanceof Error ? err : new Error('Failed to reset progress');
       setError(error);
       throw error;
     } finally {
@@ -148,7 +156,8 @@ export const useProgress = ({
         }
         await fetchProgress();
       } catch (err) {
-        const error = err instanceof Error ? err : new Error('Failed to load progress');
+        const error =
+          err instanceof Error ? err : new Error('Failed to load progress');
         setError(error);
       } finally {
         setLoading(false);
@@ -177,9 +186,9 @@ export const useProgress = ({
 const calculateNewAverage = (
   oldAverage: number,
   newValue: number,
-  oldCount: number
+  oldCount: number,
 ): number => {
-  return ((oldAverage * oldCount) + newValue) / (oldCount + 1);
+  return (oldAverage * oldCount + newValue) / (oldCount + 1);
 };
 
 /**
@@ -187,7 +196,7 @@ const calculateNewAverage = (
  */
 const updateProgressInFirestore = async (
   userId: string,
-  progress: UserProgress | null
+  progress: UserProgress | null,
 ): Promise<void> => {
   const progressRef = collection(db, 'progress');
   const q = query(progressRef, where('userId', '==', userId));

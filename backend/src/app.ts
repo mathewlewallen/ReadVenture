@@ -4,15 +4,15 @@
  */
 
 // Core dependencies
-import express, { Application, Request, Response } from 'express';
-import mongoose from 'mongoose';
+import bodyParser from 'body-parser';
+import cors from 'cors';
 import dotenv from 'dotenv';
+import express, { Application, Request, Response } from 'express';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
+import mongoose from 'mongoose';
 
 // Security dependencies
-import helmet from 'helmet';
-import cors from 'cors';
-import rateLimit from 'express-rate-limit';
-import bodyParser from 'body-parser';
 
 // Routes and middleware
 import { errorHandler } from '../middleware/errorHandler';

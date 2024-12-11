@@ -1,5 +1,5 @@
-import { MongoClient, Db } from 'mongodb';
 import dotenv from 'dotenv';
+import { MongoClient, Db } from 'mongodb';
 
 dotenv.config();
 
@@ -14,7 +14,9 @@ interface MongoConnection {
 class DatabaseConnection {
   private static instance: DatabaseConnection;
   private connection: MongoConnection = {
-    client: new MongoClient(process.env.MONGO_URI || 'mongodb://localhost:27017'),
+    client: new MongoClient(
+      process.env.MONGO_URI || 'mongodb://localhost:27017',
+    ),
     db: null,
   };
 

@@ -12,7 +12,7 @@ const baseConfig: Config.InitialOptions = {
 
   setupFilesAfterEnv: [
     '@testing-library/jest-native/extend-expect',
-    '<rootDir>/tests/setup.ts' // Changed from .js to .ts for type safety
+    '<rootDir>/tests/setup.ts', // Changed from .js to .ts for type safety
   ],
 
   transform: {
@@ -20,14 +20,14 @@ const baseConfig: Config.InitialOptions = {
       'ts-jest',
       {
         isolatedModules: true,
-        tsconfig: 'tsconfig.json'
-      }
-    ]
+        tsconfig: 'tsconfig.json',
+      },
+    ],
   },
 
   testMatch: [
     '<rootDir>/**/__tests__/**/*.[jt]s?(x)',
-    '<rootDir>/**/*.{spec,test}.[jt]s?(x)'
+    '<rootDir>/**/*.{spec,test}.[jt]s?(x)',
   ],
 
   testPathIgnorePatterns: [
@@ -35,7 +35,7 @@ const baseConfig: Config.InitialOptions = {
     '<rootDir>/android/',
     '<rootDir>/ios/',
     '<rootDir>/dist/',
-    '<rootDir>/.history/'
+    '<rootDir>/.history/',
   ],
 
   // Coverage configuration
@@ -46,7 +46,7 @@ const baseConfig: Config.InitialOptions = {
     '!src/**/*.stories.*',
     '!src/**/*.types.ts',
     '!src/types/**/*',
-    '!src/constants/**/*'
+    '!src/constants/**/*',
   ],
   coverageDirectory: '<rootDir>/coverage',
   coverageThreshold: {
@@ -54,8 +54,8 @@ const baseConfig: Config.InitialOptions = {
       statements: 80,
       branches: 80,
       functions: 80,
-      lines: 80
-    }
+      lines: 80,
+    },
   },
 
   // Module resolution
@@ -71,16 +71,16 @@ const baseConfig: Config.InitialOptions = {
 
   testEnvironment: 'node',
   testEnvironmentOptions: {
-    url: 'http://localhost'
+    url: 'http://localhost',
   },
 
   globals: {
     'ts-jest': {
       tsconfig: 'tsconfig.json',
       diagnostics: {
-        warnOnly: !process.env.CI // Warnings fail in CI only
-      }
-    }
+        warnOnly: !process.env.CI, // Warnings fail in CI only
+      },
+    },
   },
 
   // Performance settings

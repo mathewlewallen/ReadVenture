@@ -1,6 +1,7 @@
-import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
+import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+
 import { User } from '../models/User';
 
 interface RegisterRequest {
@@ -42,7 +43,7 @@ const generateToken = (userId: string): string => {
 
 export const register = async (
   req: Request<never, UserResponse, RegisterRequest>,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { username, password, parentEmail } = req.body;
@@ -88,7 +89,7 @@ export const register = async (
 
 export const login = async (
   req: Request<never, UserResponse, LoginRequest>,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { username, password } = req.body;

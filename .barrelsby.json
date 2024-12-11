@@ -1,25 +1,18 @@
 {
-  "directory": [
-    "src"
-  ],
+  "directory": ["./src"],
   "delete": true,
   "exclude": [
     "\\.test\\.",
     "\\.spec\\.",
     "__tests__",
     "__mocks__",
-    "\\.config\\.",
-    "metro\\.config\\.",
-    "babel\\.config\\."
+    "\\.env",
+    "\\.config\\."
   ],
-  "include": [
-    ".*\\.ts$"
-  ],
-  "location": "top",
+  "include": [".*\\.ts$"],
+  "location": "all",
   "structure": "flat",
   "singleQuotes": true,
   "noHeader": false,
-  "name": "index",
-  "exportAll": true,
-  "exportDefault": true
+  "header": "// Generated barrel file - do not modify manually"
 }

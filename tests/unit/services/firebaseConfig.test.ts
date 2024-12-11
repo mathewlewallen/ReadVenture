@@ -69,7 +69,9 @@ describe('Firebase Configuration', () => {
     // @ts-expect-error - Testing missing config
     delete Config.FIREBASE_API_KEY;
 
-    expect(() => initializeFirebase()).toThrow('Missing required Firebase configuration');
+    expect(() => initializeFirebase()).toThrow(
+      'Missing required Firebase configuration',
+    );
 
     Object.assign(Config, originalConfig);
   });
@@ -103,7 +105,9 @@ describe('Firebase Configuration', () => {
       // @ts-expect-error - Testing invalid configs
       Config[`FIREBASE_${key.toUpperCase()}`] = value;
 
-      expect(() => initializeFirebase()).toThrow(`Invalid Firebase configuration: ${key}`);
+      expect(() => initializeFirebase()).toThrow(
+        `Invalid Firebase configuration: ${key}`,
+      );
 
       Object.assign(Config, originalConfig);
     });

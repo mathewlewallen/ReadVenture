@@ -1,10 +1,11 @@
 import express, { Router } from 'express';
-import { 
-  getAllStories, 
-  getStoryById, 
-  createStory, 
-  updateStory, 
-  deleteStory 
+
+import {
+  getAllStories,
+  getStoryById,
+  createStory,
+  updateStory,
+  deleteStory,
 } from '../controllers/stories';
 import { authenticate } from '../middleware/auth';
 import { validateStoryInput } from '../middleware/validation';
@@ -18,23 +19,12 @@ router.get('/', authenticate, getAllStories);
 router.get('/:id', authenticate, getStoryById);
 
 // Create a new story
-router.post('/', 
-  authenticate, 
-  validateStoryInput, 
-  createStory
-);
+router.post('/', authenticate, validateStoryInput, createStory);
 
 // Update a story
-router.put('/:id', 
-  authenticate, 
-  validateStoryInput, 
-  updateStory
-);
+router.put('/:id', authenticate, validateStoryInput, updateStory);
 
 // Delete a story
-router.delete('/:id', 
-  authenticate, 
-  deleteStory
-);
+router.delete('/:id', authenticate, deleteStory);
 
 export default router;

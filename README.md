@@ -1,6 +1,8 @@
 # ReadVenture
 
-An intelligent React Native application for interactive reading and learning, leveraging TypeScript, Firebase, and voice recognition technology to help children improve their reading skills through real-time feedback.
+An intelligent React Native application for interactive reading and learning,
+leveraging TypeScript, Firebase, and voice recognition technology to help
+children improve their reading skills through real-time feedback.
 
 ## 🚀 Overview
 
@@ -100,8 +102,10 @@ readventure/
 
 ### Development Tools
 
-- Hot Reload: <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> (iOS), Double <kbd>R</kbd> (Android)
-- Dev Menu: <kbd>Cmd ⌘</kbd> + <kbd>D</kbd> (iOS), <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (Android)
+- Hot Reload: <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> (iOS), Double <kbd>R</kbd>
+  (Android)
+- Dev Menu: <kbd>Cmd ⌘</kbd> + <kbd>D</kbd> (iOS), <kbd>Cmd ⌘</kbd> +
+  <kbd>M</kbd> (Android)
 
 ## 🧪 Testing
 

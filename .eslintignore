@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Build directories
+dist/
+build/
+
+# Test coverage
+coverage/
+
+# Generated files
+*.d.ts
+*.js.map
+
+# React Native specific
+android/
+ios/
+.expo/

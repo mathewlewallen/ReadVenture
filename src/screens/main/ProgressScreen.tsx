@@ -30,7 +30,7 @@ interface ProgressScreenProps extends NavigationProps<'Progress'> {}
 const ProgressScreen: React.FC<ProgressScreenProps> = ({ navigation }) => {
   const dispatch = useDispatch();
   const { progress, isLoading, error } = useSelector(
-    (state: RootState) => state.progress
+    (state: RootState) => state.progress,
   );
   const [refreshing, setRefreshing] = useState(false);
 
@@ -69,10 +69,7 @@ const ProgressScreen: React.FC<ProgressScreenProps> = ({ navigation }) => {
           <Appbar.Content title="Progress" />
         </Appbar.Header>
         <View style={styles.content}>
-          <Text
-            style={styles.errorText}
-            accessibilityRole="alert"
-          >
+          <Text style={styles.errorText} accessibilityRole="alert">
             {error}
           </Text>
         </View>
@@ -84,21 +81,21 @@ const ProgressScreen: React.FC<ProgressScreenProps> = ({ navigation }) => {
     <ErrorBoundary>
       <View style={styles.container} testID="progress-screen">
         <Appbar.Header>
-          <Appbar.BackAction 
+          <Appbar.BackAction
             onPress={() => navigation.goBack()}
             accessibilityLabel="Go back"
           />
           <Appbar.Content title="Your Progress" />
         </Appbar.Header>
 
-        <ScrollView 
+        <ScrollView
           style={styles.content}
           contentContainerStyle={styles.scrollContent}
         >
           <Card style={styles.card}>
             <Card.Content>
               <Text style={styles.title}>Overall Progress</Text>
-              <ProgressBar 
+              <ProgressBar
                 progress={calculateProgress() / 100}
                 color={theme.colors.primary}
                 testID="progress-bar"

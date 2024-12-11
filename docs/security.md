@@ -1,6 +1,7 @@
 # Security Documentation
 
 ## Authentication
+
 - JWT-based authentication with secure token handling
 - Multi-factor authentication support
 - Password policies and hashing with bcrypt
@@ -8,6 +9,7 @@
 - OAuth2 integration for third-party auth
 
 ## Data Encryption
+
 - At-rest encryption for sensitive data
 - TLS 1.3 for data in transit
 - End-to-end encryption for chat features
@@ -15,6 +17,7 @@
 - Secure storage of encryption keys
 
 ## API Security
+
 - Rate limiting configuration
 - CORS policy implementation
 - Input validation and sanitization
@@ -22,6 +25,7 @@
 - API versioning and deprecation strategy
 
 ## Environment Variables
+
 - Required variables validation
 - Production vs development configs
 - Secret rotation procedures
@@ -29,6 +33,7 @@
 - Logging and monitoring setup
 
 ## Firebase Security Rules
+
 ```javascript
 // Database Rules
 {
@@ -50,6 +55,7 @@
 ```
 
 ## Security Checklist
+
 - [ ] Regular security audits
 - [ ] Dependency vulnerability scanning
 - [ ] Error handling without info leaks
@@ -57,6 +63,7 @@
 - [ ] Secure API documentation
 
 ## Integration Points
+
 - Auth middleware (`backend/src/middleware/auth.ts`)
 - Environment validation (`src/utils/validation/envValidation.ts`)
 - API error handling (`backend/src/middleware/errorHandler.ts`)

@@ -43,14 +43,6 @@
   },
   "private": true,
   "types": "lib/index.d.ts",
-  "files": [
-    "lib",
-    "README.md",
-    "LICENSE"
-  ],
-  "keywords": [
-    "firebase",
-    "functions",
-    "serverless"
-  ]
+  "files": ["lib", "README.md", "LICENSE"],
+  "keywords": ["firebase", "functions", "serverless"]
 }

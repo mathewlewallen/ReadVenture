@@ -9,10 +9,23 @@
  * @packageDocumentation
  */
 
-import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  doc,
+  updateDoc,
+} from 'firebase/firestore';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
-import { Appbar, List, ActivityIndicator, Text, Switch } from 'react-native-paper';
+import {
+  Appbar,
+  List,
+  ActivityIndicator,
+  Text,
+  Switch,
+} from 'react-native-paper';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { ErrorBoundary } from '../../components/common/ErrorBoundary';
@@ -44,7 +57,9 @@ type ParentDashboardProps = NavigationProps<'ParentDashboard'>;
 /**
  * Parent dashboard screen component
  */
-const ParentDashboardScreen: React.FC<ParentDashboardProps> = ({ navigation }) => {
+const ParentDashboardScreen: React.FC<ParentDashboardProps> = ({
+  navigation,
+}) => {
   const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
   const [childrenData, setChildrenData] = useState<ChildData[]>([]);
@@ -85,7 +100,10 @@ const ParentDashboardScreen: React.FC<ParentDashboardProps> = ({ navigation }) =
   /**
    * Updates child settings in Firestore
    */
-  const updateChildSettings = async (childId: string, settings: Partial<Settings>) => {
+  const updateChildSettings = async (
+    childId: string,
+    settings: Partial<Settings>,
+  ) => {
     try {
       const childRef = doc(db, 'users', childId);
       await updateDoc(childRef, { settings });
@@ -94,8 +112,8 @@ const ParentDashboardScreen: React.FC<ParentDashboardProps> = ({ navigation }) =
         prev.map(child =>
           child.id === childId
             ? { ...child, settings: { ...child.settings, ...settings } }
-            : child
-        )
+            : child,
+        ),
       );
     } catch (err) {
       console.error('Error updating settings:', err);
@@ -129,16 +147,13 @@ const ParentDashboardScreen: React.FC<ParentDashboardProps> = ({ navigation }) =
 
         <View style={styles.content}>
           {error ? (
-            <Text
-              style={styles.errorText}
-              accessibilityRole="alert"
-            >
+            <Text style={styles.errorText} accessibilityRole="alert">
               {error}
             </Text>
           ) : childrenData.length === 0 ? (
             <Text style={styles.emptyText}>No children found</Text>
           ) : (
-            childrenData.map((child) => (
+            childrenData.map(child => (
               <List.Item
                 key={child.id}
                 title={child.username}
@@ -155,7 +170,9 @@ const ParentDashboardScreen: React.FC<ParentDashboardProps> = ({ navigation }) =
                   />
                 )}
                 style={styles.childItem}
-                onPress={() => navigation.navigate('ChildProgress', { childId: child.id })}
+                onPress={() =>
+                  navigation.navigate('ChildProgress', { childId: child.id })
+                }
                 accessibilityRole="button"
                 accessibilityHint={`View progress for ${child.username}`}
               />

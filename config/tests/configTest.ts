@@ -1,4 +1,5 @@
 import Config from 'react-native-config';
+
 import baseConfig from '../jest.config.base';
 
 /**
@@ -38,7 +39,7 @@ export const validateConfig = (): boolean => {
 
   if (missingKeys.length > 0) {
     console.error(
-      `Missing or empty required env variables: ${missingKeys.join(', ')}`
+      `Missing or empty required env variables: ${missingKeys.join(', ')}`,
     );
     return false;
   }

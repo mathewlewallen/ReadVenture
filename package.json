@@ -13,21 +13,26 @@
     "prepare": "husky install",
     "generate-barrels": "barrelsby --config .barrelsby.json",
     "prestart": "npm run generate-barrels",
-    "prebuild": "npm run generate-barrels"
+    "prebuild": "npm run generate-barrels",
+    "build:backend": "tsc -p backend/tsconfig.json",
+    "start:backend": "node backend/dist/app.js",
+    "build:backend-firebase": "tsc -p backend-firebase/functions/tsconfig.json",
+    "start:backend-firebase": "node backend-firebase/functions/lib/index.js"
   },
   "dependencies": {
-    "@react-native-firebase/app": "18.7.3",
-    "@react-native-firebase/auth": "18.7.3",
-    "@react-navigation/native": "^6.1.9",
-    "@react-navigation/native-stack": "^6.9.17",
-    "@reduxjs/toolkit": "^1.9.7",
-    "react": "^18.2.0",
-    "react-native": "^0.72.4",
-    "react-native-config": "1.5.1",
-    "react-native-safe-area-context": "^4.7.4",
-    "react-native-screens": "^3.29.0",
+    "@react-native-firebase/app": "21.6.1",
+    "@react-native-firebase/auth": "21.6.1",
+    "@react-navigation/native": "^6.1.18",
+    "@react-navigation/native-stack": "^6.11.0",
+    "@reduxjs/toolkit": "^2.5.0",
+    "react": "18.3.0",
+    "react-native": "0.76.5",
+    "react-native-config": "1.5.3",
+    "react-native-gesture-handler": "^2.21.2",
+    "react-native-safe-area-context": "^5.0.0",
+    "react-native-screens": "^4.3.0",
     "react-native-vector-icons": "^10.2.0",
-    "react-redux": "^8.1.3"
+    "react-redux": "^9.1.2"
   },
   "devDependencies": {
     "@babel/core": "7.26.0",
@@ -38,47 +43,43 @@
     "@babel/plugin-transform-optional-chaining": "7.25.9",
     "@babel/preset-env": "7.26.0",
     "@babel/runtime": "7.26.0",
-    "@react-native-async-storage/async-storage": "^1.21.0",
-    "@react-native/babel-preset": "0.78.0-nightly-20241205-f402ed17f",
-    "@react-native/eslint-config": "0.78.0-nightly-20241205-f402ed17f",
-    "@react-native/metro-config": "0.78.0-nightly-20241205-f402ed17f",
-    "@react-native/typescript-config": "0.78.0-nightly-20241205-f402ed17f",
+    "@react-native-async-storage/async-storage": "^2.1.0",
+    "@react-native/babel-preset": "0.76.5",
+    "@react-native/eslint-config": "0.76.5",
+    "@react-native/metro-config": "0.76.5",
+    "@react-native/typescript-config": "0.76.5",
     "@testing-library/jest-native": "^5.4.3",
     "@testing-library/react-native": "^12.9.0",
     "@types/jest": "^29.5.14",
-    "@types/react": "^18.2.6",
-    "@types/react-test-renderer": "^18.2.6",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
-    "@typescript-eslint/parser": "^6.21.0",
+    "@types/node": "^22.10.1",
+    "@types/react": "^18.3.14",
+    "@types/react-test-renderer": "^18.3.0",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
     "babel-jest": "29.7.0",
     "barrelsby": "^2.8.1",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-prettier": "^5.1.3",
+    "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-react": "^7.37.2",
     "eslint-plugin-react-native": "^4.1.0",
-    "husky": "^8.0.3",
+    "husky": "^9.1.7",
     "jest": "29.7.0",
     "jest-environment-jsdom": "^29.7.0",
-    "lint-staged": "^15.2.0",
+    "lint-staged": "^15.2.11",
     "prettier": "^3.4.2",
-    "react-test-renderer": "^18.2.0",
-    "ts-jest": "^29.0.0",
+    "react-test-renderer": "^18.3.0",
+    "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
-    "typescript": "5.3.3"
+    "typescript": "5.7.2"
   },
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=8.0.0"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{json,md}": [
-      "prettier --write"
-    ]
+    "*.{js,jsx,ts,tsx}": ["eslint --fix", "prettier --write"],
+    "*.{json,md}": ["prettier --write"]
   }
 }

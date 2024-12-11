@@ -128,14 +128,21 @@
     "__mocks__",
     "*.config.*",
     "metro.config.*",
-    "babel.config.*"
+    "babel.config.*",
+    "jest.config.*"
   ], // Exclude files with these strings in the name
   "exportall.config.folderListener": [
-    "**/*",
-    "!node_modules/**",
-    "!dist/**",
-    "!build/**",
-    "!coverage/**"
+    "src/components/**/*",
+    "src/screens/**/*",
+    "src/services/**/*",
+    "src/store/**/*",
+    "src/utils/**/*",
+    "src/types/**/*",
+    "src/hooks/**/*",
+    "src/theme/**/*",
+    "src/navigation/**/*",
+    "backend/src/**/*",
+    "backend-firebase/functions/src/**/*"
   ], // Add folders to listen for changes
   "exportall.config.relExclusion": [
     "**/node_modules/**",

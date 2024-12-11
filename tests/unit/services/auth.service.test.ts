@@ -1,5 +1,8 @@
 // src/__tests__/services/auth.service.test.ts
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from 'firebase/auth';
 
 import { authService } from '../../services/firebase/auth.service';
 
@@ -23,7 +26,9 @@ describe('AuthService', () => {
 
   it('should login user successfully', async () => {
     const mockUser = { uid: '123', email: 'test@test.com' };
-    (signInWithEmailAndPassword as jest.Mock).mockResolvedValue({ user: mockUser });
+    (signInWithEmailAndPassword as jest.Mock).mockResolvedValue({
+      user: mockUser,
+    });
 
     const result = await authService.login(mockCredentials);
     expect(result.uid).toBe(mockUser.uid);
@@ -31,7 +36,9 @@ describe('AuthService', () => {
 
   it('should register user successfully', async () => {
     const mockUser = { uid: '123', email: 'test@test.com' };
-    (createUserWithEmailAndPassword as jest.Mock).mockResolvedValue({ user: mockUser });
+    (createUserWithEmailAndPassword as jest.Mock).mockResolvedValue({
+      user: mockUser,
+    });
 
     const result = await authService.register({
       ...mockCredentials,

@@ -1,5 +1,5 @@
-import mongoose, { Schema, Document } from 'mongoose';
 import bcrypt from 'bcryptjs';
+import mongoose, { Schema, Document } from 'mongoose';
 
 /**
  * Interface representing a User document in MongoDB

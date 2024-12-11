@@ -48,17 +48,20 @@ npm install
 ## Development Guidelines
 
 ### Components
+
 - Use TypeScript Props interface
 - Implement error boundaries
 - Add accessibility features
 - Document prop types
 
 ### State Management
+
 - Use Redux for global state
 - Context for component state
 - Async storage for persistence
 
 ### API Integration
+
 - Implement retry logic
 - Handle network errors
 - Validate responses

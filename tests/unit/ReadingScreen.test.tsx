@@ -6,8 +6,9 @@ import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import React from 'react';
 
-import ReadingScreen, { calculateAccuracy } from '../../src/screens/ReadingScreen';
-
+import ReadingScreen, {
+  calculateAccuracy,
+} from '../../src/screens/ReadingScreen';
 
 // Define navigation types for TypeScript
 type RootStackParamList = {

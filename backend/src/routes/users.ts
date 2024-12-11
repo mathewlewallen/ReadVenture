@@ -1,10 +1,11 @@
 import express, { Router, Request, Response } from 'express';
-import { 
+
+import {
   getMe,
   updateUser,
   deleteUser,
   getUserById,
-  getAllUsers
+  getAllUsers,
 } from '../controllers/users';
 import { authenticate } from '../middleware/auth';
 import { validateUserUpdate } from '../middleware/validation';
@@ -21,13 +22,21 @@ router.get('/', authenticate, getAllUsers);
 router.get('/:id', authenticate, getUserById);
 
 // Password management
-router.post('/change-password', authenticate, async (_req: Request, _res: Response) => {
-  _res.status(501).json({ message: 'Password change functionality coming soon' });
-});
+router.post(
+  '/change-password',
+  authenticate,
+  async (_req: Request, _res: Response) => {
+    _res
+      .status(501)
+      .json({ message: 'Password change functionality coming soon' });
+  },
+);
 
 // Profile management
 router.put('/profile', authenticate, async (_req: Request, _res: Response) => {
-  _res.status(501).json({ message: 'Profile update functionality coming soon' });
+  _res
+    .status(501)
+    .json({ message: 'Profile update functionality coming soon' });
 });
 
 export default router;

@@ -1,0 +1,55 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Backend",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/backend/dist/app.js",
+      "preLaunchTask": "tsc: build - backend",
+      "outFiles": ["${workspaceFolder}/backend/dist/**/*.js"],
+      "sourceMaps": true
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Firebase Functions",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/backend-firebase/functions/lib/index.js",
+      "preLaunchTask": "tsc: build - backend-firebase",
+      "outFiles": ["${workspaceFolder}/backend-firebase/functions/lib/**/*.js"],
+      "sourceMaps": true
+    },
+    {
+      "type": "reactnative",
+      "request": "launch",
+      "name": "Launch Android",
+      "platform": "android",
+      "sourceMaps": true,
+      "cwd": "${workspaceFolder}",
+      "program": "${workspaceFolder}/index.ts"
+    },
+    {
+      "type": "reactnative",
+      "request": "launch",
+      "name": "Launch iOS",
+      "platform": "ios",
+      "sourceMaps": true,
+      "cwd": "${workspaceFolder}",
+      "program": "${workspaceFolder}/index.ts"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Jest Tests",
+      "program": "${workspaceFolder}/node_modules/jest/bin/jest.js",
+      "args": ["--runInBand"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    }
+  ]
+}

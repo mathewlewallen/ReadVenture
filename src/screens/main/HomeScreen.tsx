@@ -16,7 +16,7 @@ import { Appbar, Button } from 'react-native-paper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useSelector, useDispatch } from 'react-redux';
 
-import { ErrorBoundary } from '../../components/common/ErrorBoundary';
+import ErrorBoundary from '../../components/common/ErrorBoundary';
 import { NavigationProps } from '../../navigation';
 import { fetchUserProgress } from '../../store/progressSlice';
 import { theme } from '../../theme';
@@ -45,7 +45,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
    * Navigation handlers with type safety
    */
   const handleNavigate = useCallback(
-    (screen: keyof NavigationProps<'Home'>['navigation']) => {
+    (screen: 'StoryLibrary' | 'Progress' | 'ParentDashboard' | 'Settings') => {
       navigation.navigate(screen);
     },
     [navigation],

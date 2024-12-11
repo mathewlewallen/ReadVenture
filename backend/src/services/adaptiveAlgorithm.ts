@@ -1,4 +1,4 @@
-const {spawn} = require('child_process');
+const { spawn } = require('child_process');
 
 const analyzeText = async text => {
   return new Promise((resolve, reject) => {
@@ -29,4 +29,4 @@ const analyzeText = async text => {
   });
 };
 
-module.exports = {analyzeText};
+module.exports = { analyzeText };
