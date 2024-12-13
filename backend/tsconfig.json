@@ -3,15 +3,15 @@
  * Extends root configuration while adding backend-specific settings
  */
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../tsconfig.json",
   "compilerOptions": {
     // Build output configuration
     "outDir": "./dist",
     "rootDir": "./src",
 
     // Backend-specific compiler options
-    "module": "CommonJS",
-    "target": "ES2020",
+    "module": "Node16",
+    "target": "es2020",
     "sourceMap": true,
     "declaration": true,
 
@@ -22,19 +22,21 @@
     "noUnusedParameters": true,
 
     // Module resolution
-    "moduleResolution": "node",
+    "moduleResolution": "node16",
     "esModuleInterop": true,
     "resolveJsonModule": true,
+    "noEmit": true,
 
     // Path aliases for cleaner imports
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@tests/*": ["tests/*"]
+      "@/*": ["src/*"]
     },
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "composite": true,
+    "typeRoots": ["./node_modules/@types"]
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

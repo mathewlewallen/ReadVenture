@@ -39,4 +39,4 @@ router.put('/profile', authenticate, async (_req: Request, _res: Response) => {
     .json({ message: 'Profile update functionality coming soon' });
 });
 
-export default router;
+export default usersRouter;

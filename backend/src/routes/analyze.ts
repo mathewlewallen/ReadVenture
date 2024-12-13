@@ -6,4 +6,4 @@ const router = express.Router();
 
 router.post('/', analyzeText);
 
-export default router;
+export default analyzeRouter;

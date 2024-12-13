@@ -6,7 +6,7 @@
   "compilerOptions": {
     // Build configuration
     "target": "es2020", // Updated for newer Node.js features
-    "module": "commonjs",
+    "module": "Node16",
     "outDir": "lib",
     "sourceMap": true,
     "declaration": true,
@@ -23,7 +23,7 @@
     "exactOptionalPropertyTypes": true,
 
     // Module resolution
-    "moduleResolution": "node",
+    "moduleResolution": "node16",
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,

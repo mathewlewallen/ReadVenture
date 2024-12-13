@@ -1,6 +1,6 @@
 // // Generated barrel file - do not modify manually
 
-export { default as router } from './analyze';
-export { default as router } from './auth';
-export { default as router } from './stories';
-export { default as router } from './users';
+export { default as analyzeRouter } from './analyze';
+export { default as authRouter } from './auth';
+export { default as storiesRouter } from './stories';
+export { default as usersRouter } from './users';

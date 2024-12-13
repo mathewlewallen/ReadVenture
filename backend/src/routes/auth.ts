@@ -58,4 +58,4 @@ router.post('/change-password', async (_req: Request, res: Response) => {
     .json({ message: 'Password change functionality coming soon' });
 });
 
-export default router;
+export default authRouter;

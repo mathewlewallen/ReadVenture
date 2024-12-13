@@ -1,4 +1,4 @@
-import express, { Router } from 'express';
+import Router from 'express';
 
 import {
   getAllStories,
@@ -27,4 +27,4 @@ router.put('/:id', authenticate, validateStoryInput, updateStory);
 // Delete a story
 router.delete('/:id', authenticate, deleteStory);
 
-export default router;
+export default storiesRouter;

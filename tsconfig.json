@@ -14,9 +14,9 @@
   "compilerOptions": {
     // Build settings
     "target": "esnext",
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "lib": ["esnext"], // Removed dom for browser APIs
+    "module": "Node16",
+    "moduleResolution": "node16",
+    "lib": ["esnext"],
     "jsx": "react-native",
 
     // Type checking
@@ -49,7 +49,7 @@
     // Development
     "skipLibCheck": true,
     "allowJs": true,
-    "noEmit": false,
+    "noEmit": true,
     "isolatedModules": true,
     "forceConsistentCasingInFileNames": true,
 
@@ -58,7 +58,13 @@
     "maxNodeModuleJsDepth": 1,
     // Reduce type checking scope
     "incremental": true,
-    "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo"
+    "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo",
+    "composite": true,
+    "declaration": true,
+
+    // Type roots and types
+    "typeRoots": ["./node_modules/@types"],
+    "types": ["node", "jest", "react-native"]
   },
   "include": [
     "*.ts",
