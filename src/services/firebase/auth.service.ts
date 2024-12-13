@@ -18,10 +18,8 @@ import {
   sendPasswordResetEmail,
   sendEmailVerification,
   User,
-  UserCredential,
 } from 'firebase/auth';
 
-import { auth } from './config';
 import { store } from '../../store';
 import { updateAuthState } from '../../store/authSlice';
 import {
@@ -30,6 +28,8 @@ import {
   RegistrationData,
 } from '../../types/firebase.types';
 import { logError } from '../../utils/analytics';
+
+import { auth } from './config';
 
 /**
  * Authentication service class using singleton pattern

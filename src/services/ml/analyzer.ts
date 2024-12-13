@@ -9,14 +9,13 @@
  * @packageDocumentation
  */
 
+import { logError } from '../../utils/analytics';
+
 import {
   AnalysisResult,
   ComprehensionResult,
   TextMetrics,
-  TextComplexity,
 } from './types';
-import { countSyllables, calculateFleschKincaid } from './utils';
-import { logError } from '../../utils/analytics';
 
 /**
  * Text analysis service class

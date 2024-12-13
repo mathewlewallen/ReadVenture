@@ -9,7 +9,6 @@
 
 import { AxiosError } from 'axios';
 
-import { api } from './client';
 import { store } from '../../../store';
 import {
   ApiResponse,
@@ -19,6 +18,8 @@ import {
 } from '../../../types';
 import { logError } from '../../../utils/analytics';
 import { validateStoryData } from '../../../utils/validation';
+
+import { api } from './client';
 
 /**
  * Story API endpoints and handlers

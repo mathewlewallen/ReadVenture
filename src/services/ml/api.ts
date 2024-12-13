@@ -12,7 +12,7 @@ import Config from 'react-native-config';
 
 import { store } from '../store';
 import { setLoading, setError } from '../store/appSlice';
-import { ApiResponse, PaginatedResponse } from '../types';
+import { ApiResponse } from '../types';
 import { logError } from '../utils/analytics';
 
 /**

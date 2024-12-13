@@ -3,7 +3,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { render, fireEvent, cleanup } from '@testing-library/react-native';
 import React from 'react';
 
-import { NavigationProps } from '../../../../src/navigation';
 import HomeScreen from '../../../../src/screens/HomeScreen';
 
 // Initialize the navigation stack

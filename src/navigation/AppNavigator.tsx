@@ -13,7 +13,6 @@ import React, { useEffect } from 'react';
 import { Platform } from 'react-native';
 import { useSelector } from 'react-redux';
 
-import { linking } from './linking';
 import { ErrorBoundary } from '../components/common/ErrorBoundary';
 
 // Screen Imports
@@ -29,6 +28,8 @@ import {
   StoryLibraryScreen,
 } from '../screens';
 import { theme } from '../theme';
+
+import { linking } from './linking';
 
 // Types
 export type RootStackParamList = {

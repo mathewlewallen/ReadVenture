@@ -15,9 +15,10 @@ import {
   deleteObject,
 } from 'firebase/storage';
 
-import { app } from './config';
 import type { FileUploadProgress, StorageError } from '../../types';
 import { logError } from '../../utils/analytics';
+
+import { app } from './config';
 
 /**
  * Storage service configuration

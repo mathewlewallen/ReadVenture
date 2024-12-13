@@ -20,7 +20,7 @@ import { ProgressBar } from '../../components/reading/ProgressBar';
 import { NavigationProps } from '../../navigation';
 import { fetchUserProgress } from '../../store/progressSlice';
 import { theme } from '../../theme';
-import type { RootState, UserProgress } from '../../types';
+import type { RootState } from '../../types';
 
 interface ProgressScreenProps extends NavigationProps<'Progress'> {}
 

@@ -9,10 +9,10 @@
 
 import { Platform } from 'react-native';
 
-import { store } from '../store';
-import { theme } from '../theme';
-import { logError } from './analytics';
+
 import type { TextSize, ReadingProgress } from '../types';
+
+import { logError } from './analytics';
 
 /**
  * Text formatting options

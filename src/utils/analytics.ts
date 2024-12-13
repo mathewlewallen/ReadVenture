@@ -14,7 +14,6 @@ import { Platform } from 'react-native';
 import { store } from '../store';
 import { updateAnalytics } from '../store/analyticsSlice';
 import type {
-  AnalyticsEvent,
   ErrorReport,
   UserAction,
   PerformanceMetrics,

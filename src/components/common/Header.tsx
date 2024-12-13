@@ -10,7 +10,7 @@
 
 import { useNavigation } from '@react-navigation/native';
 import React, { useCallback } from 'react';
-import { StyleSheet, Platform, View } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useSelector, useDispatch } from 'react-redux';

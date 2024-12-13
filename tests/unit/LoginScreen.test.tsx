@@ -5,7 +5,6 @@ import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 
-import { NavigationProps } from '../../../../src/navigation';
 import LoginScreen from '../../../../src/screens/auth/LoginScreen';
 import {
   loginStart,

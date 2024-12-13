@@ -18,21 +18,18 @@ import { ActivityIndicator, StyleSheet, View, Text } from 'react-native';
 import { Provider } from 'react-redux';
 
 // Store & Services
-import { ErrorBoundary } from './components/common/ErrorBoundary';
-import {
-  HomeScreen,
-  LoginScreen,
-  ParentDashboardScreen,
-  ProgressScreen,
-  ReadingScreen,
-  RegistrationScreen,
-  SettingsScreen,
-  StoryLibraryScreen,
-  WelcomeScreen,
-} from './screens';
+import ErrorBoundary from './components/common/ErrorBoundary';
+import LoginScreen from './screens/LoginScreen';
+import ParentDashboardScreen from './screens/ParentDashboardScreen';
+import ProgressScreen from './screens/ProgressScreen';
+import ReadingScreen from './screens/ReadingScreen';
+import RegistrationScreen from './screens/RegistrationScreen';
+import SettingsScreen from './screens/SettingsScreen';
+import StoryLibraryScreen from './screens/StoryLibraryScreen';
+import WelcomeScreen from './screens/WelcomeScreen';
 import { store } from './store';
 import { initializeAnalytics, logError } from './utils/analytics';
-import { validateEnv } from './utils/validation/envValidation';
+import validateEnv from './utils/validation/envValidation';
 
 // Components
 

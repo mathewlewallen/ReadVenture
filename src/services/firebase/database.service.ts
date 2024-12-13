@@ -7,21 +7,19 @@ import {
   query,
   where,
   getDocs,
-  addDoc,
   updateDoc,
   deleteDoc,
   doc,
   orderBy,
   limit,
   QueryConstraint,
-  DocumentData,
   getDoc,
-  setDoc,
 } from 'firebase/firestore';
 
-import { db } from './config';
 import { Story, ReadingProgress, User } from '../../types/firebase.types';
 import { logError } from '../../utils/analytics';
+
+import { db } from './config';
 
 /** Collection names as constants */
 enum Collections {

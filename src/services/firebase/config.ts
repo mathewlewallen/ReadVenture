@@ -20,7 +20,6 @@ import {
   browserLocalPersistence,
 } from 'firebase/auth';
 import {
-  getFirestore,
   Firestore,
   initializeFirestore,
 } from 'firebase/firestore';

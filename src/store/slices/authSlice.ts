@@ -9,8 +9,7 @@
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { AppError } from '../../types/errors';
-import { User, UserRole, UserSettings } from '../../types/user';
+import { UserRole, UserSettings } from '../../types/user';
 
 /**
  * Authentication state interface

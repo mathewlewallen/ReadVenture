@@ -15,7 +15,6 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { updateProgress } from '../store/progressSlice';
 import type { RootState } from '../types';
-import type { ReadingProgress, ReadingSettings, Story } from '../types/reading';
 import { logError } from '../utils/analytics';
 
 interface UseReadingOptions {

@@ -7,6 +7,7 @@ ios/Pods/
 
 # Build outputs
 /build/
+dist/
 /dist/
 *.tsbuildinfo
 .gradle/

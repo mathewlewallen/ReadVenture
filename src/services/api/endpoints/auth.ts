@@ -9,7 +9,6 @@
 
 import { AxiosError } from 'axios';
 
-import { api } from './client';
 import { store } from '../../../store';
 import {
   AuthResponse,
@@ -19,6 +18,8 @@ import {
 } from '../../../types';
 import { logError } from '../../../utils/analytics';
 import { encryptData } from '../../../utils/security';
+
+import { api } from './client';
 
 /**
  * Authentication endpoints and handlers

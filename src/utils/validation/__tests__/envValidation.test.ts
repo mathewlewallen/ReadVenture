@@ -12,7 +12,7 @@
 import Config from 'react-native-config';
 
 import { logError } from '../../analytics';
-import { validateEnv, ValidationResult } from '../envValidation';
+import { validateEnv } from '../envValidation';
 
 // Mock analytics
 jest.mock('../../analytics', () => ({

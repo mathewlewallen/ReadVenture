@@ -10,7 +10,7 @@
     "rootDir": "./src",
 
     // Backend-specific compiler options
-    "module": "Node16",
+    "module": "CommonJS",
     "target": "ES2020",
     "sourceMap": true,
     "declaration": true,
@@ -22,7 +22,7 @@
     "noUnusedParameters": true,
 
     // Module resolution
-    "moduleResolution": "node16",
+    "moduleResolution": "node",
     "esModuleInterop": true,
     "resolveJsonModule": true,
 
