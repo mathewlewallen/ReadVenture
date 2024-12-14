@@ -172,6 +172,4 @@ const styles = StyleSheet.create({
 });
 
 // Connect to Redux store if needed
-export default connect((state: RootState) => ({
-  // Add any needed state props
-}))(ErrorBoundary);
+export default ErrorBoundary;

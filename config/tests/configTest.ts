@@ -35,7 +35,7 @@ export const validateConfig = (): boolean => {
     'FIREBASE_MEASUREMENT_ID',
   ];
 
-  const missingKeys = requiredKeys.filter(key => !Config[key]?.trim());
+  const missingKeys = requiredKeys.filter((key) => !Config[key]?.trim());
 
   if (missingKeys.length > 0) {
     console.error(

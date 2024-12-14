@@ -76,7 +76,9 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
    * Handles user registration
    */
   const handleRegister = useCallback(async () => {
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      return;
+    }
 
     try {
       setIsLoading(true);
@@ -128,8 +130,8 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
           <TextInput
             label="Email"
             value={formData.email}
-            onChangeText={text =>
-              setFormData(prev => ({ ...prev, email: text }))
+            onChangeText={(text) =>
+              setFormData((prev) => ({ ...prev, email: text }))
             }
             autoCapitalize="none"
             keyboardType="email-address"
@@ -142,8 +144,8 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
           <TextInput
             label="Password"
             value={formData.password}
-            onChangeText={text =>
-              setFormData(prev => ({ ...prev, password: text }))
+            onChangeText={(text) =>
+              setFormData((prev) => ({ ...prev, password: text }))
             }
             secureTextEntry={!showPassword}
             right={
@@ -164,8 +166,8 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
           <TextInput
             label="Parent Email"
             value={formData.parentEmail}
-            onChangeText={text =>
-              setFormData(prev => ({ ...prev, parentEmail: text }))
+            onChangeText={(text) =>
+              setFormData((prev) => ({ ...prev, parentEmail: text }))
             }
             autoCapitalize="none"
             keyboardType="email-address"

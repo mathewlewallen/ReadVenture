@@ -75,7 +75,7 @@ class StorageService {
       const uploadTask = uploadBytes(storageRef, file);
 
       if (onProgress) {
-        uploadTask.on('state_changed', snapshot => {
+        uploadTask.on('state_changed', (snapshot) => {
           const progress =
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
           onProgress({

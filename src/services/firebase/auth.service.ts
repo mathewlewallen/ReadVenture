@@ -129,7 +129,9 @@ class AuthService {
   public async getCurrentToken(): Promise<string | null> {
     try {
       const user = auth.currentUser;
-      if (!user) return null;
+      if (!user) {
+        return null;
+      }
       return await user.getIdToken();
     } catch (error) {
       logError('Token fetch failed:', error);
@@ -174,7 +176,7 @@ class AuthService {
   private initAuthStateListener(): void {
     this.unsubscribeAuth = onAuthStateChanged(
       auth,
-      async user => {
+      async (user) => {
         if (user) {
           const transformedUser = this.transformUser(user);
           const token = await user.getIdToken();
@@ -185,7 +187,7 @@ class AuthService {
           this.stopTokenRefresh(); // Stop token refresh when user logs out
         }
       },
-      error => {
+      (error) => {
         logError('Auth state change error:', error);
       },
     );

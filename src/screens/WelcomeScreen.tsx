@@ -27,7 +27,7 @@ type WelcomeScreenProps = NavigationProps<'Welcome'>;
  */
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
   const dispatch = useDispatch();
-  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
   useEffect(() => {
     // Clear any existing auth state on mount

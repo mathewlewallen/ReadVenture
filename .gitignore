@@ -8,7 +8,6 @@ ios/Pods/
 # Build outputs
 /build/
 dist/
-/dist/
 *.tsbuildinfo
 .gradle/
 *.jsbundle
@@ -67,7 +66,6 @@ android/captures/
 # Testing and coverage
 /coverage/
 .nyc_output/
-__snapshots__/
 *.lcov
 junit.xml
 
@@ -78,7 +76,6 @@ yarn-debug.log*
 yarn-error.log*
 .firebase/
 firebase-debug.log
-.firebase-debug.log
 metro-cache/
 
 # System files
@@ -93,15 +90,11 @@ Desktop.ini
 *.sw?
 .cache/
 .temp/
-.tmp/
-tmp/
-temp/
 
 # Project specific
 backend/adaptive/data/cleaned_stories_dataset.csv
 backend/adaptive/data/raw/
 backend/functions/lib/
-ios/assets/
 
 # Generated files
 *.generated.ts

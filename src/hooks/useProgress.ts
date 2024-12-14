@@ -53,7 +53,9 @@ export const useProgress = ({
   const fetchProgress = useCallback(async () => {
     try {
       const targetUserId = userId || currentUser?.id;
-      if (!targetUserId) throw new Error('No user ID available');
+      if (!targetUserId) {
+        throw new Error('No user ID available');
+      }
 
       const progressRef = collection(db, 'progress');
       const q = query(progressRef, where('userId', '==', targetUserId));
@@ -89,7 +91,9 @@ export const useProgress = ({
     try {
       setLoading(true);
       const targetUserId = userId || currentUser?.id;
-      if (!targetUserId) throw new Error('No user ID available');
+      if (!targetUserId) {
+        throw new Error('No user ID available');
+      }
 
       // Calculate new progress totals
       const existingProgress = await fetchProgress();
@@ -126,7 +130,9 @@ export const useProgress = ({
     try {
       setLoading(true);
       const targetUserId = userId || currentUser?.id;
-      if (!targetUserId) throw new Error('No user ID available');
+      if (!targetUserId) {
+        throw new Error('No user ID available');
+      }
 
       await updateProgressInFirestore(targetUserId, null);
       await AsyncStorage.removeItem(PROGRESS_CACHE_KEY);

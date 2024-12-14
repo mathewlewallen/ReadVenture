@@ -1,25 +1,9 @@
-import * as functions from 'firebase-functions';
-import { CallableContext } from 'firebase-functions/v1/https';
-import { ErrorType, handleFirebaseError } from './utils/error';
-
-interface ReadingProgressData {
-  storyId: string;
-  progress: {
-    wordCount: number;
-    accuracy: number;
-    completionTime: number;
-  };
-}
-
-interface ChildProgressData {
-  childId: string;
-  timeRange?: number;
-}
+// Import Firebase admin and types at the top
+import { db } from './utils/admin';
+import { UserProgress, ChildAnalytics } from './types.d';
 
 /**
  * Tracks user reading progress for a specific story
- * @param data Contains storyId and progress metrics
- * @param context Firebase CallableContext containing auth info
  */
 export const trackReadingProgress = functions.https.onCall(
   async (data: ReadingProgressData, context: CallableContext) => {
@@ -28,9 +12,29 @@ export const trackReadingProgress = functions.https.onCall(
     }
 
     const { storyId, progress } = data;
+    const userId = context.auth.uid;
+
     try {
-      // TODO: Implement progress tracking logic
-      // Add your implementation here using the db instance
+      // Update progress in Firestore
+      await db
+        .collection('userProgress')
+        .doc(userId)
+        .set(
+          {
+            [`stories.${storyId}`]: {
+              wordCount: progress.wordCount,
+              accuracy: progress.accuracy,
+              completionTime: progress.completionTime,
+              timestamp: admin.firestore.FieldValue.serverTimestamp(),
+            },
+            lastActivity: admin.firestore.FieldValue.serverTimestamp(),
+            totalWordsRead: admin.firestore.FieldValue.increment(
+              progress.wordCount,
+            ),
+          },
+          { merge: true },
+        );
+
       return { success: true };
     } catch (error) {
       throw handleFirebaseError(error, ErrorType.DATABASE);
@@ -39,45 +43,56 @@ export const trackReadingProgress = functions.https.onCall(
 );
 
 /**
- * Retrieves reading progress for a specific child
- * @param data Contains childId and optional timeRange
- * @param context Firebase CallableContext containing auth info
+ * Gets progress data for a specific child
  */
-export const getChildProgress = functions.https.onCall(
-  async (data: ChildProgressData, context: CallableContext) => {
+export const getChildProgress = async (
+  childId: string,
+): Promise<ChildAnalytics> => {
+  const progressDoc = await db.collection('userProgress').doc(childId).get();
+  const userDoc = await db.collection('users').doc(childId).get();
+
+  if (!progressDoc.exists || !userDoc.exists) {
+    throw new Error('Child data not found');
+  }
+
+  const progress = progressDoc.data() as UserProgress;
+  const userData = userDoc.data();
+
+  return {
+    childId,
+    displayName: userData.displayName,
+    totalWordsRead: progress.totalWordsRead || 0,
+    averageAccuracy: progress.averageAccuracy || 0,
+    storiesCompleted: progress.storiesCompleted || 0,
+    lastActivity: progress.lastActivity,
+    readingLevel: userData.readingLevel || 'Beginner',
+  };
+};
+
+/**
+ * Gets analytics for all children of a parent
+ */
+export const getChildrenAnalytics = functions.https.onCall(
+  async (data, context: CallableContext) => {
     if (!context.auth) {
       throw handleFirebaseError(new Error('Unauthorized'), ErrorType.AUTH);
     }
 
-    const { childId } = data;
     try {
-      // TODO: Implement parent dashboard analytics
-      // Add your implementation here using the db instance
-      return { progress: [] };
+      const childrenQuery = await db
+        .collection('users')
+        .where('parentEmail', '==', context.auth.token.email)
+        .get();
+
+      const childrenAnalytics = await Promise.all(
+        childrenQuery.docs.map(async (child) => {
+          return await getChildProgress(child.id);
+        }),
+      );
+
+      return { children: childrenAnalytics };
     } catch (error) {
       throw handleFirebaseError(error, ErrorType.DATABASE);
     }
-  },
-);
-
-export const getChildrenAnalytics = functions.https.onCall(
-  async (data, context) => {
-    const uid = validateAuth(context);
-
-    const childrenQuery = await db
-      .collection('users')
-      .where('parentEmail', '==', context.auth?.token.email)
-      .get();
-
-    return Promise.all(
-      childrenQuery.docs.map(async child => {
-        const progress = await getChildProgress(child.id);
-        return {
-          childId: child.id,
-          displayName: child.data().displayName,
-          progress,
-        };
-      }),
-    );
   },
 );

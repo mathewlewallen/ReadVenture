@@ -1,7 +1,10 @@
 import { spawn } from 'child_process';
 import { Request, Response } from 'express';
 
-export const analyzeText = async (req: Request, res: Response): Promise<void> => {
+export const analyzeText = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     const { text, storyId } = req.body;
 
@@ -13,16 +16,16 @@ export const analyzeText = async (req: Request, res: Response): Promise<void> =>
     ]);
 
     let adjustedText = '';
-    pythonProcess.stdout.on('data', data => {
+    pythonProcess.stdout.on('data', (data) => {
       adjustedText += data; // Collect the output from Python
     });
 
-    pythonProcess.stderr.on('data', data => {
+    pythonProcess.stderr.on('data', (data) => {
       console.error(`Error from Python: ${data}`);
       return res.status(500).json({ message: 'Error analyzing text' });
     });
 
-    pythonProcess.on('close', code => {
+    pythonProcess.on('close', (code) => {
       if (code !== 0) {
         console.error(`Python process exited with code ${code}`);
         return res.status(500).json({ message: 'Error analyzing text' });

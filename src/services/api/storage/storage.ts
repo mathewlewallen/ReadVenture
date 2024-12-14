@@ -69,7 +69,9 @@ class StorageService {
   public async getItem<T>(key: string): Promise<T | null> {
     try {
       const data = await AsyncStorage.getItem(key);
-      if (!data) return null;
+      if (!data) {
+        return null;
+      }
 
       const item: StorageItem<T> = JSON.parse(data);
 

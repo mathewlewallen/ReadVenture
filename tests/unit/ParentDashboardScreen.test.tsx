@@ -18,7 +18,7 @@ jest.mock('../../../../src/firebaseConfig', () => ({
       email: 'test@example.com',
       displayName: 'Test User',
     },
-    onAuthStateChanged: jest.fn(callback =>
+    onAuthStateChanged: jest.fn((callback) =>
       callback({
         uid: 'test-user-uid',
         email: 'test@example.com',
@@ -31,7 +31,7 @@ jest.mock('../../../../src/firebaseConfig', () => ({
       where: jest.fn(() => ({
         getDocs: jest.fn(() =>
           Promise.resolve({
-            forEach: jest.fn(callback => {
+            forEach: jest.fn((callback) => {
               // Mock child data
               callback({
                 id: 'child1',

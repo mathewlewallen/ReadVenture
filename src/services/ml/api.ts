@@ -73,7 +73,7 @@ class ApiService {
   private setupInterceptors(): void {
     // Request interceptor
     this.api.interceptors.request.use(
-      config => {
+      (config) => {
         store.dispatch(setLoading(true));
 
         // Add auth token if available
@@ -83,7 +83,7 @@ class ApiService {
         }
         return config;
       },
-      error => {
+      (error) => {
         store.dispatch(setLoading(false));
         return Promise.reject(error);
       },
@@ -91,11 +91,11 @@ class ApiService {
 
     // Response interceptor
     this.api.interceptors.response.use(
-      response => {
+      (response) => {
         store.dispatch(setLoading(false));
         return response;
       },
-      error => {
+      (error) => {
         store.dispatch(setLoading(false));
         store.dispatch(setError(error.message));
         logError(error);

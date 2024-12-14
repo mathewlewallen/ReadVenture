@@ -9,7 +9,6 @@
 
 import { Platform } from 'react-native';
 
-
 import type { TextSize, ReadingProgress } from '../types';
 
 import { logError } from './analytics';
@@ -54,7 +53,9 @@ export const formatProgress = (
   decimalPlaces = 1,
 ): string => {
   try {
-    if (total <= 0) return '0%';
+    if (total <= 0) {
+      return '0%';
+    }
     const percentage = (current / total) * 100;
     return `${percentage.toFixed(decimalPlaces)}%`;
   } catch (error) {
@@ -73,7 +74,9 @@ export const truncateText = (
   const { maxLength = 100, ellipsis = '...', preserveWords = true } = options;
 
   try {
-    if (text.length <= maxLength) return text;
+    if (text.length <= maxLength) {
+      return text;
+    }
 
     if (preserveWords) {
       const truncated = text.substr(0, maxLength);

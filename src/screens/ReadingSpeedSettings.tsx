@@ -59,7 +59,7 @@ const ReadingSpeedSettings: React.FC<ReadingSpeedSettingsProps> = ({
    */
   useEffect(() => {
     const timer = setInterval(() => {
-      setPreviewText(prev => prev.slice(1) + prev[0]);
+      setPreviewText((prev) => prev.slice(1) + prev[0]);
     }, 1000 / speed);
 
     return () => clearInterval(timer);

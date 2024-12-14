@@ -131,8 +131,12 @@ const authSlice = createSlice({
       state,
       action: PayloadAction<{ user?: AuthUser | null; token?: string | null }>,
     ) {
-      if ('user' in action.payload) state.user = action.payload.user;
-      if ('token' in action.payload) state.token = action.payload.token;
+      if ('user' in action.payload) {
+        state.user = action.payload.user;
+      }
+      if ('token' in action.payload) {
+        state.token = action.payload.token;
+      }
     },
   },
 });

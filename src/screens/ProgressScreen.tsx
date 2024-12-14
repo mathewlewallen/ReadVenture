@@ -111,13 +111,13 @@ const ProgressScreen: React.FC<ProgressScreenProps> = ({ navigation }) => {
               <List.Item
                 title="Total Words Read"
                 description={progress.totalWordsRead.toString()}
-                left={props => <List.Icon {...props} icon="book" />}
+                left={(props) => <List.Icon {...props} icon="book" />}
                 accessibilityRole="text"
               />
               <List.Item
                 title="Stories Completed"
                 description={progress.storiesCompleted.toString()}
-                left={props => <List.Icon {...props} icon="check-circle" />}
+                left={(props) => <List.Icon {...props} icon="check-circle" />}
                 accessibilityRole="text"
               />
             </Card.Content>
@@ -132,7 +132,7 @@ const ProgressScreen: React.FC<ProgressScreenProps> = ({ navigation }) => {
                     key={badge.id}
                     title={badge.name}
                     description={badge.description}
-                    left={props => <List.Icon {...props} icon="trophy" />}
+                    left={(props) => <List.Icon {...props} icon="trophy" />}
                     accessibilityRole="text"
                   />
                 ))}

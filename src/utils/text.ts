@@ -13,7 +13,6 @@ import type { TextSize, ReadingLevel } from '../types';
 
 import { logError } from './analytics';
 
-
 /**
  * Text formatting options
  */
@@ -47,8 +46,8 @@ export const sanitizeText = (text: string): string => {
  */
 export const calculateReadingLevel = (text: string): ReadingLevel => {
   try {
-    const words = text.split(/\s+/).filter(word => word.length > 0);
-    const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+    const words = text.split(/\s+/).filter((word) => word.length > 0);
+    const sentences = text.split(/[.!?]+/).filter((s) => s.trim().length > 0);
     const syllables = words.reduce(
       (count, word) => count + countSyllables(word),
       0,
@@ -99,7 +98,9 @@ export const formatDisplayText = (
   } = options;
 
   try {
-    if (text.length <= maxLength) return text;
+    if (text.length <= maxLength) {
+      return text;
+    }
 
     if (preserveWords) {
       const truncated = text.substr(0, maxLength);

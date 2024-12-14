@@ -62,11 +62,11 @@ export const useReading = ({ storyId, onError }: UseReadingOptions) => {
       voiceRef.current = Voice;
 
       Voice.onSpeechStart = () => {
-        setState(prev => ({ ...prev, isRecording: true }));
+        setState((prev) => ({ ...prev, isRecording: true }));
       };
 
       Voice.onSpeechEnd = () => {
-        setState(prev => ({ ...prev, isRecording: false }));
+        setState((prev) => ({ ...prev, isRecording: false }));
       };
 
       Voice.onSpeechResults = (e: SpeechResultsEvent) => {
@@ -121,7 +121,7 @@ export const useReading = ({ storyId, onError }: UseReadingOptions) => {
    */
   const handleWordSpoken = useCallback(
     (word: string) => {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         currentWord: word,
         wordsRead: prev.wordsRead + 1,
@@ -170,7 +170,7 @@ export const useReading = ({ storyId, onError }: UseReadingOptions) => {
    */
   const handleError = useCallback(
     (error: Error) => {
-      setState(prev => ({ ...prev, error: error.message }));
+      setState((prev) => ({ ...prev, error: error.message }));
       logError('Reading Error', error);
       onError?.(error);
     },

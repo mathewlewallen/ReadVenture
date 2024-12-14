@@ -13,11 +13,7 @@ import { Platform } from 'react-native';
 
 import { store } from '../store';
 import { updateAnalytics } from '../store/analyticsSlice';
-import type {
-  ErrorReport,
-  UserAction,
-  PerformanceMetrics,
-} from '../types';
+import type { ErrorReport, UserAction, PerformanceMetrics } from '../types';
 
 /**
  * Analytics configuration interface
@@ -115,7 +111,9 @@ export const trackReadingMetrics = async (
 ): Promise<void> => {
   try {
     const userId = store.getState().auth.user?.id;
-    if (!userId) return;
+    if (!userId) {
+      return;
+    }
 
     await Promise.all([
       // Log to Firebase

@@ -1,56 +1,43 @@
-/**
- * TypeScript configuration for Firebase Cloud Functions
- * Optimized for Node.js runtime with strict type checking
- */
 {
   "compilerOptions": {
-    // Build configuration
-    "target": "es2020", // Updated for newer Node.js features
-    "module": "Node16",
-    "outDir": "lib",
+    /* Build Output */
+    "target": "es2022", // For Node.js 18+ runtime
+    "module": "commonjs", // Required for Firebase Functions
+    "outDir": "lib", // Firebase Functions deployment dir
+    "rootDir": "src", // Source files location
     "sourceMap": true,
-    "declaration": true,
-    "incremental": true, // Faster subsequent builds
 
-    // Enhanced type checking
+    /* Type Checking */
     "strict": true,
+    "noImplicitAny": true, // Enable for better type safety
+    "strictNullChecks": true, // Enable for better type safety
+    "noUnusedLocals": true, // Enable to catch unused variables
     "noImplicitReturns": true,
-    "noUnusedLocals": true,
-    "noImplicitAny": true,
-    "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": true, // Additional type safety
-    "exactOptionalPropertyTypes": true,
 
-    // Module resolution
-    "moduleResolution": "node16",
+    /* Module Resolution */
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@tests/*": ["tests/*"]
+    },
+    "typeRoots": ["./node_modules/@types"],
+    "types": ["node", "jest"],
+
+    /* Interop Constraints */
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
 
-    // Firebase Functions environment
-    "lib": [
-      "es2020",
-      "dom" // Required for Firebase Admin SDK
-    ],
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"],
-      "@tests/*": ["tests/*"] // Add test path alias
-    }
+    /* Language and Environment */
+    "lib": ["es2022"], // Remove DOM and webworker
+    "allowJs": true,
+    "checkJs": true
   },
-  "compileOnSave": true,
   "include": [
-    "src/**/*",
-    "tests/**/*" // Include tests for type checking
+    "src/**/*" // Only include source files
   ],
-  "exclude": [
-    "node_modules",
-    "lib",
-    "coverage",
-    ".webpack",
-    "**/*.spec.ts", // Exclude test files from build
-    "**/*.test.ts"
-  ]
+  "exclude": ["node_modules", "lib", "coverage", "**/*.spec.ts", "**/*.test.ts"]
 }

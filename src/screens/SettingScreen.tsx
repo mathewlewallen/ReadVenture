@@ -115,11 +115,11 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
           <List.Item
             title="Sound Effects"
             description="Enable sound effects while reading"
-            left={props => <List.Icon {...props} icon="volume-high" />}
+            left={(props) => <List.Icon {...props} icon="volume-high" />}
             right={() => (
               <Switch
                 value={settings.soundEnabled}
-                onValueChange={value => updateSetting('soundEnabled', value)}
+                onValueChange={(value) => updateSetting('soundEnabled', value)}
                 accessibilityLabel="Toggle sound effects"
                 testID="sound-toggle"
               />
@@ -129,7 +129,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
           <List.Item
             title="Text Size"
             description={`Current: ${settings.textSize}`}
-            left={props => <List.Icon {...props} icon="format-size" />}
+            left={(props) => <List.Icon {...props} icon="format-size" />}
             onPress={() => navigation.navigate('TextSizeSettings')}
             accessibilityLabel="Change text size"
             testID="text-size-button"
@@ -138,7 +138,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
           <List.Item
             title="Reading Speed"
             description={`${settings.readingSpeed}x`}
-            left={props => <List.Icon {...props} icon="speedometer" />}
+            left={(props) => <List.Icon {...props} icon="speedometer" />}
             onPress={() => navigation.navigate('ReadingSpeedSettings')}
             accessibilityLabel="Adjust reading speed"
             testID="reading-speed-button"
@@ -147,7 +147,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
           <List.Item
             title="Highlighting Color"
             description={settings.highlightingColor}
-            left={props => <List.Icon {...props} icon="palette" />}
+            left={(props) => <List.Icon {...props} icon="palette" />}
             onPress={() => navigation.navigate('HighlightingColorSettings')}
             accessibilityLabel="Choose highlighting color"
             testID="highlight-color-button"

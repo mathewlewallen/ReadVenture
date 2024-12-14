@@ -13,6 +13,8 @@ coverage/
 *.js.map
 
 # React Native specific
-android/
-ios/
+android/build/
+android/app/build/
+ios/build/
+ios/Pods/
 .expo/

@@ -9,7 +9,7 @@ jest.mock('../../services/firebase/auth.service');
 describe('useAuth', () => {
   it('should return user and loading state', () => {
     const mockUser = { uid: '123', email: 'test@test.com' };
-    (authService.onAuthStateChange as jest.Mock).mockImplementation(cb => {
+    (authService.onAuthStateChange as jest.Mock).mockImplementation((cb) => {
       cb(mockUser);
       return () => {};
     });

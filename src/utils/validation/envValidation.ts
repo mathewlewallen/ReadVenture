@@ -74,7 +74,7 @@ export const validateEnv = (): ValidationResult => {
 
   try {
     // Check for required variables
-    REQUIRED_ENV_VARS.forEach(key => {
+    REQUIRED_ENV_VARS.forEach((key) => {
       const value = Config[key as keyof typeof Config];
       if (!value || value.trim() === '') {
         result.isValid = false;
@@ -124,7 +124,7 @@ export const getEnvConfig = (): EnvConfig => {
   if (!validation.isValid) {
     const errorMessage = [
       'Invalid environment configuration:',
-      ...validation.missingVars.map(v => `Missing ${v}`),
+      ...validation.missingVars.map((v) => `Missing ${v}`),
       ...validation.errors,
     ].join('\n');
 

@@ -1,13 +1,11 @@
-# Build and output directories
-build/
+build/ # Build and output directories
 dist/
 coverage/
 .next/
 .cache/
 *.tsbuildinfo
 
-# Dependencies
-node_modules/
+node_modules/ # Dependencies
 **/node_modules/
 .pnp/
 .pnp.js
@@ -30,11 +28,9 @@ android/*.apk
 android/*.aab
 android/*.hprof
 
-# Generated files
 *.generated.ts
 *.generated.tsx
 src/**/*.js
-*.d.ts
 !src/types/*.d.ts
 
 # Config & environment
@@ -44,7 +40,6 @@ firebase-credentials.json
 google-services.json
 GoogleService-Info.plist
 
-# Cache and logs
 .DS_Store
 *.log
 npm-debug.log*
@@ -59,12 +54,10 @@ metro-cache/
 !.vscode/settings.json
 !.vscode/extensions.json
 
-# Test artifacts
 __snapshots__/
 coverage/
 junit.xml
 
-# Fastlane
 fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots

@@ -81,7 +81,7 @@ const ParentDashboardScreen: React.FC<ParentDashboardProps> = ({
       const q = query(childrenRef, where('parentEmail', '==', user.email));
       const querySnapshot = await getDocs(q);
 
-      const children = querySnapshot.docs.map(doc => ({
+      const children = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       })) as ChildData[];
@@ -108,8 +108,8 @@ const ParentDashboardScreen: React.FC<ParentDashboardProps> = ({
       const childRef = doc(db, 'users', childId);
       await updateDoc(childRef, { settings });
 
-      setChildrenData(prev =>
-        prev.map(child =>
+      setChildrenData((prev) =>
+        prev.map((child) =>
           child.id === childId
             ? { ...child, settings: { ...child.settings, ...settings } }
             : child,
@@ -153,16 +153,16 @@ const ParentDashboardScreen: React.FC<ParentDashboardProps> = ({
           ) : childrenData.length === 0 ? (
             <Text style={styles.emptyText}>No children found</Text>
           ) : (
-            childrenData.map(child => (
+            childrenData.map((child) => (
               <List.Item
                 key={child.id}
                 title={child.username}
                 description={`Reading Level: ${child.readingLevel}\nLast Active: ${child.lastActive}`}
-                left={props => <List.Icon {...props} icon="account-child" />}
+                left={(props) => <List.Icon {...props} icon="account-child" />}
                 right={() => (
                   <Switch
                     value={child.settings.soundEffects}
-                    onValueChange={value =>
+                    onValueChange={(value) =>
                       updateChildSettings(child.id, { soundEffects: value })
                     }
                     accessibilityLabel={`Toggle sound effects for ${child.username}`}

@@ -53,7 +53,7 @@ class DatabaseService {
     // Initialize offline queue processing
     if (!__DEV__) {
       // Process queue on startup in production
-      this.processQueue().catch(err =>
+      this.processQueue().catch((err) =>
         logError('Queue processing failed on startup', err),
       );
     }
@@ -78,7 +78,9 @@ class DatabaseService {
       const cached = await this.getFromCache(
         `stories_${JSON.stringify(filters)}`,
       );
-      if (cached) return cached;
+      if (cached) {
+        return cached;
+      }
 
       const stories = await this.fetchStories(filters);
       await this.saveToCache(`stories_${JSON.stringify(filters)}`, stories);
@@ -119,7 +121,7 @@ class DatabaseService {
       const querySnapshot = await getDocs(q);
 
       return querySnapshot.docs.map(
-        doc =>
+        (doc) =>
           ({
             id: doc.id,
             ...doc.data(),
@@ -174,7 +176,7 @@ class DatabaseService {
       const querySnapshot = await getDocs(q);
 
       return querySnapshot.docs.map(
-        doc =>
+        (doc) =>
           ({
             id: doc.id,
             ...doc.data(),
@@ -193,7 +195,9 @@ class DatabaseService {
     try {
       // Try cache first
       const cached = await this.getFromCache(`user_${userId}`);
-      if (cached) return cached;
+      if (cached) {
+        return cached;
+      }
 
       const userRef = doc(db, Collections.USERS, userId);
       const userDoc = await getDoc(userRef);
@@ -277,7 +281,9 @@ class DatabaseService {
   private async getFromCache<T>(key: string): Promise<T | null> {
     try {
       const cached = await AsyncStorage.getItem(`${this.CACHE_PREFIX}${key}`);
-      if (!cached) return null;
+      if (!cached) {
+        return null;
+      }
 
       const { data, timestamp } = JSON.parse(cached);
       if (Date.now() - timestamp > this.CACHE_EXPIRY) {
@@ -323,7 +329,7 @@ class DatabaseService {
   public async processQueue(): Promise<void> {
     try {
       const keys = await AsyncStorage.getAllKeys();
-      const queueKeys = keys.filter(key =>
+      const queueKeys = keys.filter((key) =>
         key.startsWith(`${this.CACHE_PREFIX}queue_`),
       );
 

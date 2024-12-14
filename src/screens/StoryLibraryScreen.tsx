@@ -71,7 +71,7 @@ const StoryLibraryScreen: React.FC<StoryLibraryScreenProps> = ({
       <List.Item
         title={item.title}
         description={item.description}
-        left={props => (
+        left={(props) => (
           <FontAwesome
             {...props}
             name="book"
@@ -80,7 +80,7 @@ const StoryLibraryScreen: React.FC<StoryLibraryScreenProps> = ({
             accessibilityLabel={`Book icon for ${item.title}`}
           />
         )}
-        right={props => (
+        right={(props) => (
           <List.Icon
             {...props}
             icon="chevron-right"
@@ -125,7 +125,7 @@ const StoryLibraryScreen: React.FC<StoryLibraryScreenProps> = ({
         <FlatList
           data={stories}
           renderItem={renderStoryItem}
-          keyExtractor={item => item._id}
+          keyExtractor={(item) => item._id}
           refreshing={refreshing}
           onRefresh={handleRefresh}
           contentContainerStyle={styles.listContainer}

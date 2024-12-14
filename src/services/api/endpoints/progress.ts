@@ -50,7 +50,9 @@ export class ProgressService {
   ): Promise<ApiResponse<ReadingProgress>> {
     try {
       const userId = store.getState().auth.user?.id;
-      if (!userId) throw new Error('User not authenticated');
+      if (!userId) {
+        throw new Error('User not authenticated');
+      }
 
       // Update Firestore
       const progressRef = doc(db, 'progress', `${userId}_${storyId}`);
@@ -78,11 +80,15 @@ export class ProgressService {
   public async getProgress(storyId: string): Promise<ReadingProgress> {
     try {
       const userId = store.getState().auth.user?.id;
-      if (!userId) throw new Error('User not authenticated');
+      if (!userId) {
+        throw new Error('User not authenticated');
+      }
 
       // Try local storage first
       const localProgress = await this.getLocalProgress(storyId);
-      if (localProgress) return localProgress;
+      if (localProgress) {
+        return localProgress;
+      }
 
       // Fallback to Firestore
       const progressRef = doc(db, 'progress', `${userId}_${storyId}`);
@@ -114,7 +120,9 @@ export class ProgressService {
   public async getUserProgress(): Promise<UserProgress> {
     try {
       const userId = store.getState().auth.user?.id;
-      if (!userId) throw new Error('User not authenticated');
+      if (!userId) {
+        throw new Error('User not authenticated');
+      }
 
       const progressDocs = await getDocs(
         query(collection(db, 'progress'), where('userId', '==', userId)),
@@ -127,10 +135,12 @@ export class ProgressService {
         lastActivity: new Date(),
       };
 
-      progressDocs.forEach(doc => {
+      progressDocs.forEach((doc) => {
         const data = doc.data() as ReadingProgress;
         progress.totalWordsRead += data.wordsRead;
-        if (data.completed) progress.storiesCompleted++;
+        if (data.completed) {
+          progress.storiesCompleted++;
+        }
         progress.averageAccuracy =
           (progress.averageAccuracy + data.accuracy) / 2;
       });

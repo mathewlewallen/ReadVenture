@@ -49,7 +49,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
    * Handles user login attempt
    */
   const handleLogin = async (): Promise<void> => {
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      return;
+    }
 
     try {
       setIsLoading(true);

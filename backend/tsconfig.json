@@ -1,42 +1,53 @@
-/**
- * TypeScript configuration for backend API service
- * Extends root configuration while adding backend-specific settings
- */
 {
-  "extends": "../tsconfig.json",
   "compilerOptions": {
-    // Build output configuration
     "outDir": "./dist",
     "rootDir": "./src",
 
     // Backend-specific compiler options
-    "module": "Node16",
-    "target": "es2020",
+    "module": "NodeNext", // Update for modern Node.js
+    "moduleResolution": "NodeNext", // Update for modern Node.js
+    "target": "ES2022", // Keep this for Node.js 18+
     "sourceMap": true,
     "declaration": true,
 
-    // Type checking
+    // Type checking - these are good
     "strict": true,
     "noImplicitAny": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
 
     // Module resolution
-    "moduleResolution": "node16",
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "noEmit": true,
+    "allowSyntheticDefaultImports": true,
+    "removeComments": false,
 
-    // Path aliases for cleaner imports
+    // Path aliases
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@models/*": ["src/models/*"],
+      "@controllers/*": ["src/controllers/*"],
+      "@middleware/*": ["src/middleware/*"],
+      "@services/*": ["src/services/*"],
+      "@utils/*": ["src/utils/*"]
     },
+
+    // Other options
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "composite": true,
+    "incremental": true,
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
     "typeRoots": ["./node_modules/@types"]
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src/**/*", "tests/**/*"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "coverage",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ]
 }

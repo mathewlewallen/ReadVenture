@@ -19,10 +19,7 @@ import {
   setPersistence,
   browserLocalPersistence,
 } from 'firebase/auth';
-import {
-  Firestore,
-  initializeFirestore,
-} from 'firebase/firestore';
+import { Firestore, initializeFirestore } from 'firebase/firestore';
 import Config from 'react-native-config';
 
 import { logError } from '../utils/analytics';
@@ -52,7 +49,7 @@ const validateFirebaseConfig = (
     'measurementId',
   ];
 
-  const missing = required.filter(key => !config[key]);
+  const missing = required.filter((key) => !config[key]);
   if (missing.length > 0) {
     throw new Error(`Missing Firebase configuration: ${missing.join(', ')}`);
   }
@@ -154,7 +151,7 @@ class ApiClient {
 
       // Add request interceptor
       this.instance.interceptors.request.use(
-        config => {
+        (config) => {
           // Add auth token if available
           const token = auth.currentUser?.getIdToken();
           if (token) {
@@ -162,7 +159,7 @@ class ApiClient {
           }
           return config;
         },
-        error => {
+        (error) => {
           logError('API request failed:', error);
           return Promise.reject(error);
         },
@@ -170,7 +167,7 @@ class ApiClient {
 
       // Add response interceptor
       this.instance.interceptors.response.use(
-        response => response,
+        (response) => response,
         (error: AxiosError) => {
           this.handleApiError(error);
           return Promise.reject(error);

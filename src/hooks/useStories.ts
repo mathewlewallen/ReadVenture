@@ -118,7 +118,9 @@ export const useStories = ({
    * Checks if cache is valid
    */
   const isCacheValid = useCallback(() => {
-    if (!lastFetch || !cachedStories.length) return false;
+    if (!lastFetch || !cachedStories.length) {
+      return false;
+    }
     return Date.now() - lastFetch < cacheTime;
   }, [lastFetch, cachedStories, cacheTime]);
 

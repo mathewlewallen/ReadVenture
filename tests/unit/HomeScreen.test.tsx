@@ -57,7 +57,7 @@ describe('HomeScreen', () => {
       'Settings',
     ];
 
-    expectedButtons.forEach(buttonText => {
+    expectedButtons.forEach((buttonText) => {
       expect(getByText(buttonText)).toBeTruthy();
     });
   });
@@ -120,7 +120,7 @@ describe('Environment Configuration', () => {
 
   // Test required environment variables
   describe('Required Environment Variables', () => {
-    test.each(requiredKeys)('has %s configured', key => {
+    test.each(requiredKeys)('has %s configured', (key) => {
       expect(Config[key]).toBeDefined();
       expect(Config[key].length).toBeGreaterThan(0);
     });
@@ -133,7 +133,7 @@ describe('Environment Configuration', () => {
     });
 
     it('should fail validation when any required variable is missing', () => {
-      requiredKeys.forEach(key => {
+      requiredKeys.forEach((key) => {
         const tempConfig = { ...Config };
         delete tempConfig[key];
         Object.assign(Config, tempConfig);
@@ -153,7 +153,7 @@ describe('Environment Configuration', () => {
       'CACHE_DURATION',
     ] as const;
 
-    test.each(optionalKeys)('handles optional %s configuration', key => {
+    test.each(optionalKeys)('handles optional %s configuration', (key) => {
       const tempConfig = { ...Config };
       delete tempConfig[key];
       Object.assign(Config, tempConfig);

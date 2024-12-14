@@ -64,12 +64,12 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ route, navigation }) => {
         const targetWord = story.words[currentIndex].toLowerCase();
         const similarity = jaroWinkler(spokenWord, targetWord);
 
-        setAccuracy(prevAccuracy => (prevAccuracy + similarity) / 2);
+        setAccuracy((prevAccuracy) => (prevAccuracy + similarity) / 2);
         setCurrentWord(spokenWord);
 
         if (similarity > 0.8) {
-          setWordsRead(prev => prev + 1);
-          setCurrentIndex(prev => prev + 1);
+          setWordsRead((prev) => prev + 1);
+          setCurrentIndex((prev) => prev + 1);
           dispatch(
             updateProgress({
               storyId,
@@ -92,7 +92,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ route, navigation }) => {
       setError(err.message);
 
       if (retryCount < MAX_RETRIES) {
-        setRetryCount(prev => prev + 1);
+        setRetryCount((prev) => prev + 1);
         // Attempt recovery based on operation type
         switch (operation) {
           case 'voice':
@@ -123,7 +123,7 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ route, navigation }) => {
       logError('Voice recognition error:', error);
 
       if (retryCount < MAX_RETRIES) {
-        setRetryCount(prev => prev + 1);
+        setRetryCount((prev) => prev + 1);
         await initializeVoice();
       } else {
         Alert.alert(

@@ -11,11 +11,7 @@
 
 import { logError } from '../../utils/analytics';
 
-import {
-  AnalysisResult,
-  ComprehensionResult,
-  TextMetrics,
-} from './types';
+import { AnalysisResult, ComprehensionResult, TextMetrics } from './types';
 
 /**
  * Text analysis service class
@@ -35,16 +31,18 @@ export class TextAnalyzer {
    */
   static analyzeReadingLevel(text: string): AnalysisResult {
     try {
-      if (!text?.trim()) throw new Error('Invalid text input');
+      if (!text?.trim()) {
+        throw new Error('Invalid text input');
+      }
 
-      const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
-      const words = text.split(/\s+/).filter(w => w.trim().length > 0);
+      const sentences = text.split(/[.!?]+/).filter((s) => s.trim().length > 0);
+      const words = text.split(/\s+/).filter((w) => w.trim().length > 0);
 
       const metrics = {
         totalWords: words.length,
         totalSentences: sentences.length,
         avgWordLength: words.join('').length / words.length,
-        uniqueWords: new Set(words.map(w => w.toLowerCase())).size,
+        uniqueWords: new Set(words.map((w) => w.toLowerCase())).size,
         syllablesPerWord: this.calculateSyllables(words),
       };
 
@@ -77,7 +75,9 @@ export class TextAnalyzer {
       Object.entries(answers).forEach(([questionId, answer]) => {
         const isCorrect = answer === correctAnswers[questionId];
         details[questionId] = isCorrect;
-        if (isCorrect) correctCount++;
+        if (isCorrect) {
+          correctCount++;
+        }
       });
 
       const score =

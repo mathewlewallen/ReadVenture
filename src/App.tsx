@@ -14,7 +14,15 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { useEffect, useState, useCallback } from 'react';
-import { ActivityIndicator, StyleSheet, View, Text } from 'react-native';
+import {
+  ActivityIndicator,
+  StyleSheet,
+  View,
+  Text,
+  SafeAreaView,
+  StatusBar,
+  useColorScheme,
+} from 'react-native';
 import { Provider } from 'react-redux';
 
 // Store & Services
@@ -58,6 +66,11 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isValidEnv, setIsValidEnv] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const isDarkMode = useColorScheme() === 'dark';
+  const backgroundStyle = {
+    backgroundColor: isDarkMode ? '#000000' : '#FFFFFF',
+  };
 
   // Handle error boundary errors
   const handleError = useCallback(
@@ -135,73 +148,88 @@ const App: React.FC = () => {
       resetError={resetError}
       fallback={errorFallback}
     >
-      <Provider store={store}>
-        <NavigationContainer
-          fallback={<ActivityIndicator size="large" />}
-          onStateChange={state => {
-            // Track navigation state changes
-            if (__DEV__) {
-              console.log('New Navigation State:', state);
-            }
-          }}
-        >
-          <Stack.Navigator
-            initialRouteName="Welcome"
-            screenOptions={{
-              headerShown: false,
-              animation: 'slide_from_right',
-              gestureEnabled: true,
-              animationTypeForReplace: 'push',
-            }}
-          >
-            <Stack.Screen
-              name="Welcome"
-              component={WelcomeScreen}
-              options={{ title: 'Welcome' }}
-            />
-            <Stack.Screen
-              name="Login"
-              component={LoginScreen}
-              options={{ title: 'Login' }}
-            />
-            <Stack.Screen
-              name="Registration"
-              component={RegistrationScreen}
-              options={{ title: 'Register' }}
-            />
-            <Stack.Screen
-              name="Home"
-              component={HomeScreen}
-              options={{ title: 'Home' }}
-            />
-            <Stack.Screen
-              name="StoryLibrary"
-              component={StoryLibraryScreen}
-              options={{ title: 'Library' }}
-            />
-            <Stack.Screen
-              name="Reading"
-              component={ReadingScreen}
-              options={{ title: 'Reading' }}
-            />
-            <Stack.Screen
-              name="Progress"
-              component={ProgressScreen}
-              options={{ title: 'Progress' }}
-            />
-            <Stack.Screen
-              name="ParentDashboard"
-              component={ParentDashboardScreen}
-              options={{ title: 'Parent Dashboard' }}
-            />
-            <Stack.Screen
-              name="Settings"
-              component={SettingsScreen}
-              options={{ title: 'Settings' }}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </Provider>
+      <SafeAreaView style={[styles.container, backgroundStyle]}>
+        <StatusBar
+          barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+          backgroundColor={backgroundStyle.backgroundColor}
+        />
+
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" testID="loading-indicator" />
+          </View>
+        ) : !isValidEnv || error ? (
+          errorFallback
+        ) : (
+          <Provider store={store}>
+            <NavigationContainer
+              fallback={<ActivityIndicator size="large" />}
+              onStateChange={(state) => {
+                // Track navigation state changes
+                if (__DEV__) {
+                  console.log('New Navigation State:', state);
+                }
+              }}
+            >
+              <Stack.Navigator
+                initialRouteName="Welcome"
+                screenOptions={{
+                  headerShown: false,
+                  animation: 'slide_from_right',
+                  gestureEnabled: true,
+                  animationTypeForReplace: 'push',
+                }}
+              >
+                <Stack.Screen
+                  name="Welcome"
+                  component={WelcomeScreen}
+                  options={{ title: 'Welcome' }}
+                />
+                <Stack.Screen
+                  name="Login"
+                  component={LoginScreen}
+                  options={{ title: 'Login' }}
+                />
+                <Stack.Screen
+                  name="Registration"
+                  component={RegistrationScreen}
+                  options={{ title: 'Register' }}
+                />
+                <Stack.Screen
+                  name="Home"
+                  component={HomeScreen}
+                  options={{ title: 'Home' }}
+                />
+                <Stack.Screen
+                  name="StoryLibrary"
+                  component={StoryLibraryScreen}
+                  options={{ title: 'Library' }}
+                />
+                <Stack.Screen
+                  name="Reading"
+                  component={ReadingScreen}
+                  options={{ title: 'Reading' }}
+                />
+                <Stack.Screen
+                  name="Progress"
+                  component={ProgressScreen}
+                  options={{ title: 'Progress' }}
+                />
+                <Stack.Screen
+                  name="ParentDashboard"
+                  component={ParentDashboardScreen}
+                  options={{ title: 'Parent Dashboard' }}
+                />
+                <Stack.Screen
+                  name="Settings"
+                  component={SettingsScreen}
+                  options={{ title: 'Settings' }}
+                />
+              </Stack.Navigator>
+            </NavigationContainer>
+          </Provider>
+        )}
+      </SafeAreaView>
     </ErrorBoundary>
   );
 };
@@ -217,6 +245,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     padding: 20,
     textAlign: 'center',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

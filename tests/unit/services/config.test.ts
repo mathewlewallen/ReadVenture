@@ -33,7 +33,7 @@ describe('Environment Configuration', () => {
   });
 
   describe('Required Environment Variables', () => {
-    test.each(requiredKeys)('has %s configured', key => {
+    test.each(requiredKeys)('has %s configured', (key) => {
       const value = Config[key];
       expect(value).toBeDefined();
       if (value !== undefined) {
@@ -48,7 +48,7 @@ describe('Environment Configuration', () => {
     });
 
     it('should fail validation when any required variable is missing', () => {
-      requiredKeys.forEach(key => {
+      requiredKeys.forEach((key) => {
         const tempConfig = { ...Config } as ConfigType;
         delete tempConfig[key];
         Object.assign(Config, tempConfig);
@@ -60,7 +60,7 @@ describe('Environment Configuration', () => {
     });
 
     it('should fail validation when any required variable is empty', () => {
-      requiredKeys.forEach(key => {
+      requiredKeys.forEach((key) => {
         const tempConfig = { ...Config } as ConfigType;
         tempConfig[key] = '';
         Object.assign(Config, tempConfig);
@@ -72,7 +72,7 @@ describe('Environment Configuration', () => {
     });
 
     it('should handle invalid environment variable types', () => {
-      requiredKeys.forEach(key => {
+      requiredKeys.forEach((key) => {
         const tempConfig = { ...Config } as ConfigType;
         // @ts-expect-error - Testing invalid types intentionally
         tempConfig[key] = null;
@@ -92,7 +92,7 @@ describe('Environment Configuration', () => {
       'CACHE_DURATION',
     ] as const;
 
-    test.each(optionalKeys)('handles optional %s configuration', key => {
+    test.each(optionalKeys)('handles optional %s configuration', (key) => {
       const tempConfig = { ...Config } as ConfigType;
       delete tempConfig[key];
       Object.assign(Config, tempConfig);

@@ -18,7 +18,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { toggleSettings } from '../../store/settingsSlice';
 import { theme } from '../../theme';
 import { RootState } from '../../types';
-import { ErrorBoundary } from '../common/ErrorBoundary';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 
 interface HeaderProps {
   /** Title to display in the header */

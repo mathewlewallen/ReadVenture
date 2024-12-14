@@ -55,7 +55,7 @@ export const useAuth = (): AuthState & AuthActions => {
           dispatch(clearUser());
         }
 
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           user,
           loading: false,
@@ -63,7 +63,7 @@ export const useAuth = (): AuthState & AuthActions => {
         }));
       } catch (error) {
         logError('Auth state update failed', error);
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           loading: false,
           error: 'Authentication state update failed',
@@ -88,13 +88,13 @@ export const useAuth = (): AuthState & AuthActions => {
    * Handles user login
    */
   const login = async (credentials: LoginCredentials): Promise<void> => {
-    setState(prev => ({ ...prev, loading: true, error: null }));
+    setState((prev) => ({ ...prev, loading: true, error: null }));
 
     try {
       await authService.login(credentials);
     } catch (error) {
       logError('Login failed', error);
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         loading: false,
         error: 'Login failed. Please check your credentials.',
@@ -107,13 +107,13 @@ export const useAuth = (): AuthState & AuthActions => {
    * Handles user registration
    */
   const register = async (data: RegistrationData): Promise<void> => {
-    setState(prev => ({ ...prev, loading: true, error: null }));
+    setState((prev) => ({ ...prev, loading: true, error: null }));
 
     try {
       await authService.register(data);
     } catch (error) {
       logError('Registration failed', error);
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         loading: false,
         error: 'Registration failed. Please try again.',
@@ -126,13 +126,13 @@ export const useAuth = (): AuthState & AuthActions => {
    * Handles user logout
    */
   const logout = async (): Promise<void> => {
-    setState(prev => ({ ...prev, loading: true, error: null }));
+    setState((prev) => ({ ...prev, loading: true, error: null }));
 
     try {
       await authService.logout();
     } catch (error) {
       logError('Logout failed', error);
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         loading: false,
         error: 'Logout failed. Please try again.',
@@ -145,13 +145,13 @@ export const useAuth = (): AuthState & AuthActions => {
    * Handles password reset
    */
   const resetPassword = async (email: string): Promise<void> => {
-    setState(prev => ({ ...prev, loading: true, error: null }));
+    setState((prev) => ({ ...prev, loading: true, error: null }));
 
     try {
       await authService.resetPassword(email);
     } catch (error) {
       logError('Password reset failed', error);
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         loading: false,
         error: 'Password reset failed. Please try again.',

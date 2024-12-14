@@ -82,7 +82,7 @@ const navigationTheme = {
  * Handles screen routing and navigation state
  */
 const Navigation: React.FC = () => {
-  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
   useEffect(() => {
     // Handle any navigation side effects (analytics, deep links)

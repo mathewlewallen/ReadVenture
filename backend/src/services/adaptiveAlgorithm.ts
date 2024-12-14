@@ -1,20 +1,20 @@
 const { spawn } = require('child_process');
 
-const analyzeText = async text => {
+const analyzeText = async (text) => {
   return new Promise((resolve, reject) => {
     const pythonProcess = spawn('python', ['./analyze.py', text]);
 
     let output = '';
-    pythonProcess.stdout.on('data', data => {
+    pythonProcess.stdout.on('data', (data) => {
       output += data;
     });
 
-    pythonProcess.stderr.on('data', data => {
+    pythonProcess.stderr.on('data', (data) => {
       console.error(`stderr: ${data}`);
       reject(new Error(`Python script error: ${data}`));
     });
 
-    pythonProcess.on('close', code => {
+    pythonProcess.on('close', (code) => {
       if (code !== 0) {
         reject(new Error(`Python script exited with code ${code}`));
       } else {

@@ -1,25 +1,13 @@
-/**
- * Root TypeScript configuration for ReadVenture
- * Extends React Native base config with project-specific settings
- */
 {
   "extends": "@react-native/typescript-config/tsconfig.json",
-  "references": [
-    { "path": "./src" },
-    { "path": "./backend" },
-    { "path": "./backend-firebase" },
-    { "path": "./config" },
-    { "path": "./tests" }
-  ],
+  "references": [{ "path": "./backend/tsconfig.json" }],
   "compilerOptions": {
-    // Build settings
-    "target": "esnext",
-    "module": "Node16",
-    "moduleResolution": "node16",
-    "lib": ["esnext"],
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["esnext", "DOM"],
     "jsx": "react-native",
 
-    // Type checking
     "strict": true,
     "noImplicitAny": true,
     "noUnusedLocals": true,
@@ -29,63 +17,42 @@
     "exactOptionalPropertyTypes": true,
     "noImplicitOverride": true,
 
-    // Module resolution
     "baseUrl": "./",
     "paths": {
-      "*": ["src/*"],
+      "@/*": ["src/*"],
       "@components/*": ["src/components/*"],
       "@screens/*": ["src/screens/*"],
       "@services/*": ["src/services/*"],
       "@utils/*": ["src/utils/*"],
-      "@types/*": ["src/types/*"]
+      "@hooks/*": ["src/hooks/*"],
+      "@navigation/*": ["src/navigation/*"],
+      "@store/*": ["src/store/*"],
+      "@types/*": ["src/types/*"],
+      "@theme/*": ["src/theme/*"]
     },
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "verbatimModuleSyntax": false,
-
-    // Remove preserveValueImports since we're using verbatimModuleSyntax
-
-    // Development
+    "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "allowJs": true,
     "noEmit": true,
     "isolatedModules": true,
     "forceConsistentCasingInFileNames": true,
-
-    // Optimize TypeScript performance
-    "disableSourceOfProjectReferenceRedirect": true,
-    "maxNodeModuleJsDepth": 1,
-    // Reduce type checking scope
     "incremental": true,
     "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo",
-    "composite": true,
-    "declaration": true,
-
-    // Type roots and types
     "typeRoots": ["./node_modules/@types"],
     "types": ["node", "jest", "react-native"]
   },
-  "include": [
-    "*.ts",
-    "*.tsx",
-    "*.js",
-    "*.jsx",
-    "index.ts",
-    "src/**/*",
-    "tests/**/*",
-    "backend/src/**/*",
-    "backend-firebase/**/*",
-    "config/**/*",
-    "__mocks__/**/*",
-    "*.config.ts",
-    "*.config.js"
-  ],
+  "include": ["src/**/*", "tests/**/*", "*.ts", "*.tsx"],
   "exclude": [
-    "**/node_modules",
-    "**/dist",
-    "**/build",
-    "**/coverage",
-    "**/*.config.js"
+    "node_modules",
+    "backend",
+    "backend-firebase",
+    "babel.config.js",
+    "metro.config.js",
+    "jest.config.js",
+    "android",
+    "ios"
   ]
 }
