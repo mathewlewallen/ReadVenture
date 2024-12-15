@@ -79,5 +79,10 @@ app.use('/api/v1/users', users_1.default);
 app.use('/api/v1/stories', stories_1.default);
 // Global error handler
 app.use(errorHandler_1.default);
-// Rest of the code remains the same...
+// Start server
+app.listen(exports.config.port, () => {
+    console.log(`Server running on port ${exports.config.port} in ${exports.config.nodeEnv} mode`);
+    console.log(`Health check available at http://localhost:${exports.config.port}/health`);
+});
+exports.default = app;
 //# sourceMappingURL=app.js.map

@@ -101,4 +101,10 @@ app.use('/api/v1/stories', storyRoutes);
 // Global error handler
 app.use(errorHandler);
 
-// Rest of the code remains the same...
+// Start server
+app.listen(config.port, () => {
+  console.log(`Server running on port ${config.port} in ${config.nodeEnv} mode`);
+  console.log(`Health check available at http://localhost:${config.port}/health`);
+});
+
+export default app;

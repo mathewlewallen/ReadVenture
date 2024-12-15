@@ -1,6 +1,6 @@
 import express from 'express';
 import winston from 'winston';
-import { analyzeText } from '@/controllers/analyze';
+import { analyzeText } from '../controllers/analyze';
 
 const router = express.Router();
 

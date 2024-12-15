@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.logError = void 0;
 const express_1 = __importDefault(require("express"));
 const winston_1 = __importDefault(require("winston"));
-const analyze_1 = require("@/controllers/analyze");
+const analyze_1 = require("../controllers/analyze");
 const router = express_1.default.Router();
 router.post('/', analyze_1.analyzeText);
 // Configure Winston logger

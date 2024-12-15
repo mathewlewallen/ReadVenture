@@ -4,9 +4,9 @@
     "rootDir": "./src",
 
     // Backend-specific compiler options
-    "module": "NodeNext", // Update for modern Node.js
-    "moduleResolution": "NodeNext", // Update for modern Node.js
-    "target": "ES2022", // Keep this for Node.js 18+
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2022",
     "sourceMap": true,
     "declaration": true,
 
@@ -31,7 +31,7 @@
       "@controllers/*": ["src/controllers/*"],
       "@middleware/*": ["src/middleware/*"],
       "@services/*": ["src/services/*"],
-      "@utils/*": ["src/utils/*"]
+      "@routes/*": ["src/routes/*"]
     },
 
     // Other options
