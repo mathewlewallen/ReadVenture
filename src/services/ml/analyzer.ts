@@ -11,7 +11,12 @@
 
 import { logError } from '../../utils/analytics';
 
-import type { AnalysisResult, ComprehensionResult, TextMetrics, TextComplexity } from './types';
+import type {
+  AnalysisResult,
+  ComprehensionResult,
+  TextMetrics,
+  TextComplexity,
+} from './types';
 
 /**
  * Text analysis service class
@@ -94,7 +99,7 @@ export class TextAnalyzer {
           mainIdea: 0,
           details: 0,
           vocabulary: 0,
-          inference: 0
+          inference: 0,
         },
       };
     } catch (error) {
@@ -149,7 +154,10 @@ export class TextAnalyzer {
       return matches ? matches.length : 1;
     };
 
-    const totalSyllables = words.reduce((sum, word) => sum + countSyllables(word), 0);
+    const totalSyllables = words.reduce(
+      (sum, word) => sum + countSyllables(word),
+      0,
+    );
     return totalSyllables / words.length;
   }
 
@@ -157,9 +165,14 @@ export class TextAnalyzer {
    * Calculates reading grade level based on text metrics
    */
   private static calculateGradeLevel(metrics: TextMetrics): number {
-    const fleschKincaid = 0.39 * (metrics.totalWords / metrics.totalSentences) +
-      11.8 * metrics.syllablesPerWord - 15.59;
-    return Math.min(Math.max(Math.round(fleschKincaid), 1), this.MAX_GRADE_LEVEL);
+    const fleschKincaid =
+      0.39 * (metrics.totalWords / metrics.totalSentences) +
+      11.8 * metrics.syllablesPerWord -
+      15.59;
+    return Math.min(
+      Math.max(Math.round(fleschKincaid), 1),
+      this.MAX_GRADE_LEVEL,
+    );
   }
 
   /**

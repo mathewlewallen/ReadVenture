@@ -3,4 +3,4 @@
  */
 
 import * as adaptiveAlgorithmts from './adaptiveAlgorithm';
-export {adaptiveAlgorithmts as adaptiveAlgorithm};
+export { adaptiveAlgorithmts as adaptiveAlgorithm };

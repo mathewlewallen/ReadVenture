@@ -3,4 +3,4 @@
  */
 
 import * as configTestts from './configTest';
-export {configTestts as configTest};
+export { configTestts as configTest };

@@ -11,12 +11,15 @@ dotenv_1.default.config();
  * MongoDB connection configuration and state
  */
 class DatabaseConnection {
-    constructor() {
-        this.connection = {
-            client: new mongodb_1.MongoClient(process.env.MONGO_URI || 'mongodb://localhost:27017'),
-            db: null,
-        };
+    collection(_arg0) {
+        throw new Error('Method not implemented.');
     }
+    static instance;
+    connection = {
+        client: new mongodb_1.MongoClient(process.env.MONGO_URI || 'mongodb://localhost:27017'),
+        db: null,
+    };
+    constructor() { }
     static getInstance() {
         if (!DatabaseConnection.instance) {
             DatabaseConnection.instance = new DatabaseConnection();

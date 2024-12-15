@@ -1,5 +1,8 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Router } from 'express';
+import { Request, ParamsDictionary, Response } from 'express-serve-static-core';
 import jwt from 'jsonwebtoken';
+import { ParsedQs } from 'qs';
+import { Collection, ObjectId } from 'mongodb';
 
 // Define types for token payload and extended request
 interface TokenPayload {
@@ -11,6 +14,26 @@ interface TokenPayload {
 interface AuthRequest extends Request {
   user?: TokenPayload;
 }
+
+// Define interface for User
+interface User {
+  _id: ObjectId;
+  role: string;
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  createdAt: Date;
+  updatedAt: Date;
+  emailVerified: boolean;
+  lastLogin: Date;
+  status: 'active' | 'inactive' | 'suspended';
+}
+
+// Ensure db is properly typed
+declare const db: {
+  collection(name: string): Collection;
+};
 
 /**
  * Middleware to authenticate requests using JWT tokens
@@ -82,10 +105,29 @@ export const isAdmin = async (
       return;
     }
 
-    // TODO: Implement proper admin check logic
-    // Example: Check user role in database
+    // Convert string ID to ObjectId
+    const userId = new ObjectId(req.user.userId);
+
+    // Update the query with proper typing
+    const user = await db.collection('users').findOne<User>({ _id: userId });
+
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    if (user.role !== 'admin') {
+      res.status(403).json({ message: 'Insufficient permissions' });
+      return;
+    }
+
     next();
   } catch (error) {
+    // Add more specific error handling
+    if (error instanceof Error && error.name === 'BSONTypeError') {
+      res.status(400).json({ message: 'Invalid user ID format' });
+      return;
+    }
     console.error('Admin check error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
@@ -122,3 +164,15 @@ router.post('/refresh-token', authenticate, async (req, res) => {
 });
 
 export default router;
+function resetPassword(_req: Request<{}, any, any, ParsedQs, Record<string, any>>, _res: Response<any, Record<string, any>, number>) {
+  throw new Error('Function not implemented.');
+}
+
+function verifyEmail(_req: Request<{}, any, any, ParsedQs, Record<string, any>>, _res: Response<any, Record<string, any>, number>) {
+  throw new Error('Function not implemented.');
+}
+
+function refreshToken(_req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, _res: Response<any, Record<string, any>, number>) {
+  throw new Error('Function not implemented.');
+}
+

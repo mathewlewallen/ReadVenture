@@ -1,4 +1,4 @@
-import express, { Router, Request, Response } from 'express';
+import express, { Router, Request, Response, NextFunction } from 'express';
 
 import {
   getMe,
@@ -12,31 +12,40 @@ import { validateUserUpdate } from '../middleware/validation';
 
 const router: Router = express.Router();
 
+type ControllerHandler = (req: Request, res: Response, next: NextFunction) => Promise<void>;
+
 // Protected routes
-router.get('/me', authenticate, getMe);
-router.put('/me', authenticate, validateUserUpdate, updateUser);
-router.delete('/me', authenticate, deleteUser);
+router.get('/me', authenticate, getMe as ControllerHandler);
+router.put('/me', authenticate, validateUserUpdate, updateUser as ControllerHandler);
+router.delete('/me', authenticate, deleteUser as ControllerHandler);
 
 // Admin routes
-router.get('/', authenticate, getAllUsers);
-router.get('/:id', authenticate, getUserById);
+router.get('/', authenticate, getAllUsers as ControllerHandler);
+router.get('/:id', authenticate, getUserById as ControllerHandler);
 
 // Password management
 router.post(
   '/change-password',
   authenticate,
-  async (_req: Request, _res: Response) => {
-    _res
-      .status(501)
-      .json({ message: 'Password change functionality coming soon' });
-  },
+  async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      res.status(501).json({ message: 'Password change functionality coming soon' });
+    } catch (error) {
+      next(error);
+    }
+  }
 );
 
-// Profile management
-router.put('/profile', authenticate, async (_req: Request, _res: Response) => {
-  _res
-    .status(501)
-    .json({ message: 'Profile update functionality coming soon' });
-});
+router.put(
+  '/profile',
+  authenticate,
+  async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      res.status(501).json({ message: 'Profile update functionality coming soon' });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
-export default usersRouter;
+export default router;

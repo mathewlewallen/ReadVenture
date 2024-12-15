@@ -26,7 +26,7 @@ import {
 import { Provider } from 'react-redux';
 
 // Store & Services
-import ErrorBoundary from './components/common/ErrorBoundary';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import LoginScreen from './screens/LoginScreen';
 import ParentDashboardScreen from './screens/ParentDashboardScreen';
 import ProgressScreen from './screens/ProgressScreen';

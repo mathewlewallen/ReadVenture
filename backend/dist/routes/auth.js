@@ -21,7 +21,7 @@ router.use(errorHandler_1.errorHandler);
 // Authentication endpoints
 router.post('/reset-password', async (req, res) => {
     try {
-        await (0, auth_1.resetPassword)(req, res);
+        await (0, auth_1.resetPassword)({ req, res });
     }
     catch (error) {
         res.status(500).json({ message: 'Failed to reset password' });
@@ -29,7 +29,7 @@ router.post('/reset-password', async (req, res) => {
 });
 router.post('/verify-email', async (req, res) => {
     try {
-        await (0, auth_1.verifyEmail)(req, res);
+        await (0, auth_1.verifyEmail)({ req, res });
     }
     catch (error) {
         res.status(500).json({ message: 'Failed to verify email' });
@@ -37,7 +37,7 @@ router.post('/verify-email', async (req, res) => {
 });
 router.post('/refresh-token', async (req, res) => {
     try {
-        await (0, auth_1.refreshToken)(req, res);
+        await (0, auth_1.refreshToken)({ req, res });
     }
     catch (error) {
         res.status(500).json({ message: 'Failed to refresh token' });

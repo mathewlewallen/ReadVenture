@@ -8,18 +8,16 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express, { Application, Request, Response } from 'express';
-import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
-import mongoose from 'mongoose';
 
 // Security dependencies
 
 // Routes and middleware
-import { errorHandler } from '../middleware/errorHandler';
-import analyzeRoutes from '../routes/analyze';
-import authRoutes from '../routes/auth';
-import storyRoutes from '../routes/stories';
-import userRoutes from '../routes/users';
+import errorHandler from './middleware/errorHandler';
+import analyzeRoutes from './routes/analyze';
+import authRoutes from './routes/auth';
+import storyRoutes from './routes/stories';
+import userRoutes from './routes/users';
 
 // Load environment variables
 dotenv.config();
@@ -37,25 +35,13 @@ interface ServerConfig {
 /**
  * Centralized configuration object
  */
-const config: ServerConfig = {
+export const config: ServerConfig = {
   port: parseInt(process.env.PORT || '3000', 10),
   mongoUri: process.env.MONGO_URI || '',
   nodeEnv: process.env.NODE_ENV || 'development',
   corsOrigin: process.env.CORS_ORIGIN || '*',
 };
 
-/**
- * MongoDB connection options with recommended security settings
- */
-const mongooseOptions: mongoose.ConnectOptions = {
-  autoIndex: config.nodeEnv === 'development',
-  serverSelectionTimeoutMS: 5000,
-  socketTimeoutMS: 45000,
-  family: 4,
-  // Add these recommended security options
-  ssl: config.nodeEnv === 'production',
-  authSource: 'admin',
-};
 
 // Create Express application instance
 const app: Application = express();
@@ -90,17 +76,6 @@ app.use(
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-  }),
-);
-
-// Rate limiting configuration
-app.use(
-  rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100,
-    message: 'Too many requests from this IP, please try again later',
-    standardHeaders: true,
-    legacyHeaders: false,
   }),
 );
 

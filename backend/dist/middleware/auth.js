@@ -4,7 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isAdmin = exports.authenticate = void 0;
+const express_1 = require("express");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const mongodb_1 = require("mongodb");
 /**
  * Middleware to authenticate requests using JWT tokens
  * @param req - Express request object with auth header
@@ -62,18 +64,33 @@ const isAdmin = async (req, res, next) => {
             res.status(401).json({ message: 'User not authenticated' });
             return;
         }
-        // TODO: Implement proper admin check logic
-        // Example: Check user role in database
+        // Convert string ID to ObjectId
+        const userId = new mongodb_1.ObjectId(req.user.userId);
+        // Update the query with proper typing
+        const user = await db.collection('users').findOne({ _id: userId });
+        if (!user) {
+            res.status(404).json({ message: 'User not found' });
+            return;
+        }
+        if (user.role !== 'admin') {
+            res.status(403).json({ message: 'Insufficient permissions' });
+            return;
+        }
         next();
     }
     catch (error) {
+        // Add more specific error handling
+        if (error instanceof Error && error.name === 'BSONTypeError') {
+            res.status(400).json({ message: 'Invalid user ID format' });
+            return;
+        }
         console.error('Admin check error:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 };
 exports.isAdmin = isAdmin;
 // Router configuration
-const router = Router();
+const router = (0, express_1.Router)();
 /**
  * Auth routes configuration
  */
@@ -102,4 +119,13 @@ router.post('/refresh-token', exports.authenticate, async (req, res) => {
     }
 });
 exports.default = router;
+function resetPassword(_req, _res) {
+    throw new Error('Function not implemented.');
+}
+function verifyEmail(_req, _res) {
+    throw new Error('Function not implemented.');
+}
+function refreshToken(_req, _res) {
+    throw new Error('Function not implemented.');
+}
 //# sourceMappingURL=auth.js.map

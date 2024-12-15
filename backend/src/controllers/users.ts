@@ -1,8 +1,12 @@
 import bcrypt from 'bcryptjs';
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-import { User } from '../models/User';
+import User from '../models/User';
+
+interface AuthRequest extends Request {
+  user?: { id: string };
+}
 
 interface RegisterRequest {
   username: string;
@@ -41,6 +45,12 @@ const generateToken = (userId: string): string => {
   return jwt.sign({ userId } as TokenPayload, secret, { expiresIn: '24h' });
 };
 
+export type ControllerHandler = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => Promise<void>;
+
 export const register = async (
   req: Request<never, UserResponse, RegisterRequest>,
   res: Response,
@@ -62,7 +72,7 @@ export const register = async (
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const user = await User.create({
+    const newUser = await User.create({
       username,
       password: hashedPassword,
       parentEmail,
@@ -70,15 +80,15 @@ export const register = async (
       createdAt: new Date(),
     });
 
-    const token = generateToken(user.id);
+    const token = generateToken(newUser.id);
     res.status(201).json({
       token,
       user: {
-        id: user.id,
-        username: user.username,
-        parentEmail: user.parentEmail,
-        parentConsent: user.parentConsent,
-        createdAt: user.createdAt,
+        id: newUser.id,
+        username: newUser.username,
+        parentEmail: newUser.parentEmail,
+        parentConsent: newUser.parentalConsent,
+        createdAt: newUser.createdAt,
       },
     });
   } catch (error) {
@@ -113,12 +123,105 @@ export const login = async (
         id: user.id,
         username: user.username,
         parentEmail: user.parentEmail,
-        parentConsent: user.parentConsent,
+        parentConsent: user.parentalConsent,
         createdAt: user.createdAt,
       },
     });
   } catch (error) {
     console.error('Login error:', error);
+  }
+};
+
+export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const user = await User.findById(req.user?.id);
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+    res.status(200).json({
+      id: user.id,
+      username: user.username,
+      parentEmail: user.parentEmail,
+      parentConsent: user.parentalConsent,
+      createdAt: user.createdAt,
+    });
+  } catch (error) {
+    console.error('Get user error:', error);
+  }
+};
+
+export const updateUser = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.user?.id,
+      { $set: req.body },
+      { new: true }
+    );
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+    res.status(200).json({
+      id: user.id,
+      username: user.username,
+      parentEmail: user.parentEmail,
+      parentConsent: user.parentalConsent,
+      createdAt: user.createdAt,
+    });
+  } catch (error) {
+    console.error('Update user error:', error);
+  }
+};
+
+export const deleteUser = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const user = await User.findByIdAndDelete(req.user?.id);
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+    res.status(200).json({ message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('Delete user error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const getUserById = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+    res.status(200).json({
+      id: user.id,
+      username: user.username,
+      parentEmail: user.parentEmail,
+      parentConsent: user.parentalConsent,
+      createdAt: user.createdAt,
+    });
+  } catch (error) {
+    console.error('Get user by id error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const getAllUsers = async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const users = await User.find();
+    res.status(200).json(
+      users.map((user) => ({
+        id: user.id,
+        username: user.username,
+        parentEmail: user.parentEmail,
+        parentConsent: user.parentalConsent,
+        createdAt: user.createdAt,
+      }))
+    );
+  } catch (error) {
+    console.error('Get all users error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };

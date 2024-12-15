@@ -1,12 +1,14 @@
 import bcrypt from 'bcryptjs';
-import mongoose, { Schema, Document } from 'mongoose';
+import { CallbackError, Schema } from 'mongoose';
+import mongoose from 'mongoose';
 
 /**
  * Interface representing a User document in MongoDB
  * Extends the base Document type with user-specific fields
  */
-export interface IUser extends Document {
+export interface User extends Document {
   email: string;
+  username: string;
   password: string;
   displayName: string;
   role: 'student' | 'parent';
@@ -25,6 +27,7 @@ export interface IUser extends Document {
   };
   createdAt: Date;
   updatedAt: Date;
+  emailVerified: boolean;
 }
 
 // Remove duplicate schema definition
@@ -61,6 +64,8 @@ const userSchema = new Schema({
   // Timestamps
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
+  emailVerified: { type: Boolean, default: false },
+  refreshToken: String
 });
 
 /**
@@ -71,12 +76,13 @@ userSchema.pre('save', async function (next) {
   if (this.isModified('password')) {
     try {
       this.password = await bcrypt.hash(this.password, 10);
-    } catch (error) {
-      return next(error);
+    } catch (error: unknown) {
+      return next(error as CallbackError);
     }
   }
   next();
 });
 
-// Export the model
-export default mongoose.model<IUser>('User', userSchema);
+// Create and export the model
+const UserModel = mongoose.model<User>('User', userSchema);
+export default UserModel;

@@ -12,6 +12,9 @@ interface MongoConnection {
  * MongoDB connection configuration and state
  */
 class DatabaseConnection {
+  collection(_arg0: string) {
+    throw new Error('Method not implemented.');
+  }
   private static instance: DatabaseConnection;
   private connection: MongoConnection = {
     client: new MongoClient(
@@ -20,7 +23,7 @@ class DatabaseConnection {
     db: null,
   };
 
-  private constructor() {}
+  private constructor() { }
 
   static getInstance(): DatabaseConnection {
     if (!DatabaseConnection.instance) {

@@ -9,8 +9,8 @@ import * as modelsindexts from './models/index';
 import * as mongodbts from './mongodb';
 import * as routesindexts from './routes/index';
 import * as servicesindexts from './services/index';
-import * as storiests from './stories';
-export {appts as app};
+import * as storiests from './controllers/stories';
+export { appts as app };
 export const controllers = {
   index: controllersindexts,
 };
@@ -20,11 +20,11 @@ export const middleware = {
 export const models = {
   index: modelsindexts,
 };
-export {mongodbts as mongodb};
+export { mongodbts as mongodb };
 export const routes = {
   index: routesindexts,
 };
 export const services = {
   index: servicesindexts,
 };
-export {storiests as stories};
+export { storiests as stories };

@@ -39,6 +39,7 @@ const settingsSlice = createSlice({
   },
 });
 
-export const { updateSettings, toggleSettings, resetSettings } = settingsSlice.actions;
+export const { updateSettings, toggleSettings, resetSettings } =
+  settingsSlice.actions;
 
 export default settingsSlice.reducer;

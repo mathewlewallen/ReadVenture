@@ -88,7 +88,11 @@ class DatabaseService {
     } catch (error) {
       logError('Error fetching stories:', error);
       // Return cached data on error if available
-      return (await this.getFromCache<Story[]>(`stories_${JSON.stringify(filters)}`)) ?? [];
+      return (
+        (await this.getFromCache<Story[]>(
+          `stories_${JSON.stringify(filters)}`,
+        )) ?? []
+      );
     }
   }
 
@@ -125,7 +129,7 @@ class DatabaseService {
           ({
             id: doc.id,
             ...doc.data(),
-          }) as Story,
+          } as Story),
       );
     } catch (error) {
       logError('Error fetching stories:', error);
@@ -177,10 +181,10 @@ class DatabaseService {
 
       return querySnapshot.docs.map(
         (doc) =>
-        ({
-          id: doc.id,
-          ...doc.data(),
-        } as unknown as ReadingProgress),
+          ({
+            id: doc.id,
+            ...doc.data(),
+          } as unknown as ReadingProgress),
       );
     } catch (error) {
       logError('Error fetching progress:', error);
@@ -189,8 +193,8 @@ class DatabaseService {
   }
 
   /**
- * Gets user with cache support
- */
+   * Gets user with cache support
+   */
   async getUser(userId: string): Promise<AuthUser | null> {
     try {
       // Try cache first
@@ -212,7 +216,7 @@ class DatabaseService {
         email: docData.email,
         displayName: docData.displayName,
         createdAt: docData.createdAt,
-        ...docData
+        ...docData,
       };
 
       await this.saveToCache(`user_${userId}`, userData);
@@ -248,7 +252,6 @@ class DatabaseService {
       throw error;
     }
   }
-
 
   /**
    * Deletes user data
@@ -290,7 +293,10 @@ class DatabaseService {
         return null;
       }
 
-      const { data, timestamp } = JSON.parse(cached) as { data: T; timestamp: number };
+      const { data, timestamp } = JSON.parse(cached) as {
+        data: T;
+        timestamp: number;
+      };
       if (Date.now() - timestamp > this.CACHE_EXPIRY) {
         await AsyncStorage.removeItem(`${this.CACHE_PREFIX}${key}`);
         return null;

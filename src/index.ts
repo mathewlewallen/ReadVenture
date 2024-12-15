@@ -29,6 +29,7 @@ export * from './services/ml/analyzer';
 export * from './services/ml/api';
 export * from './services/ml/types';
 export * from './store/slices/authSlice';
+export * from './store/slices/settingsSlice';
 export * from './theme/theme';
 export * from './types/RootState';
 export * from './types/errors';

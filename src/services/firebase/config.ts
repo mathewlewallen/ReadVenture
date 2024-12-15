@@ -8,11 +8,18 @@
  */
 
 import type { Analytics } from 'firebase/analytics';
-import { getAnalytics, setAnalyticsCollectionEnabled } from 'firebase/analytics';
+import {
+  getAnalytics,
+  setAnalyticsCollectionEnabled,
+} from 'firebase/analytics';
 import type { FirebaseOptions, FirebaseApp } from 'firebase/app';
 import { initializeApp } from 'firebase/app';
 import type { Auth } from 'firebase/auth';
-import { getAuth, setPersistence, browserLocalPersistence } from 'firebase/auth';
+import {
+  getAuth,
+  setPersistence,
+  browserLocalPersistence,
+} from 'firebase/auth';
 import { Firestore, initializeFirestore } from 'firebase/firestore';
 import Config from 'react-native-config';
 import { logError } from '@/utils/analytics';

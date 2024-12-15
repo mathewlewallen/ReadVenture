@@ -4,5 +4,5 @@
 
 import * as analyzets from './analyze';
 import * as usersts from './users';
-export {analyzets as analyze};
-export {usersts as users};
+export { analyzets as analyze };
+export { usersts as users };

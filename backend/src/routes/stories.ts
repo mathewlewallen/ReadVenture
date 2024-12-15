@@ -1,4 +1,4 @@
-import Router from 'express';
+import express, { Router, Request, Response, NextFunction } from 'express';
 
 import {
   getAllStories,
@@ -12,19 +12,13 @@ import { validateStoryInput } from '../middleware/validation';
 
 const router: Router = express.Router();
 
-// Get all stories
-router.get('/', authenticate, getAllStories);
+// Define controller handler types
+type ControllerHandler = (req: Request, res: Response, next: NextFunction) => Promise<void>;
 
-// Get a specific story by ID
-router.get('/:id', authenticate, getStoryById);
+router.get('/', authenticate, getAllStories as ControllerHandler);
+router.get('/:id', authenticate, getStoryById as ControllerHandler);
+router.post('/', authenticate, validateStoryInput, createStory as ControllerHandler);
+router.put('/:id', authenticate, validateStoryInput, updateStory as ControllerHandler);
+router.delete('/:id', authenticate, deleteStory as ControllerHandler);
 
-// Create a new story
-router.post('/', authenticate, validateStoryInput, createStory);
-
-// Update a story
-router.put('/:id', authenticate, validateStoryInput, updateStory);
-
-// Delete a story
-router.delete('/:id', authenticate, deleteStory);
-
-export default storiesRouter;
+export default router;

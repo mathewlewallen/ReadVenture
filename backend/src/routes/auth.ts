@@ -22,7 +22,7 @@ router.use(errorHandler);
 // Authentication endpoints
 router.post('/reset-password', async (req: Request, res: Response) => {
   try {
-    await resetPassword(req, res);
+    await resetPassword({ req, res });
   } catch (error) {
     res.status(500).json({ message: 'Failed to reset password' });
   }
@@ -30,7 +30,7 @@ router.post('/reset-password', async (req: Request, res: Response) => {
 
 router.post('/verify-email', async (req: Request, res: Response) => {
   try {
-    await verifyEmail(req, res);
+    await verifyEmail({ req, res });
   } catch (error) {
     res.status(500).json({ message: 'Failed to verify email' });
   }
@@ -38,7 +38,7 @@ router.post('/verify-email', async (req: Request, res: Response) => {
 
 router.post('/refresh-token', async (req: Request, res: Response) => {
   try {
-    await refreshToken(req, res);
+    await refreshToken({ req, res });
   } catch (error) {
     res.status(500).json({ message: 'Failed to refresh token' });
   }
@@ -58,4 +58,4 @@ router.post('/change-password', async (_req: Request, res: Response) => {
     .json({ message: 'Password change functionality coming soon' });
 });
 
-export default authRouter;
+export default router;

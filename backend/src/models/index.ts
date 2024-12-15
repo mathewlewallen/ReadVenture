@@ -5,6 +5,6 @@
 import * as Progressts from './Progress';
 import * as Storyts from './Story';
 import * as Userts from './User';
-export {Progressts as Progress};
-export {Storyts as Story};
-export {Userts as User};
+export { Progressts as Progress };
+export { Storyts as Story };
+export { Userts as User };

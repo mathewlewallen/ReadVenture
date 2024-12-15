@@ -29,7 +29,7 @@ export type TextMetrics = {
   readabilityScore?: number;
   /** Timestamp of analysis */
   timestamp?: Timestamp;
-}
+};
 
 /**
  * Complexity scores for different aspects of the text
@@ -135,8 +135,6 @@ export interface AnalysisError extends Error {
   /** Additional error context */
   context?: Record<string, unknown>;
 }
-
-
 
 export type AnalysisCallback = (result: AnalysisResult) => void;
 export type ErrorCallback = (error: AnalysisError) => void;

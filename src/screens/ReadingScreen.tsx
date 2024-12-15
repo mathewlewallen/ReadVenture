@@ -16,20 +16,20 @@ export const calculateAccuracy = (
 
 import Voice, { SpeechResultsEvent } from '@react-native-voice/voice';
 import { jaroWinkler } from 'jaro-winkler';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RouteProp } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RouteProp } from '@react-navigation/native';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, Alert, Platform } from 'react-native';
 import { Button, Appbar } from 'react-native-paper';
 import * as Progress from 'react-native-progress';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { ErrorBoundary } from '../../components/common/ErrorBoundary';
-import { NavigationProps, RootStackParamList } from '../../navigation';
-import { updateProgress } from '../../store/progressSlice';
-import { theme } from '../../theme';
-import type { RootState } from '../../types';
-import { logError } from '../../utils/analytics';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
+import { type RootStackParamList } from '@/navigation/AppNavigator';
+import { updateProgress } from '@/store/progressSlice';
+import { theme } from '@/theme';
+import type { RootState } from '@/types';
+import { logError } from '@/utils/analytics';
 
 interface Story {
   id: string;

@@ -1,6 +1,6 @@
 import { FirebaseFirestore } from '@firebase/firestore-types';
 import { ReadingProgress, UserProgress, ReadingAnalytics } from './types';
-import { logError } from './utils/analytics';
+import { logError } from './routes/analyze';
 
 /**
  * Generates a comprehensive reading report for a user

@@ -4,5 +4,5 @@
 
 import * as authts from './auth';
 import * as validationts from './validation';
-export {authts as auth};
-export {validationts as validation};
+export { authts as auth };
+export { validationts as validation };

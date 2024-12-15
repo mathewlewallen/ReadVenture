@@ -16,16 +16,21 @@ router.delete('/me', auth_1.authenticate, users_1.deleteUser);
 router.get('/', auth_1.authenticate, users_1.getAllUsers);
 router.get('/:id', auth_1.authenticate, users_1.getUserById);
 // Password management
-router.post('/change-password', auth_1.authenticate, async (_req, _res) => {
-    _res
-        .status(501)
-        .json({ message: 'Password change functionality coming soon' });
+router.post('/change-password', auth_1.authenticate, async (_req, res, next) => {
+    try {
+        res.status(501).json({ message: 'Password change functionality coming soon' });
+    }
+    catch (error) {
+        next(error);
+    }
 });
-// Profile management
-router.put('/profile', auth_1.authenticate, async (_req, _res) => {
-    _res
-        .status(501)
-        .json({ message: 'Profile update functionality coming soon' });
+router.put('/profile', auth_1.authenticate, async (_req, res, next) => {
+    try {
+        res.status(501).json({ message: 'Profile update functionality coming soon' });
+    }
+    catch (error) {
+        next(error);
+    }
 });
 exports.default = router;
 //# sourceMappingURL=users.js.map
