@@ -7,9 +7,10 @@
  * @packageDocumentation
  */
 
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
 
-import { UserRole, UserSettings } from '../../types/user';
+import type { UserRole, UserSettings } from '@/types/user';
 
 /**
  * Authentication state interface

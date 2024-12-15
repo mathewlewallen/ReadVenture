@@ -7,6 +7,7 @@ import { SettingsState } from '../store/slices/settingsSlice';
 import { StoryState } from '../store/slices/storySlice';
 
 export interface RootState {
+  app: any;
   auth: AuthState;
   progress: ProgressState;
   settings: SettingsState;

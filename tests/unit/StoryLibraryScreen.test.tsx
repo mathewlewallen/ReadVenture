@@ -1,15 +1,13 @@
 // Unit tests for StoryLibraryScreen component
 import { NavigationContainer } from '@react-navigation/native';
-import {
-  createNativeStackNavigator,
-  NativeStackNavigationProp,
-} from '@react-navigation/native-stack';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { render } from '@testing-library/react-native';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import React from 'react';
 
-import StoryLibraryScreen from '../../../../src/screens/StoryLibraryScreen';
+import StoryLibraryScreen from '@/screens/StoryLibraryScreen';
 
 // Define navigation types
 type RootStackParamList = {

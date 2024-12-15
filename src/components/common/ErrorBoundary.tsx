@@ -17,10 +17,8 @@ import {
   TouchableOpacity,
   Platform,
 } from 'react-native';
-import { connect } from 'react-redux';
 
-import { theme } from '../../theme';
-import type { RootState } from '../../types';
+import theme from '@theme/theme';
 import { logError } from '../../utils/analytics';
 
 interface ErrorBoundaryProps {
@@ -60,9 +58,9 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   /**
    * Handles error logging and reporting
    */
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
+  override componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
     // Log to analytics
-    logError(error, errorInfo);
+    logError('Error Boundary caught error', { error, errorInfo });
 
     // Report to error tracking
     Sentry.captureException(error);
@@ -89,7 +87,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     this.props.resetError?.();
   };
 
-  render(): React.ReactNode {
+  override render(): React.ReactNode {
     const { hasError, error } = this.state;
     const { children, fallback } = this.props;
 

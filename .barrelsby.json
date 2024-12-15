@@ -1,5 +1,5 @@
 {
-  "directory": ["."],
+  "directory": ["./src"],
   "delete": true,
   "exclude": [
     "\\.test\\.",
@@ -7,13 +7,15 @@
     "__tests__",
     "__mocks__",
     "\\.env",
-    "\\.config\\."
+    "\\.config\\.",
+    "\\.d\\.ts$"
   ],
-
   "include": [".*\\.(ts|tsx)$"],
-  "location": "all",
-  "structure": "filesystem",
+  "location": "top",
+  "structure": "flat",
   "singleQuotes": true,
   "noHeader": false,
-  "header": "// Generated barrel file - do not modify manually"
+  "header": "/**\n * @generated - Do not modify directly\n */",
+  "exportFilename": false,
+  "nameFormat": "${name.pascalCase"
 }

@@ -1,11 +1,12 @@
 // src/__tests__/firebase/firebaseConfig.test.ts
 import { getAnalytics } from 'firebase/analytics';
-import { FirebaseOptions, initializeApp } from 'firebase/app';
+import type { FirebaseOptions } from 'firebase/app';
+import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import Config from 'react-native-config';
 
-import { initializeFirebase } from '../../config/firebase';
+import { initializeFirebase } from '@/services/firebase/config';
 
 // Mock react-native-config
 jest.mock('react-native-config', () => ({
@@ -47,13 +48,13 @@ describe('Firebase Configuration', () => {
 
   it('should initialize Firebase with correct configuration', () => {
     const expectedConfig: FirebaseOptions = {
-      apiKey: Config.FIREBASE_API_KEY,
-      authDomain: Config.FIREBASE_AUTH_DOMAIN,
-      projectId: Config.FIREBASE_PROJECT_ID,
-      storageBucket: Config.FIREBASE_STORAGE_BUCKET,
-      messagingSenderId: Config.FIREBASE_MESSAGING_SENDER_ID,
-      appId: Config.FIREBASE_APP_ID,
-      measurementId: Config.FIREBASE_MEASUREMENT_ID,
+      apiKey: Config.FIREBASE_API_KEY as string,
+      authDomain: Config.FIREBASE_AUTH_DOMAIN as string,
+      projectId: Config.FIREBASE_PROJECT_ID as string,
+      storageBucket: Config.FIREBASE_STORAGE_BUCKET as string,
+      messagingSenderId: Config.FIREBASE_MESSAGING_SENDER_ID as string,
+      appId: Config.FIREBASE_APP_ID as string,
+      measurementId: Config.FIREBASE_MEASUREMENT_ID as string,
     };
 
     initializeFirebase();
@@ -66,8 +67,7 @@ describe('Firebase Configuration', () => {
 
   it('should throw error when required config is missing', () => {
     const originalConfig = { ...Config };
-    // @ts-expect-error - Testing missing config
-    delete Config.FIREBASE_API_KEY;
+    delete (Config as any).FIREBASE_API_KEY;
 
     expect(() => initializeFirebase()).toThrow(
       'Missing required Firebase configuration',

@@ -3,4 +3,4 @@
  */
 
 import * as testutilstsx from './test-utils';
-export {testutilstsx as test-utils.tsx};
+export { testutilstsx as testUtilsTsx };

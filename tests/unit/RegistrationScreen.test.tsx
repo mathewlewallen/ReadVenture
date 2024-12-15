@@ -1,18 +1,18 @@
 // Unit tests for RegistrationScreen component
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import React from 'react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
-
-import RegistrationScreen from '../../../../src/screens/RegistrationScreen';
+import RegistrationScreen from '@/screens/RegistrationScreen';
 import {
   loginStart,
   loginSuccess,
   loginFailure,
-} from '../../../../src/store/authSlice';
+} from '@/store/slices/authSlice';
+
+const mockStore = configureStore([]);
 
 // Type definitions for navigation
 type RootStackParamList = {
@@ -21,9 +21,6 @@ type RootStackParamList = {
 };
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
-
-// Configure mock store with thunk middleware
-const mockStore = configureStore([thunk]);
 
 // Mock Firebase auth
 jest.mock('firebase/auth', () => ({
@@ -56,7 +53,25 @@ describe('RegistrationScreen', () => {
     // Render component with mock store and navigation
     const { getByText, getByPlaceholderText } = render(
       <Provider store={store}>
-        <RegistrationScreen navigation={{ navigate } as NavigationProp} />
+        <RegistrationScreen
+          navigation={
+            {
+              navigate,
+              dispatch: jest.fn(),
+              reset: jest.fn(),
+              setParams: jest.fn(),
+              addListener: jest.fn(),
+              removeListener: jest.fn(),
+              canGoBack: jest.fn(),
+              getId: jest.fn(),
+              getParent: jest.fn(),
+              getState: jest.fn(),
+              goBack: jest.fn(),
+              isFocused: jest.fn(),
+              setOptions: jest.fn(),
+            } as unknown as NavigationProp
+          }
+        />
       </Provider>,
     );
 
@@ -75,7 +90,18 @@ describe('RegistrationScreen', () => {
       expect(actions).toContainEqual(loginStart());
       expect(actions).toContainEqual(
         loginSuccess({
-          user: { uid: 'test-user-uid' },
+          user: {
+            id: 'test-user-uid',
+            email: 'test@example.com',
+            parentEmail: 'parent@example.com',
+            role: 'student',
+            settings: {
+              readingLevel: 1,
+              soundEffectsEnabled: true,
+              textSize: 'medium',
+              theme: 'light',
+            },
+          },
           token: 'test-token',
         }),
       );
@@ -98,7 +124,23 @@ describe('RegistrationScreen', () => {
     const { getByText, getByPlaceholderText } = render(
       <Provider store={store}>
         <RegistrationScreen
-          navigation={{ navigate: jest.fn() } as NavigationProp}
+          navigation={
+            {
+              navigate: jest.fn(),
+              dispatch: jest.fn(),
+              reset: jest.fn(),
+              setParams: jest.fn(),
+              addListener: jest.fn(),
+              removeListener: jest.fn(),
+              canGoBack: jest.fn(),
+              getId: jest.fn(),
+              getParent: jest.fn(),
+              getState: jest.fn(),
+              goBack: jest.fn(),
+              isFocused: jest.fn(),
+              setOptions: jest.fn(),
+            } as unknown as NavigationProp
+          }
         />
       </Provider>,
     );
@@ -116,7 +158,9 @@ describe('RegistrationScreen', () => {
     await waitFor(() => {
       const actions = store.getActions();
       expect(actions).toContainEqual(loginStart());
-      expect(actions).toContainEqual(loginFailure('Registration failed'));
+      expect(actions).toContainEqual(
+        loginFailure({ error: 'Registration failed' }),
+      );
     });
   });
 
@@ -127,7 +171,23 @@ describe('RegistrationScreen', () => {
     const { getByText } = render(
       <Provider store={store}>
         <RegistrationScreen
-          navigation={{ navigate: jest.fn() } as NavigationProp}
+          navigation={
+            {
+              navigate: jest.fn(),
+              dispatch: jest.fn(),
+              reset: jest.fn(),
+              setParams: jest.fn(),
+              addListener: jest.fn(),
+              removeListener: jest.fn(),
+              canGoBack: jest.fn(),
+              getId: jest.fn(),
+              getParent: jest.fn(),
+              getState: jest.fn(),
+              goBack: jest.fn(),
+              isFocused: jest.fn(),
+              setOptions: jest.fn(),
+            } as unknown as NavigationProp
+          }
         />
       </Provider>,
     );

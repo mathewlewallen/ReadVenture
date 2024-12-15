@@ -7,8 +7,17 @@
  * @packageDocumentation
  */
 
+export const calculateAccuracy = (
+  spokenWord: string,
+  targetWord: string,
+): number => {
+  return jaroWinkler(spokenWord.toLowerCase(), targetWord.toLowerCase());
+};
+
 import Voice, { SpeechResultsEvent } from '@react-native-voice/voice';
 import { jaroWinkler } from 'jaro-winkler';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RouteProp } from '@react-navigation/native';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, Alert, Platform } from 'react-native';
 import { Button, Appbar } from 'react-native-paper';
@@ -16,7 +25,7 @@ import * as Progress from 'react-native-progress';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { ErrorBoundary } from '../../components/common/ErrorBoundary';
-import { NavigationProps } from '../../navigation';
+import { NavigationProps, RootStackParamList } from '../../navigation';
 import { updateProgress } from '../../store/progressSlice';
 import { theme } from '../../theme';
 import type { RootState } from '../../types';
@@ -30,8 +39,10 @@ interface Story {
   words?: string[];
 }
 
-type ReadingScreenProps = NavigationProps<'Reading'>;
-
+interface ReadingScreenProps {
+  navigation: NativeStackNavigationProp<RootStackParamList, 'Reading'>;
+  route: RouteProp<RootStackParamList, 'Reading'>;
+}
 /**
  * Reading screen component for interactive reading sessions
  */
@@ -60,9 +71,9 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ route, navigation }) => {
   const handleSpeechResults = useCallback(
     (e: SpeechResultsEvent) => {
       if (e.value && story?.words) {
-        const spokenWord = e.value[0].toLowerCase();
-        const targetWord = story.words[currentIndex].toLowerCase();
-        const similarity = jaroWinkler(spokenWord, targetWord);
+        const spokenWord = e.value[0];
+        const targetWord = story.words[currentIndex];
+        const similarity = calculateAccuracy(spokenWord, targetWord);
 
         setAccuracy((prevAccuracy) => (prevAccuracy + similarity) / 2);
         setCurrentWord(spokenWord);
@@ -265,7 +276,9 @@ const ReadingScreen: React.FC<ReadingScreenProps> = ({ route, navigation }) => {
             progress={currentIndex / (story.words?.length || 1)}
             width={null}
             style={styles.progressBar}
-            accessibilityLabel={`Reading progress: ${Math.round((currentIndex / (story.words?.length || 1)) * 100)}%`}
+            accessibilityLabel={`Reading progress: ${Math.round(
+              (currentIndex / (story.words?.length || 1)) * 100,
+            )}%`}
           />
 
           <View style={styles.stats}>

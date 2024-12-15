@@ -7,22 +7,15 @@
  * @packageDocumentation
  */
 
-import {
-  getAnalytics,
-  Analytics,
-  setAnalyticsCollectionEnabled,
-} from 'firebase/analytics';
-import { initializeApp, FirebaseOptions, FirebaseApp } from 'firebase/app';
-import {
-  getAuth,
-  Auth,
-  setPersistence,
-  browserLocalPersistence,
-} from 'firebase/auth';
+import type { Analytics } from 'firebase/analytics';
+import { getAnalytics, setAnalyticsCollectionEnabled } from 'firebase/analytics';
+import type { FirebaseOptions, FirebaseApp } from 'firebase/app';
+import { initializeApp } from 'firebase/app';
+import type { Auth } from 'firebase/auth';
+import { getAuth, setPersistence, browserLocalPersistence } from 'firebase/auth';
 import { Firestore, initializeFirestore } from 'firebase/firestore';
 import Config from 'react-native-config';
-
-import { logError } from '../utils/analytics';
+import { logError } from '@/utils/analytics';
 
 /** Firebase services interface */
 interface FirebaseServices {
@@ -61,16 +54,16 @@ const validateFirebaseConfig = (
  * Initializes Firebase services
  * @throws {Error} If initialization fails
  */
-const initializeFirebase = (): FirebaseServices => {
-  const firebaseConfig: Partial<FirebaseOptions> = {
-    apiKey: Config.FIREBASE_API_KEY,
-    authDomain: Config.FIREBASE_AUTH_DOMAIN,
-    projectId: Config.FIREBASE_PROJECT_ID,
-    storageBucket: Config.FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: Config.FIREBASE_MESSAGING_SENDER_ID,
-    appId: Config.FIREBASE_APP_ID,
-    measurementId: Config.FIREBASE_MEASUREMENT_ID,
-  };
+export const initializeFirebase = (): FirebaseServices => {
+  const firebaseConfig = {
+    apiKey: Config.FIREBASE_API_KEY ?? undefined,
+    authDomain: Config.FIREBASE_AUTH_DOMAIN ?? undefined,
+    projectId: Config.FIREBASE_PROJECT_ID ?? undefined,
+    storageBucket: Config.FIREBASE_STORAGE_BUCKET ?? undefined,
+    messagingSenderId: Config.FIREBASE_MESSAGING_SENDER_ID ?? undefined,
+    appId: Config.FIREBASE_APP_ID ?? undefined,
+    measurementId: Config.FIREBASE_MEASUREMENT_ID ?? undefined,
+  } as Partial<FirebaseOptions>;
 
   try {
     if (!validateFirebaseConfig(firebaseConfig)) {
@@ -133,7 +126,8 @@ export const cleanup = async (): Promise<void> => {
 /**
  * API client with interceptors and error handling
  */
-import axios, { AxiosInstance, AxiosError } from 'axios';
+import axios from 'axios';
+import type { AxiosInstance, AxiosError } from 'axios';
 
 class ApiClient {
   private static instance: AxiosInstance;
@@ -141,7 +135,7 @@ class ApiClient {
   static getInstance(): AxiosInstance {
     if (!this.instance) {
       this.instance = axios.create({
-        baseURL: Config.API_URL,
+        baseURL: Config.API_URL ?? 'http://localhost',
         timeout: 10000,
         headers: {
           'Content-Type': 'application/json',

@@ -4,7 +4,7 @@
 
 import * as jestsetupts from './jest.setup';
 import * as setupindexts from './setup/index';
-export {jestsetupts as jest.setup};
+export { jestsetupts as jestSetup };
 export const setup = {
   index: setupindexts,
 };

@@ -1,22 +1,28 @@
 // Unit tests for ReadingScreen component
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { RouteProp } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import React from 'react';
 
-import ReadingScreen, {
-  calculateAccuracy,
-} from '../../src/screens/ReadingScreen';
+import ReadingScreen from '@/screens/ReadingScreen';
+import { calculateAccuracy } from '@/screens/ReadingScreen';
 
 // Define navigation types for TypeScript
 type RootStackParamList = {
   Reading: { storyId: string };
 };
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Reading'>;
-
+type Props = {
+  navigation: NativeStackNavigationProp<
+    RootStackParamList,
+    'Reading',
+    undefined
+  >;
+  route: RouteProp<RootStackParamList, 'Reading'>;
+};
 // Setup axios mock adapter
 const mockAxios = new MockAdapter(axios);
 
@@ -51,7 +57,11 @@ describe('ReadingScreen', () => {
 
     const { findByText } = render(
       <ReadingScreen
-        route={{ params: { storyId: 'test-story-id' } }}
+        route={{
+          key: 'reading-screen',
+          name: 'Reading',
+          params: { storyId: 'test-story-id' },
+        }}
         navigation={{ navigate: jest.fn() } as any}
       />,
     );
@@ -73,7 +83,11 @@ describe('ReadingScreen', () => {
 
     const { getByText, findByText } = render(
       <ReadingScreen
-        route={{ params: { storyId: 'test-story-id' } }}
+        route={{
+          key: 'reading-screen',
+          name: 'Reading',
+          params: { storyId: 'test-story-id' },
+        }}
         navigation={{ navigate: jest.fn() } as any}
       />,
     );
@@ -97,7 +111,11 @@ describe('ReadingScreen', () => {
 
     const { findByText } = render(
       <ReadingScreen
-        route={{ params: { storyId: 'test-story-id' } }}
+        route={{
+          key: 'reading-screen',
+          name: 'Reading',
+          params: { storyId: 'test-story-id' },
+        }}
         navigation={{ navigate: jest.fn() } as any}
       />,
     );
@@ -117,7 +135,11 @@ describe('ReadingScreen', () => {
 
     const { getByText, findByText } = render(
       <ReadingScreen
-        route={{ params: { storyId: 'test-story-id' } }}
+        route={{
+          key: 'reading-screen',
+          name: 'Reading',
+          params: { storyId: 'test-story-id' },
+        }}
         navigation={{ navigate: jest.fn() } as any}
       />,
     );
@@ -150,8 +172,30 @@ describe('ReadingScreen', () => {
 
     const { findByText, getByText } = render(
       <ReadingScreen
-        route={{ params: { storyId: 'test-story-id' } }}
-        navigation={{ navigate: jest.fn() }}
+        route={{
+          key: 'reading-screen',
+          name: 'Reading',
+          params: { storyId: 'test-story-id' },
+        }}
+        navigation={
+          {
+            navigate: jest.fn(),
+            dispatch: jest.fn(),
+            reset: jest.fn(),
+            goBack: jest.fn(),
+            isFocused: jest.fn(),
+            canGoBack: jest.fn(),
+            getParent: jest.fn(),
+            getState: jest.fn(),
+            getId: jest.fn(),
+            addListener: jest.fn(),
+            removeListener: jest.fn(),
+            replace: jest.fn(),
+            push: jest.fn(),
+            pop: jest.fn(),
+            popToTop: jest.fn(),
+          } as any
+        }
       />,
     );
 
@@ -178,8 +222,30 @@ describe('ReadingScreen', () => {
 
     const { findByText, getByText } = render(
       <ReadingScreen
-        route={{ params: { storyId: 'test-story-id' } }}
-        navigation={{ navigate: jest.fn() }}
+        route={{
+          key: 'reading-screen',
+          name: 'Reading',
+          params: { storyId: 'test-story-id' },
+        }}
+        navigation={
+          {
+            navigate: jest.fn(),
+            dispatch: jest.fn(),
+            reset: jest.fn(),
+            goBack: jest.fn(),
+            isFocused: jest.fn(),
+            canGoBack: jest.fn(),
+            getParent: jest.fn(),
+            getState: jest.fn(),
+            getId: jest.fn(),
+            addListener: jest.fn(),
+            removeListener: jest.fn(),
+            replace: jest.fn(),
+            push: jest.fn(),
+            pop: jest.fn(),
+            popToTop: jest.fn(),
+          } as any
+        }
       />,
     );
 

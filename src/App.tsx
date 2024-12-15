@@ -32,10 +32,10 @@ import ParentDashboardScreen from './screens/ParentDashboardScreen';
 import ProgressScreen from './screens/ProgressScreen';
 import ReadingScreen from './screens/ReadingScreen';
 import RegistrationScreen from './screens/RegistrationScreen';
-import SettingsScreen from './screens/SettingsScreen';
+import SettingsScreen from '@/screens/SettingScreen';
 import StoryLibraryScreen from './screens/StoryLibraryScreen';
 import WelcomeScreen from './screens/WelcomeScreen';
-import { store } from './store';
+import store from '@/store/slices/authSlice';
 import { initializeAnalytics, logError } from './utils/analytics';
 import validateEnv from './utils/validation/envValidation';
 

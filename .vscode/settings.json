@@ -1,23 +1,26 @@
 {
-  // Core Editor Configuration
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "always"
   },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.inlineSuggest.enabled": false,
-  "editor.suggestSelection": "first",
+  "editor.inlineSuggest.enabled": true,
+  "editor.suggestSelection": "recentlyUsed",
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
   "editor.parameterHints.enabled": true,
-  "editor.wordWrap": "on",
-  "editor.bracketPairColorization.enabled": false,
+  "editor.wordWrap": "off",
+  "editor.bracketPairColorization.enabled": true,
   "editor.guides.bracketPairs": true,
+  "editor.codeLens": true,
+  "versionlens.suggestions.showOnStartup": false,
+  "versionlens.packageManagers.npm.enabled": true,
+  "versionlens.packageManagers.yarn.enabled": false,
+  "versionlens.packageManagers.pnpm.enabled": false,
 
-  // TypeScript/JavaScript Configuration
   "typescript.tsdk": "node_modules/typescript/lib",
-  "javascript.updateImportsOnFileMove.enabled": "never",
-  "typescript.updateImportsOnFileMove.enabled": "never",
+  "javascript.updateImportsOnFileMove.enabled": "prompt",
+  "typescript.updateImportsOnFileMove.enabled": "prompt",
   "typescript.preferences.importModuleSpecifier": "non-relative",
   "javascript.preferences.importModuleSpecifier": "non-relative",
   "typescript.preferences.preferTypeOnlyAutoImports": true,
@@ -25,70 +28,16 @@
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "typescript.tsserver.log": "off",
   "typescript.tsserver.maxTsServerMemory": 3072,
-  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
-  "typescript.tsserver.watchOptions": {
-    "watchFile": "useFsEventsOnParentDirectory",
-    "fallbackPolling": "dynamicPriorityPolling"
-  },
-  "typescript.disableAutomaticTypeAcquisition": true,
-  "javascript.suggestionActions.enabled": true,
-  "typescript.surveys.enabled": false,
 
-  // Language-specific Formatters
-  "[javascript][typescript][javascriptreact][typescriptreact][json][jsonc]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[scss][css]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.suggest.insertMode": "replace",
-    "editor.formatOnSave": true
-  },
-  "[markdown]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.wordWrap": "on"
-  },
-
-  // Linting Configuration
-  "eslint.validate": [
-    "javascript",
-    "typescript",
-    "javascriptreact",
-    "typescriptreact"
-  ],
-  "eslint.workingDirectories": [
-    "./src",
-    "./tests",
-    "./backend-firebase/functions"
-  ],
-
-  // File Management
-  "npm.packageManager": "npm",
-  "files.insertFinalNewline": true,
-  "files.trimTrailingWhitespace": true,
   "files.autoSave": "onFocusChange",
   "files.exclude": {
-    "**/node_modules": true,
-    "**/node_modules/**": true,
-    "**/dist": true,
-    "**/dist/**": true,
     "**/.git": true,
     "**/.DS_Store": true,
-    "**/coverage": true,
-    "**/*.log": true,
-    "**/ios/Pods": true,
-    "**/android/.gradle": true,
-    "**/build": true,
-    "**/.env*": true,
-    "**/.cache": true
-  },
-  "files.associations": {
-    "*.{ts,tsx}": "typescriptreact",
-    "*.{js,jsx}": "javascriptreact",
-    "*.scss": "scss",
-    "*.module.css": "css"
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/build": true
   },
 
-  // GitHub Copilot Configuration
   "github.copilot.enable": {
     "*": true,
     "yaml": false,
@@ -96,67 +45,10 @@
     "markdown": true
   },
 
-  // Performance Optimizations
-  "search.exclude": {
-    "**/node_modules": true,
-    "**/dist": true,
-    "**/build": true
-  },
-  "files.watcherExclude": {
-    "**/node_modules/**": true,
-    "**/dist/**": true,
-    "**/build/**": true,
-    "**/coverage/**": true,
-    "**/.git/**": true,
-    "**/.env*": true,
-    "**/android/**": true,
-    "**/ios/**": true
-  },
-
-  // Git Configuration
   "git.enabled": true,
-  "git.autofetch": false, // Disable auto-fetch
-  "git.decorations.enabled": false, // Disable Git decorations
-
-  // TypeScript Barrel Generator Configuration
-  "exportall.config.namedExports": true, // Use named exports
-  "exportall.config.includeFoldersToExport": true, // Include folders with index.ts in the barrel
-  "exportall.config.exclude": [
-    ".test.",
-    ".spec.",
-    "__tests__",
-    "__mocks__",
-    "*.config.*",
-    "metro.config.*",
-    "babel.config.*",
-    "jest.config.*"
-  ], // Exclude files with these strings in the name
-  "exportall.config.folderListener": [
-    "src/components/**/*",
-    "src/screens/**/*",
-    "src/services/**/*",
-    "src/store/**/*",
-    "src/utils/**/*",
-    "src/types/**/*",
-    "src/hooks/**/*",
-    "src/theme/**/*",
-    "src/navigation/**/*",
-    "backend/src/**/*",
-    "backend-firebase/functions/src/**/*"
-  ], // Add folders to listen for changes
-  "exportall.config.relExclusion": [
-    "**/node_modules/**",
-    "**/dist/**",
-    "**/build/**",
-    "**/coverage/**",
-    "**/.next/**",
-    "**/lib/**",
-    "**/types/**",
-    "**/generated/**",
-    "**/__generated__/**"
-  ], // Exclude folders with these strings in the path
-  "exportall.config.semis": true, // Use semicolons
-  "exportall.config.quote": "'", // Use single quotes
-  "exportall.config.message": "// Generated barrel file - do not modify manually", // Add a message to the top of the barrel file
-  "exportall.config.exportFileExtension": null
+  "git.autofetch": false,
+  "git.decorations.enabled": true,
+  "[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  }
 }

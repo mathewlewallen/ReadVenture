@@ -1,5 +1,5 @@
 // Import Firebase admin and types at the top
-import { db } from './utils/admin';
+import { db } from '';
 import { UserProgress, ChildAnalytics } from './types.d';
 
 /**

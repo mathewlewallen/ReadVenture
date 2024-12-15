@@ -16,8 +16,8 @@ import {
   getDoc,
 } from 'firebase/firestore';
 
-import { Story, ReadingProgress, User } from '../../types/firebase.types';
-import { logError } from '../../utils/analytics';
+import type { Story, ReadingProgress, AuthUser } from '@/types/firebase.types';
+import { logError } from '@/utils/analytics';
 
 import { db } from './config';
 
@@ -75,7 +75,7 @@ class DatabaseService {
   async getStories(filters?: StoryFilters): Promise<Story[]> {
     try {
       // Try cache first
-      const cached = await this.getFromCache(
+      const cached = await this.getFromCache<Story[]>(
         `stories_${JSON.stringify(filters)}`,
       );
       if (cached) {
@@ -88,7 +88,7 @@ class DatabaseService {
     } catch (error) {
       logError('Error fetching stories:', error);
       // Return cached data on error if available
-      return this.getFromCache(`stories_${JSON.stringify(filters)}`) || [];
+      return (await this.getFromCache<Story[]>(`stories_${JSON.stringify(filters)}`)) ?? [];
     }
   }
 
@@ -177,10 +177,10 @@ class DatabaseService {
 
       return querySnapshot.docs.map(
         (doc) =>
-          ({
-            id: doc.id,
-            ...doc.data(),
-          }) as ReadingProgress,
+        ({
+          id: doc.id,
+          ...doc.data(),
+        } as unknown as ReadingProgress),
       );
     } catch (error) {
       logError('Error fetching progress:', error);
@@ -189,12 +189,12 @@ class DatabaseService {
   }
 
   /**
-   * Gets user with cache support
-   */
-  async getUser(userId: string): Promise<User | null> {
+ * Gets user with cache support
+ */
+  async getUser(userId: string): Promise<AuthUser | null> {
     try {
       // Try cache first
-      const cached = await this.getFromCache(`user_${userId}`);
+      const cached = await this.getFromCache<AuthUser>(`user_${userId}`);
       if (cached) {
         return cached;
       }
@@ -206,10 +206,14 @@ class DatabaseService {
         return null;
       }
 
-      const userData = {
-        id: userDoc.id,
-        ...userDoc.data(),
-      } as User;
+      const docData = userDoc.data();
+      const userData: AuthUser = {
+        uid: userDoc.id,
+        email: docData.email,
+        displayName: docData.displayName,
+        createdAt: docData.createdAt,
+        ...docData
+      };
 
       await this.saveToCache(`user_${userId}`, userData);
       return userData;
@@ -223,7 +227,7 @@ class DatabaseService {
   /**
    * Updates user with offline queueing
    */
-  async updateUser(userId: string, userData: Partial<User>): Promise<void> {
+  async updateUser(userId: string, userData: Partial<AuthUser>): Promise<void> {
     try {
       const userRef = doc(db, Collections.USERS, userId);
       const updateData = {
@@ -244,6 +248,7 @@ class DatabaseService {
       throw error;
     }
   }
+
 
   /**
    * Deletes user data
@@ -285,7 +290,7 @@ class DatabaseService {
         return null;
       }
 
-      const { data, timestamp } = JSON.parse(cached);
+      const { data, timestamp } = JSON.parse(cached) as { data: T; timestamp: number };
       if (Date.now() - timestamp > this.CACHE_EXPIRY) {
         await AsyncStorage.removeItem(`${this.CACHE_PREFIX}${key}`);
         return null;
@@ -329,7 +334,7 @@ class DatabaseService {
   public async processQueue(): Promise<void> {
     try {
       const keys = await AsyncStorage.getAllKeys();
-      const queueKeys = keys.filter((key) =>
+      const queueKeys: string[] = keys.filter((key: string) =>
         key.startsWith(`${this.CACHE_PREFIX}queue_`),
       );
 
@@ -353,12 +358,3 @@ class DatabaseService {
 }
 
 export const databaseService = DatabaseService.getInstance();
-
-// Get cached data with fallback to network
-const stories = await databaseService.getStories(filters);
-
-// Updates work offline and sync when online
-await databaseService.updateUser(userId, userData);
-
-// Process pending offline operations
-await databaseService.processQueue();

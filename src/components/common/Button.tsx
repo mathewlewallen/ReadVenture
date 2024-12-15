@@ -12,15 +12,15 @@ import {
   StyleSheet,
   Platform,
   ActivityIndicator,
-  ViewStyle,
-  StyleProp,
+  type ViewStyle,
+  type StyleProp,
 } from 'react-native';
 import { Button as PaperButton } from 'react-native-paper';
 import { useSelector } from 'react-redux';
 
-import { theme } from '../../theme';
-import type { RootState } from '../../types';
-import { ErrorBoundary } from '../common/ErrorBoundary';
+import theme from '@theme/theme';
+import type { RootState } from '@/types/RootState';
+import ErrorBoundary from '@components/common/ErrorBoundary';
 
 interface ButtonProps {
   /** Button label text */
@@ -61,7 +61,9 @@ const Button: React.FC<ButtonProps> = memo(
     accessibilityHint,
     testID,
   }) => {
-    const theme = useSelector((state: RootState) => state.settings.theme);
+    const currentTheme = useSelector(
+      (state: RootState) => state.settings.theme,
+    );
 
     /**
      * Handles button press with loading state
@@ -93,7 +95,7 @@ const Button: React.FC<ButtonProps> = memo(
         >
           {loading ? (
             <ActivityIndicator
-              color={theme === 'dark' ? '#FFFFFF' : '#000000'}
+              color={currentTheme === 'dark' ? '#FFFFFF' : '#000000'}
               size="small"
             />
           ) : (

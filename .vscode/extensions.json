@@ -1,3 +1,6 @@
 {
-  "recommendations": ["mikehanson.auto-barrel"]
+  "recommendations": [
+    "mikehanson.auto-barrel",
+    "pflannery.vscode-versionlens" // Add this line
+  ]
 }

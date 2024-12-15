@@ -7,12 +7,12 @@
  * @packageDocumentation
  */
 
-import { FirebaseFirestore } from '@firebase/firestore-types';
+import { Timestamp } from '@firebase/firestore-types';
 
 /**
  * Metrics calculated from text analysis
  */
-export interface TextMetrics {
+export type TextMetrics = {
   /** Average words per sentence */
   avgSentenceLength: number;
   /** Average characters per word */
@@ -28,20 +28,13 @@ export interface TextMetrics {
   /** Optional Flesch-Kincaid score */
   readabilityScore?: number;
   /** Timestamp of analysis */
-  timestamp?: FirebaseFirestore.Timestamp;
+  timestamp?: Timestamp;
 }
 
 /**
  * Complexity scores for different aspects of the text
  */
-export interface TextComplexity {
-  /** 0-1 score based on unique words ratio */
-  vocabulary: number;
-  /** 0-1 score based on sentence complexity */
-  sentenceStructure: number;
-  /** Raw word count */
-  textLength: number;
-}
+export type TextComplexity = 'EASY' | 'MEDIUM' | 'HARD';
 
 /**
  * Complete analysis result for a text passage
@@ -106,7 +99,7 @@ export interface ReadingProgress {
   /** Comprehension score if available */
   comprehension?: ComprehensionResult;
   /** Last reading timestamp */
-  lastRead: FirebaseFirestore.Timestamp;
+  lastRead: Timestamp;
 }
 
 /**
@@ -142,6 +135,8 @@ export interface AnalysisError extends Error {
   /** Additional error context */
   context?: Record<string, unknown>;
 }
+
+
 
 export type AnalysisCallback = (result: AnalysisResult) => void;
 export type ErrorCallback = (error: AnalysisError) => void;

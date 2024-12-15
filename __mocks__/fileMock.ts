@@ -1,2 +1,2 @@
-// __mocks__/fileMock.js
-module.exports = 'test-file-stub';
+import { render } from '@testing-library/react-native';
+import React from 'react';

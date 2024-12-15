@@ -11,7 +11,7 @@
 
 import { logError } from '../../utils/analytics';
 
-import { AnalysisResult, ComprehensionResult, TextMetrics } from './types';
+import type { AnalysisResult, ComprehensionResult, TextMetrics, TextComplexity } from './types';
 
 /**
  * Text analysis service class
@@ -42,6 +42,7 @@ export class TextAnalyzer {
         totalWords: words.length,
         totalSentences: sentences.length,
         avgWordLength: words.join('').length / words.length,
+        avgSentenceLength: words.length / sentences.length,
         uniqueWords: new Set(words.map((w) => w.toLowerCase())).size,
         syllablesPerWord: this.calculateSyllables(words),
       };
@@ -89,6 +90,12 @@ export class TextAnalyzer {
         totalQuestions,
         details,
         timestamp: new Date().toISOString(),
+        areas: {
+          mainIdea: 0,
+          details: 0,
+          vocabulary: 0,
+          inference: 0
+        },
       };
     } catch (error) {
       logError('Comprehension analysis failed:', error);
@@ -117,6 +124,49 @@ export class TextAnalyzer {
   private static calculateLengthScore(totalWords: number): number {
     const normalized = Math.min(totalWords / 1000, 1);
     return normalized;
+  }
+
+  /**
+   * Calculates overall text complexity score
+   */
+  private static calculateComplexity(metrics: TextMetrics): TextComplexity {
+    const vocabScore = this.calculateVocabularyScore(metrics);
+    const sentenceScore = this.calculateSentenceScore(metrics);
+    const lengthScore = this.calculateLengthScore(metrics.totalWords);
+    const score = (vocabScore + sentenceScore + lengthScore) / 3;
+
+    if (score <= this.COMPLEXITY_THRESHOLDS.EASY) return 'EASY';
+    if (score <= this.COMPLEXITY_THRESHOLDS.MEDIUM) return 'MEDIUM';
+    return 'HARD';
+  }
+
+  /**
+   * Calculates average syllables per word
+   */
+  private static calculateSyllables(words: string[]): number {
+    const countSyllables = (word: string): number => {
+      const matches = word.toLowerCase().match(/[aeiouy]+/g);
+      return matches ? matches.length : 1;
+    };
+
+    const totalSyllables = words.reduce((sum, word) => sum + countSyllables(word), 0);
+    return totalSyllables / words.length;
+  }
+
+  /**
+   * Calculates reading grade level based on text metrics
+   */
+  private static calculateGradeLevel(metrics: TextMetrics): number {
+    const fleschKincaid = 0.39 * (metrics.totalWords / metrics.totalSentences) +
+      11.8 * metrics.syllablesPerWord - 15.59;
+    return Math.min(Math.max(Math.round(fleschKincaid), 1), this.MAX_GRADE_LEVEL);
+  }
+
+  /**
+   * Calculates confidence score for the analysis
+   */
+  private static calculateConfidence(metrics: TextMetrics): number {
+    return Math.min(metrics.totalWords / 100, 1);
   }
 }
 

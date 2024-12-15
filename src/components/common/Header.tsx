@@ -9,16 +9,17 @@
  */
 
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback } from 'react';
 import { StyleSheet, Platform } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useSelector, useDispatch } from 'react-redux';
 
-import { toggleSettings } from '../../store/settingsSlice';
-import { theme } from '../../theme';
-import { RootState } from '../../types';
-import { ErrorBoundary } from './components/common/ErrorBoundary';
+import { toggleSettings } from '@/store/slices/settingsSlice';
+import theme from '@/theme/theme';
+import type { RootState } from '@/types/RootState';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 
 interface HeaderProps {
   /** Title to display in the header */
@@ -35,16 +36,13 @@ interface HeaderProps {
   };
 }
 
-/**
- * Header component with navigation controls and actions
- */
 const Header: React.FC<HeaderProps> = ({
   title,
   showBack = false,
   showSettings = false,
   actionButton,
 }) => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const dispatch = useDispatch();
   const isLoading = useSelector((state: RootState) => state.app.isLoading);
 
